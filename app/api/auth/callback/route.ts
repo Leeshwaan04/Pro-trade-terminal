@@ -23,14 +23,14 @@ export async function GET(req: NextRequest) {
 
     // ─── Error Cases ─────────────────────────────────────────
     if (status !== "success" || !requestToken) {
-        return NextResponse.redirect(`${origin}/terminal?auth_error=login_failed`);
+        return NextResponse.redirect(new URL(`/terminal?auth_error=login_failed`, req.url));
     }
 
     const apiKey = process.env.KITE_API_KEY;
     const apiSecret = process.env.KITE_API_SECRET;
 
     if (!apiKey || !apiSecret) {
-        return NextResponse.redirect(`${origin}/terminal?auth_error=missing_config`);
+        return NextResponse.redirect(new URL(`/terminal?auth_error=missing_config`, req.url));
     }
 
     try {
@@ -57,16 +57,14 @@ export async function GET(req: NextRequest) {
         });
 
         // ─── Set Cookies & Redirect ──────────────────────────
-        // Redirect back to the same origin (terminal)
-        const response = NextResponse.redirect(`${origin}/terminal?auth_success=1`);
+        // Redirect back to the terminal on the SAME origin
+        const response = NextResponse.redirect(new URL(`/terminal?auth_success=1`, req.url));
 
         const cookieOptions = {
-            secure: process.env.NODE_ENV === "production",
+            secure: true, // Always true for production domains
             sameSite: "lax" as const,
             maxAge: 60 * 60 * 8, // 8 hours (Kite tokens expire at 6 AM)
             path: "/",
-            // If on a custom domain, we might want to set domain to .zengtrade.in 
-            // but for now, allowing standard path behavior is safer for localhost compatibility.
         };
 
         // httpOnly cookie for server-side API calls (secure)
@@ -85,7 +83,7 @@ export async function GET(req: NextRequest) {
     } catch (error: any) {
         console.error("Kite token exchange failed:", error);
         return NextResponse.redirect(
-            `${origin}/terminal?auth_error=${encodeURIComponent(error.message || "token_exchange_failed")}`
+            new URL(`/terminal?auth_error=${encodeURIComponent(error.message || "token_exchange_failed")}`, req.url)
         );
     }
 }
