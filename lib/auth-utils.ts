@@ -26,5 +26,8 @@ export async function getAuthCredentials(): Promise<AuthCredentials | null> {
         return { apiKey: kiteApiKey, accessToken: kiteAccessToken, broker: "KITE" };
     }
 
+    if (!kiteApiKey) console.warn("🚨 [AuthUtils] KITE_API_KEY is missing from environment.");
+    if (!kiteAccessToken) console.warn("🚨 [AuthUtils] kite_access_token cookie is missing.");
+
     return null;
 }

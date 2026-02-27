@@ -371,7 +371,7 @@ export async function GET(req: NextRequest) {
             // ─── SSE Heartbeat ──────────────────────────────────
             heartbeatInterval = setInterval(() => {
                 send("heartbeat", { t: Date.now() });
-            }, 15000);
+            }, 5000);
 
             // ─── Start ──────────────────────────────────────────
             if (isMock || !isConfigured) {

@@ -110,11 +110,12 @@ export const useAuthStore = create<AuthState>()(
 
             // ─── Login Redirect ──────────────────────────────
             login: () => {
-                const apiKey = process.env.NEXT_PUBLIC_KITE_API_KEY;
+                const apiKey = process.env.NEXT_PUBLIC_KITE_API_KEY || process.env.KITE_API_KEY;
                 if (!apiKey) {
-                    console.error("NEXT_PUBLIC_KITE_API_KEY not set");
+                    console.error("❌ [Auth] Missing KITE_API_KEY. Set NEXT_PUBLIC_KITE_API_KEY in Vercel.");
                     return;
                 }
+                console.log(`🚀 [Auth] Redirecting to Kite with API Key: ${apiKey.substring(0, 4)}...`);
                 window.location.href = `https://kite.zerodha.com/connect/login?v=3&api_key=${apiKey}`;
             },
 
