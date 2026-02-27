@@ -73,38 +73,38 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
     };
 
     return (
-        <div className="h-full bg-card border-l border-border flex flex-col tracking-tight transition-colors duration-300">
+        <div className="h-full bg-[#080a0c] border-l border-white/5 flex flex-col tracking-tight transition-colors duration-300">
             {/* Context Header */}
-            <div className="p-3 border-b border-border bg-muted/20">
-                <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                        <span className="px-1.5 py-0.5 bg-muted rounded text-[10px] items-center font-bold text-muted-foreground border border-border">NFO</span>
-                        <h2 className="text-sm font-bold text-foreground">NIFTY 28MAR 22500 CE</h2>
+            <div className="p-2 border-b border-white/5 bg-[#0c0f13]">
+                <div className="flex items-center justify-between mb-0.5">
+                    <div className="flex items-center gap-1.5">
+                        <span className="px-1 py-0.5 bg-white/5 rounded-[2px] text-[8px] items-center font-bold text-zinc-500 border border-white/5 uppercase tracking-widest">NFO</span>
+                        <h2 className="text-[11px] font-black text-zinc-200 tracking-tighter">{symbol}</h2>
                     </div>
-                    <span className="flex items-center gap-1 text-up text-xs font-bold bg-up/10 px-1.5 py-0.5 rounded border border-up/20">
-                        <ArrowUpRight className="w-3 h-3" /> 145.20 (+12%)
+                    <span className="flex items-center gap-0.5 text-up text-[10px] font-mono font-bold bg-up/10 px-1.5 py-0.5 rounded-sm border border-up/20 tabular-nums">
+                        <ArrowUpRight className="w-3 h-3" /> 145.20 <span className="text-[8px] font-sans opacity-80">(+12%)</span>
                     </span>
                 </div>
-                <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                    <span className="font-mono">LTP: <span className="text-foreground font-bold">145.20</span></span>
-                    <div className="flex gap-2">
-                        <span>OI: <span className="text-foreground font-bold">1.2Cr</span></span>
-                        <span>Vol: <span className="text-foreground font-bold">45.2L</span></span>
+                <div className="flex items-center justify-between text-[9px] text-zinc-500 mt-1.5">
+                    <span className="font-mono uppercase tracking-widest font-bold text-[8px]">LTP: <span className="text-zinc-300 font-bold text-[10px]">145.20</span></span>
+                    <div className="flex gap-2 font-mono uppercase tracking-widest font-bold text-[8px]">
+                        <span>OI: <span className="text-zinc-300">1.2Cr</span></span>
+                        <span>Vol: <span className="text-zinc-300">45.2L</span></span>
                     </div>
                 </div>
             </div>
 
             {/* Scrollable Form Area */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-4">
+            <div className="flex-1 overflow-y-auto p-2 space-y-3 custom-scrollbar">
                 {/* Buy/Sell Toggle */}
-                <div className="grid grid-cols-2 p-1 bg-muted rounded-lg gap-1 border border-border">
+                <div className="grid grid-cols-2 p-0.5 bg-[#0c0f13] rounded-md gap-0.5 border border-white/5">
                     <button
                         onClick={() => setSide("buy")}
                         className={cn(
-                            "py-2 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-2",
+                            "py-1.5 rounded-[4px] text-[10px] font-black tracking-widest transition-all flex items-center justify-center gap-1.5 border border-transparent",
                             side === "buy"
-                                ? "bg-up text-black shadow-lg shadow-up/20 ring-1 ring-up/50 scale-[1.02]"
-                                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                                ? "bg-up text-black shadow-[0_0_15px_rgba(34,197,94,0.2)] border-up/30"
+                                : "text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.02]"
                         )}
                     >
                         BUY
@@ -112,10 +112,10 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
                     <button
                         onClick={() => setSide("sell")}
                         className={cn(
-                            "py-2 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-2",
+                            "py-1.5 rounded-[4px] text-[10px] font-black tracking-widest transition-all flex items-center justify-center gap-1.5 border border-transparent",
                             side === "sell"
-                                ? "bg-down text-white shadow-lg shadow-down/20 ring-1 ring-down/50 scale-[1.02]"
-                                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                                ? "bg-down text-black shadow-[0_0_15px_rgba(239,68,68,0.2)] border-down/30"
+                                : "text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.02]"
                         )}
                     >
                         SELL
@@ -126,10 +126,10 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
                 <button
                     onClick={() => setIsBlitz(!isBlitz)}
                     className={cn(
-                        "w-full py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 border transition-all",
+                        "w-full py-1 rounded-[4px] text-[9px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-1.5 border border-transparent transition-all",
                         isBlitz
-                            ? "bg-primary text-black border-primary shadow-[0_0_20px_rgba(0,229,255,0.6)] animate-pulse"
-                            : "bg-zinc-800 text-zinc-500 border-transparent hover:bg-zinc-700"
+                            ? "bg-primary text-black shadow-[0_0_15px_rgba(34,197,94,0.3)] border-primary/40 animate-pulse"
+                            : "bg-[#0c0f13] text-zinc-500 border-white/5 hover:bg-white/[0.02] hover:text-zinc-400"
                     )}
                 >
                     <span className={isBlitz ? "animate-pulse" : ""}>⚡ Institutional Blitz</span>
@@ -137,47 +137,47 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
 
                 {/* Blitz Controls */}
                 {isBlitz && (
-                    <div className="grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="grid grid-cols-2 gap-2 animate-in fade-in slide-in-from-top-1 duration-150">
                         <InputGroup label="Slices" value={blitzSlices} setValue={setBlitzSlices} unit="Count" />
                         <InputGroup label="Interval" value={blitzInterval} setValue={setBlitzInterval} unit="Sec" />
                     </div>
                 )}
 
                 {/* Product Type */}
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                     <Label>Product</Label>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1">
                         {["MIS", "NRML"].map((p) => (
                             <button
                                 key={p}
                                 onClick={() => setProduct(p)}
                                 className={cn(
-                                    "flex-1 py-1.5 border rounded-md text-[10px] font-bold transition-all relative overflow-hidden group",
+                                    "flex-1 py-1 border rounded-[4px] text-[9px] font-black tracking-widest transition-all relative overflow-hidden group",
                                     product === p
-                                        ? "border-primary bg-primary/10 text-primary shadow-[0_0_10px_-3px_var(--primary)]"
-                                        : "border-border bg-muted/30 text-muted-foreground hover:border-primary/30 hover:text-foreground hover:bg-muted/50"
+                                        ? "border-primary/50 bg-primary/10 text-primary"
+                                        : "border-white/5 bg-[#0c0f13] text-zinc-500 hover:border-white/10 hover:text-zinc-300 hover:bg-white/[0.02]"
                                 )}
                             >
                                 {p}
-                                {product === p && <div className="absolute inset-0 bg-primary/5 animate-pulse" />}
+                                {product === p && <div className="absolute inset-0 bg-primary/5 animate-pulse pointer-events-none" />}
                             </button>
                         ))}
                     </div>
                 </div>
 
                 {/* Order Type */}
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                     <Label>Type</Label>
-                    <div className="grid grid-cols-4 gap-1.5">
+                    <div className="grid grid-cols-4 gap-1">
                         {["LMT", "MKT", "SL", "SL-M"].map((t) => (
                             <button
                                 key={t}
                                 onClick={() => setType(t)}
                                 className={cn(
-                                    "py-1.5 border rounded-md text-[10px] font-bold transition-all",
+                                    "py-1 border rounded-[4px] text-[9px] font-black tracking-widest transition-all",
                                     type === t
-                                        ? "border-primary bg-primary/10 text-primary shadow-[0_0_10px_-3px_var(--primary)]"
-                                        : "border-border bg-muted/30 text-muted-foreground hover:border-primary/30 hover:text-foreground hover:bg-muted/50"
+                                        ? "border-primary/50 bg-primary/10 text-primary"
+                                        : "border-white/5 bg-[#0c0f13] text-zinc-500 hover:border-white/10 hover:text-zinc-300 hover:bg-white/[0.02]"
                                 )}
                             >
                                 {t}
@@ -187,46 +187,46 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
                 </div>
 
                 {/* Inputs Grid */}
-                <div className="grid grid-cols-2 gap-3">
-                    <InputGroup label="Qty" value={qty} setValue={setQty} unit="Lot: 50" />
+                <div className="grid grid-cols-2 gap-2">
+                    <InputGroup label="Qty" value={qty} setValue={setQty} unit="Lot" />
                     <InputGroup label="Price" value={price} setValue={setPrice} disabled={type === "MKT" || type === "SL-M"} />
                     <InputGroup label="Trigger" value={trigger} setValue={setTrigger} disabled={type === "LMT" || type === "MKT"} />
                     <InputGroup label="Disclosed" value="0" disabled={true} />
                 </div>
 
                 {/* Margin Info Box */}
-                <div className="bg-muted/20 rounded-lg border border-border overflow-hidden">
-                    <div className="px-3 py-2 border-b border-border bg-muted/30 flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-muted-foreground">MARGIN REQUIRED</span>
-                        <RefreshCcw className="w-3 h-3 text-primary cursor-pointer hover:rotate-180 transition-transform duration-500" />
+                <div className="bg-[#0c0f13] rounded-md border border-white/5 overflow-hidden">
+                    <div className="px-2 py-1.5 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
+                        <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Margin Required</span>
+                        <RefreshCcw className="w-2.5 h-2.5 text-zinc-500 cursor-pointer hover:rotate-180 transition-transform duration-500 hover:text-primary" />
                     </div>
-                    <div className="p-3 space-y-1">
-                        <div className="flex justify-between items-center text-xs">
-                            <span className="text-muted-foreground">Total</span>
-                            <span className="font-mono font-bold text-foreground">₹7,260.00</span>
+                    <div className="p-2 space-y-0.5">
+                        <div className="flex justify-between items-center text-[10px]">
+                            <span className="text-zinc-500 font-bold uppercase tracking-widest text-[8px]">Total</span>
+                            <span className="font-mono font-bold text-zinc-200 tabular-nums tracking-tighter">₹7,260.00</span>
                         </div>
-                        <div className="flex justify-between items-center text-[10px] text-muted-foreground">
-                            <span>Available</span>
-                            <span className="font-mono">₹2,45,000.00</span>
+                        <div className="flex justify-between items-center text-[9px] text-zinc-600">
+                            <span className="uppercase tracking-widest font-bold text-[7px]">Available</span>
+                            <span className="font-mono tabular-nums font-bold tracking-tighter">₹2,45,000.00</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Action Footer */}
-            <div className="p-3 border-t border-border bg-muted/10 mt-auto">
+            <div className="p-2 border-t border-white/5 bg-[#0c0f13] mt-auto">
                 <button
                     disabled={submitting}
                     onClick={handleOrderSubmit}
                     className={cn(
-                        "w-full py-3 rounded-lg font-bold text-sm shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 relative overflow-hidden disabled:opacity-70 disabled:pointer-events-none",
+                        "w-full py-2 rounded-md font-black text-[11px] uppercase tracking-widest shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 relative overflow-hidden disabled:opacity-70 disabled:pointer-events-none",
                         side === "buy"
-                            ? "bg-up hover:bg-emerald-400 text-black shadow-up/20"
-                            : "bg-down hover:bg-rose-500 text-white shadow-down/20"
+                            ? "bg-up text-black"
+                            : "bg-down text-black"
                     )}
                 >
                     {submitting ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                         <span className="relative z-10">{side === "buy" ? "BUY" : "SELL"}</span>
                     )}
@@ -238,11 +238,11 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
 };
 
 const Label = ({ children }: { children: React.ReactNode }) => (
-    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider pl-0.5">{children}</span>
+    <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest pl-0.5">{children}</span>
 );
 
 const InputGroup = ({ label, value, setValue, unit, disabled }: any) => (
-    <div className={cn("space-y-1.5", disabled && "opacity-50 pointer-events-none")}>
+    <div className={cn("space-y-1", disabled && "opacity-40 pointer-events-none")}>
         <Label>{label}</Label>
         <div className="relative group">
             <input
@@ -250,9 +250,9 @@ const InputGroup = ({ label, value, setValue, unit, disabled }: any) => (
                 value={value}
                 onChange={(e) => setValue && setValue(e.target.value)}
                 disabled={disabled}
-                className="w-full bg-input border border-border rounded-md px-3 py-2 text-sm text-foreground font-mono outline-none focus:border-primary/50 focus:bg-background/80 transition-all group-hover:border-primary/30"
+                className="w-full bg-[#0c0f13] border border-white/5 rounded-[4px] px-2 py-1 text-[11px] text-zinc-200 font-mono tracking-tighter outline-none focus:border-primary/50 focus:bg-white/[0.02] transition-all group-hover:border-white/10"
             />
-            {unit && <span className="absolute right-2 top-2.5 text-[10px] text-muted-foreground">{unit}</span>}
+            {unit && <span className="absolute right-2 top-[3px] text-[8px] font-bold text-zinc-600 uppercase tracking-widest">{unit}</span>}
         </div>
     </div>
 );

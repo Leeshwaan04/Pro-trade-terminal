@@ -23,16 +23,16 @@ export const WorkspaceTabs = () => {
                     <div
                         key={ws.id}
                         className={cn(
-                            "group relative flex items-center h-full px-4 gap-2 cursor-pointer select-none border-b-[2px] transition-all",
+                            "group relative flex items-center h-full px-3 gap-1.5 cursor-pointer select-none border-b-[2px] transition-all",
                             isActive
-                                ? "border-primary text-white bg-primary/5"
-                                : "border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03]"
+                                ? "border-primary text-zinc-100 bg-[#0c0f13]"
+                                : "border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.02]"
                         )}
                         onClick={() => setActiveWorkspace(ws.id)}
                     >
                         <span className={cn(
-                            "text-[10px] font-black uppercase tracking-[0.15em] whitespace-nowrap transition-colors",
-                            isActive ? "text-white" : "text-zinc-500"
+                            "text-[9px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors",
+                            isActive ? "text-zinc-100" : "text-zinc-500 group-hover:text-zinc-300"
                         )}>
                             {ws.name}
                         </span>
@@ -57,7 +57,7 @@ export const WorkspaceTabs = () => {
             {/* Add Button */}
             <button
                 onClick={() => setShowCustomizer(true)}
-                className="flex items-center justify-center h-full px-3 text-zinc-700 hover:text-zinc-400 hover:bg-white/5 transition-all shrink-0 border-b-2 border-transparent"
+                className="flex items-center justify-center h-full px-2 text-zinc-600 hover:text-zinc-300 hover:bg-white/[0.02] transition-all shrink-0 border-b-2 border-transparent"
                 title="Add Workspace"
             >
                 <Plus className="w-4 h-4" />

@@ -2,10 +2,15 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { SearchInstrument } from '@/lib/lite-search-engine';
 
+export interface WatchlistItem extends SearchInstrument {
+    addedAtPrice?: number;
+    addedAtTimestamp?: number;
+}
+
 export interface Watchlist {
     id: number;
     name: string;
-    items: SearchInstrument[];
+    items: WatchlistItem[];
 }
 
 interface WatchlistState {
@@ -14,7 +19,7 @@ interface WatchlistState {
     setActiveWatchlistId: (id: number) => void;
     addWatchlist: (name: string) => void;
     deleteWatchlist: (id: number) => void;
-    addToWatchlist: (watchlistId: number, instrument: SearchInstrument) => void;
+    addToWatchlist: (watchlistId: number, instrument: WatchlistItem) => void;
     removeFromWatchlist: (watchlistId: number, symbol: string) => void;
     renameWatchlist: (watchlistId: number, name: string) => void;
 }

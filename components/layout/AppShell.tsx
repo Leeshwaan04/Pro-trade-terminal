@@ -73,10 +73,8 @@ export default function AppShell() {
     return (
         <div className="h-screen w-full flex flex-col overflow-hidden selection:bg-primary/30 selection:text-primary relative font-sans">
             {/* ─── Global Background Effects ─── */}
-            <div className="absolute inset-0 mesh-gradient z-0 contrast-[1.1]" />
-            <div className="absolute inset-0 bg-grid-pattern opacity-[0.04] pointer-events-none z-0 mix-blend-overlay" />
-            <div className="absolute top-[-10%] left-[10%] w-[800px] h-[800px] bg-primary/10 rounded-full blur-[180px] pointer-events-none z-0 animate-pulse-slow" />
-            <div className="absolute bottom-[-10%] right-[10%] w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[150px] pointer-events-none z-0 animate-float" />
+            <div className="absolute inset-0 bg-[#080a0c] z-0" />
+            <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] pointer-events-none z-0" />
 
             <PiPWindow />
             <AuthInitializer />
@@ -86,15 +84,15 @@ export default function AppShell() {
             <SettingsDialog />
             <Toaster />
 
-            {/* Header - Glassmorphism Refactor */}
-            <header data-testid="app-header" className="h-[44px] border-b border-white/[0.08] flex items-center justify-between gap-4 bg-black/40 backdrop-blur-2xl z-20 shrink-0 shadow-2xl">
+            {/* Header - Flat, Dense Refactor */}
+            <header data-testid="app-header" className="h-[40px] border-b border-white/5 flex items-center justify-between gap-4 bg-[#0c0f13] z-20 shrink-0">
                 {/* LEFT SECTION (Logo + Tabs) */}
                 <div className="flex items-center h-full min-w-0">
-                    <div className="flex items-center gap-2 px-4 shrink-0 group cursor-pointer border-r border-white/[0.06] h-full">
-                        <Terminal className="w-4 h-4 text-primary" />
+                    <div className="flex items-center gap-2 px-3 shrink-0 group cursor-pointer border-r border-white/5 h-full">
+                        <Terminal className="w-3.5 h-3.5 text-primary" />
                         <div className="flex items-baseline gap-1">
-                            <span className="text-[12px] font-black tracking-tight text-white">CYBER</span>
-                            <span className="text-[9px] font-bold tracking-[0.25em] text-primary/70">TRADE</span>
+                            <span className="text-[11px] font-black tracking-tight text-zinc-100">CYBER</span>
+                            <span className="text-[8px] font-bold tracking-[0.2em] text-primary/70">TRADE</span>
                         </div>
                     </div>
 
@@ -105,15 +103,15 @@ export default function AppShell() {
                 </div>
 
                 {/* MIDDLE SECTION (P&L + Market Status) */}
-                <div className="hidden lg:flex items-center gap-5 shrink-0">
-                    <div className="flex items-center gap-4 px-4 h-full border-x border-white/[0.06] cursor-pointer hover:bg-white/[0.03] transition-colors group">
-                        <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">P&L</span>
-                        <div className="flex items-center gap-1.5">
+                <div className="hidden lg:flex items-center gap-4 shrink-0 h-full">
+                    <div className="flex items-center gap-3 px-3 h-full border-x border-white/5 cursor-pointer hover:bg-white/[0.02] transition-colors group">
+                        <span className="text-[7.5px] font-bold text-zinc-500 uppercase tracking-widest">P&L</span>
+                        <div className="flex items-center gap-1">
                             <PnLTicker />
-                            <ChevronDown className="w-3 h-3 text-zinc-700" />
+                            <ChevronDown className="w-2.5 h-2.5 text-zinc-600 group-hover:text-zinc-400" />
                         </div>
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center h-full">
                         <MarketSentiment />
                     </div>
                 </div>
@@ -123,10 +121,10 @@ export default function AppShell() {
                     {/* Tools Menu Trigger */}
                     <div className="relative h-full flex items-center">
                         <button
-                            className="hidden md:flex items-center gap-1.5 h-full px-4 border-x border-white/[0.06] text-[9px] font-black text-zinc-500 hover:text-white hover:bg-white/[0.04] transition-all uppercase tracking-widest"
+                            className="hidden md:flex items-center gap-1 h-full px-3 border-x border-white/5 text-[8.5px] font-bold text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.02] transition-all uppercase tracking-widest"
                             onClick={() => setIsToolsMenuOpen(!isToolsMenuOpen)}
                         >
-                            <Settings2 className="w-3.5 h-3.5" />
+                            <Settings2 className="w-3 h-3" />
                             Tools
                         </button>
                         <ToolsMenu isOpen={isToolsMenuOpen} onClose={() => setIsToolsMenuOpen(false)} />
@@ -134,7 +132,7 @@ export default function AppShell() {
 
                     {/* Widget Picker Trigger */}
                     <button
-                        className="flex items-center gap-1.5 h-full px-4 text-[9px] font-black text-primary hover:bg-primary/10 transition-all uppercase tracking-widest border-r border-white/[0.06]"
+                        className="flex items-center gap-1 h-full px-3 text-[8.5px] font-bold text-primary hover:bg-primary/5 transition-all uppercase tracking-widest border-r border-white/5"
                         onClick={() => setIsWidgetPickerOpen(true)}
                     >
                         <LayoutGrid className="w-3.5 h-3.5" />
@@ -151,7 +149,7 @@ export default function AppShell() {
             </header>
 
             {/* Indices Ticker Bar */}
-            <div className="h-[26px] border-b border-white/[0.04] bg-[#0c1016] flex items-center z-10 shrink-0">
+            <div className="h-[24px] border-b border-white/5 bg-[#080a0c] flex items-center z-10 shrink-0">
                 <IndicesTicker />
             </div>
 
@@ -160,10 +158,9 @@ export default function AppShell() {
                 <LayoutManager />
             </main>
 
-
             {/* Footer Status Bar */}
-            <footer className="h-[22px] border-t border-white/[0.05] bg-[#0c1016] text-[9px] flex items-center justify-between px-3 text-zinc-600 select-none shrink-0 font-mono z-20">
-                <div className="flex gap-4">
+            <footer className="h-[20px] border-t border-white/5 bg-[#0c0f13] text-[8px] flex items-center justify-between px-3 text-zinc-500 select-none shrink-0 font-mono z-20 font-bold tracking-widest uppercase">
+                <div className="flex items-center gap-4 h-full">
                     <span className="flex items-center gap-1.5">
                         <span className={`w-1.5 h-1.5 rounded-full animate-pulse shadow-[0_0_8px_var(--up)] ${connectionStatus === 'CONNECTED' || searchParams.get('mock') === 'true' ? 'bg-up' :
                             connectionStatus === 'CONNECTING' ? 'bg-amber-500' : 'bg-down'

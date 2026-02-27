@@ -17,6 +17,7 @@ export const MultiChartWidget = ({ widgetConfig }: MultiChartWidgetProps) => {
     };
 
     const { viewMode, symbols } = multiConfig;
+    const { syncSymbol } = useLayoutStore();
 
     const gridClasses = useMemo(() => {
         switch (viewMode) {
@@ -34,7 +35,7 @@ export const MultiChartWidget = ({ widgetConfig }: MultiChartWidgetProps) => {
     return (
         <div className={`w-full h-full ${gridClasses} gap-[1px] bg-white/10 overflow-hidden`}>
             {Array.from({ length: numCharts }).map((_, index) => {
-                const subSymbol = symbols[index] || "NIFTY 50";
+                const subSymbol = syncSymbol ? (widgetConfig.symbol || "NIFTY 50") : (symbols[index] || "NIFTY 50");
                 const subWidgetId = `${widgetConfig.id}-sub-${index}`;
 
                 return (

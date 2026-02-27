@@ -29,42 +29,42 @@ export const OrderBookWidget = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
             <WidgetHeader id="order-book" title="MARKET DEPTH" symbol={symbol} />
 
             {/* Header Info (Total Qty) */}
-            <div className="px-2 py-1.5 border-b border-border bg-surface-1 flex justify-between items-end">
-                <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Total Qty</span>
-                <span className="text-[10px] text-zinc-400">1.2M</span>
+            <div className="px-2 py-1 border-b border-white/5 bg-[#080a0c] flex justify-between items-end">
+                <span className="text-[8px] text-zinc-500 uppercase font-black tracking-widest">Total Qty</span>
+                <span className="text-[9px] font-mono font-bold text-zinc-300">1.2M</span>
             </div>
 
             {/* Table Header */}
             <div className={cn(
-                "grid text-[9px] font-black uppercase tracking-tighter text-muted-foreground border-b border-border bg-surface-1",
+                "grid text-[8px] font-bold uppercase tracking-widest text-zinc-500 border-b border-white/5 bg-[#0c0f13]",
                 isMobile ? "grid-cols-2" : "grid-cols-3"
             )}>
-                <div className="pl-3 py-1">Bid Price</div>
-                <div className="text-right pr-3 py-1">Bid Qty</div>
-                {!isMobile && <div className="text-right pr-3 py-1">Orders</div>}
+                <div className="pl-2 py-1">Bid Price</div>
+                <div className="text-right pr-2 py-1">Bid Qty</div>
+                {!isMobile && <div className="text-right pr-2 py-1">Orders</div>}
             </div>
 
             {/* Bids List */}
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden bg-[#080a0c]">
                 {depth.buy.map((bid, i) => (
                     <div key={`bid-${i}`} className={cn(
-                        "relative grid py-1 px-3 text-[10px] items-center group cursor-crosshair",
+                        "relative grid py-0.5 px-2 text-[9px] items-center group cursor-crosshair hover:bg-white/[0.02]",
                         isMobile ? "grid-cols-2" : "grid-cols-3"
                     )}>
                         <div
-                            className="absolute inset-0 bg-up/5 origin-left transition-all duration-300"
+                            className="absolute inset-y-0 right-0 bg-up/10 origin-right transition-all duration-300"
                             style={{ width: `${(bid.quantity / maxQty) * 100}%` }}
                         />
-                        <div className="text-up font-bold z-10">{bid.price.toFixed(2)}</div>
-                        <div className="text-right text-foreground z-10">{bid.quantity}</div>
-                        {!isMobile && <div className="text-right text-muted-foreground z-10 italic">{bid.orders}</div>}
+                        <div className="text-up font-bold z-10 tabular-nums">{bid.price.toFixed(2)}</div>
+                        <div className="text-right text-zinc-200 z-10 tabular-nums">{bid.quantity}</div>
+                        {!isMobile && <div className="text-right text-zinc-600 z-10 tabular-nums">{bid.orders}</div>}
                     </div>
                 ))}
 
                 {/* Spread */}
-                <div className="py-1.5 px-3 bg-surface-2 border-y border-border flex justify-between items-center">
-                    <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Spread</span>
-                    <span className="text-[10px] font-bold text-muted-foreground">
+                <div className="py-1 px-2 bg-[#0c0f13] border-y border-white/5 flex justify-between items-center my-0.5">
+                    <span className="text-[8px] text-zinc-500 uppercase font-black tracking-widest">Spread</span>
+                    <span className="text-[9px] font-bold font-mono text-zinc-400">
                         {depth.buy.length > 0 && depth.sell.length > 0
                             ? (depth.sell[0].price - depth.buy[0].price).toFixed(2)
                             : "0.00"}
@@ -73,37 +73,37 @@ export const OrderBookWidget = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
 
                 {/* Asks Header */}
                 <div className={cn(
-                    "grid text-[9px] font-black uppercase tracking-tighter text-muted-foreground border-b border-border bg-surface-1 mt-1",
+                    "grid text-[8px] font-bold uppercase tracking-widest text-zinc-500 border-b border-white/5 bg-[#0c0f13]",
                     isMobile ? "grid-cols-2" : "grid-cols-3"
                 )}>
-                    <div className="pl-3 py-1">Ask Price</div>
-                    <div className="text-right pr-3 py-1">Ask Qty</div>
-                    {!isMobile && <div className="text-right pr-3 py-1">Orders</div>}
+                    <div className="pl-2 py-1">Ask Price</div>
+                    <div className="text-right pr-2 py-1">Ask Qty</div>
+                    {!isMobile && <div className="text-right pr-2 py-1">Orders</div>}
                 </div>
 
                 {/* Asks List */}
                 {depth.sell.map((ask, i) => (
                     <div key={`ask-${i}`} className={cn(
-                        "relative grid py-1 px-3 text-[10px] items-center group cursor-crosshair",
+                        "relative grid py-0.5 px-2 text-[9px] items-center group cursor-crosshair hover:bg-white/[0.02]",
                         isMobile ? "grid-cols-2" : "grid-cols-3"
                     )}>
                         <div
-                            className="absolute inset-0 bg-down/5 origin-left transition-all duration-300"
+                            className="absolute inset-y-0 right-0 bg-down/10 origin-right transition-all duration-300"
                             style={{ width: `${(ask.quantity / maxQty) * 100}%` }}
                         />
-                        <div className="text-down font-bold z-10">{ask.price.toFixed(2)}</div>
-                        <div className="text-right text-foreground z-10">{ask.quantity}</div>
-                        {!isMobile && <div className="text-right text-muted-foreground z-10 italic">{ask.orders}</div>}
+                        <div className="text-down font-bold z-10 tabular-nums">{ask.price.toFixed(2)}</div>
+                        <div className="text-right text-zinc-200 z-10 tabular-nums">{ask.quantity}</div>
+                        {!isMobile && <div className="text-right text-zinc-600 z-10 tabular-nums">{ask.orders}</div>}
                     </div>
                 ))}
             </div>
 
             {/* Bottom Controls */}
-            <div className="p-2 border-t border-border bg-surface-1 flex gap-1">
-                <button className="flex-1 bg-surface-2 border border-border rounded-sm py-1 text-[9px] font-black uppercase text-muted-foreground hover:text-primary transition-colors hover:border-primary/50">
+            <div className="p-1.5 border-t border-white/5 bg-[#0c0f13] flex gap-1">
+                <button className="flex-1 bg-white/[0.02] border border-white/5 rounded-[2px] py-1 text-[8px] font-bold uppercase text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-colors">
                     Depth 20
                 </button>
-                <button className="flex-1 bg-surface-2 border border-border rounded-sm py-1 text-[9px] font-black uppercase text-muted-foreground hover:text-primary transition-colors hover:border-primary/50">
+                <button className="flex-1 bg-white/[0.02] border border-white/5 rounded-[2px] py-1 text-[8px] font-bold uppercase text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-colors">
                     Stats
                 </button>
             </div>

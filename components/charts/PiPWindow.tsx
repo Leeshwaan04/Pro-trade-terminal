@@ -10,7 +10,10 @@ import { cn } from "@/lib/utils";
 // A floating Picture-in-Picture window for charts
 export const PiPWindow = () => {
     const { pipWidgetId, togglePiP, workspaces, activeWorkspaceId } = useLayoutStore();
-    const [position, setPosition] = useState({ x: window.innerWidth - 420, y: window.innerHeight - 320 });
+    const [position, setPosition] = useState({
+        x: typeof window !== 'undefined' ? window.innerWidth - 420 : 0,
+        y: typeof window !== 'undefined' ? window.innerHeight - 320 : 0
+    });
     const [isDragging, setIsDragging] = useState(false);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 

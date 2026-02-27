@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
 
     const tokensParam = req.nextUrl.searchParams.get("tokens");
     const mode = req.nextUrl.searchParams.get("mode") || "quote";
+    const isMock = req.nextUrl.searchParams.get("mock") === "true";
 
     const isConfigured = broker === "GROWW" ? !!growwAccessToken : (accessToken && apiKey);
 
@@ -202,6 +203,40 @@ export async function GET(req: NextRequest) {
                 }
             };
             const connectWs = () => {
+                if (isMock) {
+                    console.log("[Stream] Initiating Local Mock Stream (No Broker).");
+                    send("status", { source: "mock", connected: true, broker: "MOCK" });
+
+                    // Generate a fake stream emitting every second
+                    const mockInterval = setInterval(() => {
+                        if (isClosed) return;
+                        const ticks = instrumentTokens.map(t => {
+                            const inst = MARKET_INSTRUMENTS.find(i => i.token === t);
+                            const basePrice = inst && inst.symbol.includes("NIFTY") ? (inst.symbol === "NIFTY 50" ? 25000 : 60000) : 1000;
+                            const change = (Math.random() - 0.5) * 5;
+                            return {
+                                instrument_token: t,
+                                last_price: basePrice + change,
+                                net_change: change,
+                                change_percent: change / basePrice * 100,
+                                ohlc: { open: basePrice, high: basePrice + 10, low: basePrice - 10, close: basePrice },
+                                depth: { buy: [], sell: [] },
+                                volume: Math.floor(Math.random() * 500000),
+                                oi: Math.floor(Math.random() * 800000),
+                                mode: mode
+                            };
+                        });
+                        send("tick", ticks);
+                        lastTickTime = Date.now();
+                    }, 1000);
+
+                    req.signal.addEventListener("abort", () => {
+                        clearInterval(mockInterval);
+                    });
+
+                    return;
+                }
+
                 if (!isConfigured || isClosed) {
                     send("status", {
                         source: "demo",

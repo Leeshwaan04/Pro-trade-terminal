@@ -19,23 +19,23 @@ interface ToolItemProps {
 const ToolItem = ({ label, sub, icon: Icon, badge, onClick }: ToolItemProps) => (
     <button
         onClick={onClick}
-        className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all group text-left"
+        className="w-full flex items-center gap-3 p-2 rounded-md hover:bg-white/[0.02] transition-all group text-left border border-transparent hover:border-white/5"
     >
-        <div className="p-2.5 rounded-lg bg-zinc-900 border border-white/5 group-hover:border-primary/40 group-hover:text-primary transition-all">
-            <Icon className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
+        <div className="p-2 rounded-[4px] bg-[#0c0f13] border border-white/5 group-hover:border-primary/40 group-hover:bg-primary/5 transition-all">
+            <Icon className="w-4 h-4 text-zinc-500 group-hover:text-primary transition-colors" />
         </div>
         <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-                <span className="text-[11px] font-black text-white uppercase tracking-wider">{label}</span>
+            <div className="flex items-center gap-2 mb-0.5">
+                <span className="text-[10px] font-bold text-zinc-200 uppercase tracking-widest">{label}</span>
                 {badge && (
-                    <span className="text-[7px] font-black px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary uppercase">
+                    <span className="text-[7px] font-bold px-1 py-0.5 rounded-[2px] bg-primary/10 border border-primary/20 text-primary uppercase tracking-widest leading-none">
                         {badge}
                     </span>
                 )}
             </div>
-            <div className="text-[9px] text-zinc-500 font-medium">{sub}</div>
+            <div className="text-[8px] text-zinc-500 font-medium tracking-wide">{sub}</div>
         </div>
-        <ChevronRight className="w-3.5 h-3.5 text-zinc-800 group-hover:text-zinc-600 transition-all mr-1" />
+        <ChevronRight className="w-3.5 h-3.5 text-zinc-700 group-hover:text-zinc-500 transition-all mr-1" />
     </button>
 );
 
@@ -44,12 +44,12 @@ export const ToolsMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
 
     return (
         <div
-            className="absolute top-full right-0 mt-3 w-80 bg-[#0a0f18] border border-white/10 rounded-2xl shadow-3xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-[110]"
+            className="absolute top-full right-0 mt-2 w-72 bg-[#080a0c] border border-white/10 rounded-lg shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150 z-[110]"
             onMouseLeave={onClose}
         >
-            <div className="px-4 py-3 border-b border-white/5 bg-white/2 flex items-center justify-between">
-                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Trading Utility Suite</span>
-                <Info className="w-3.5 h-3.5 text-zinc-700" />
+            <div className="px-3 py-2.5 border-b border-white/5 bg-[#0c0f13] flex items-center justify-between">
+                <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Trading Utility Suite</span>
+                <Info className="w-3 h-3 text-zinc-600" />
             </div>
 
             <div className="p-2 space-y-1">
@@ -87,20 +87,20 @@ export const ToolsMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                 />
             </div>
 
-            <div className="p-2 mt-1 border-t border-white/5 bg-black/40">
-                <div className="grid grid-cols-2 gap-1.5 px-2 py-2">
-                    <button className="flex items-center justify-center gap-2 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-[9px] font-bold text-zinc-400 hover:text-white transition-all">
+            <div className="p-1 mt-1 border-t border-white/5 bg-[#0c0f13]">
+                <div className="grid grid-cols-2 gap-1 px-1 py-1">
+                    <button className="flex items-center justify-center gap-1.5 py-1.5 rounded-[4px] bg-white/[0.02] hover:bg-white/[0.05] text-[8px] font-bold text-zinc-400 hover:text-zinc-200 transition-all uppercase tracking-widest">
                         <Download className="w-3 h-3" /> Export Labs
                     </button>
-                    <button className="flex items-center justify-center gap-2 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-[9px] font-bold text-zinc-400 hover:text-white transition-all">
+                    <button className="flex items-center justify-center gap-1.5 py-1.5 rounded-[4px] bg-white/[0.02] hover:bg-white/[0.05] text-[8px] font-bold text-zinc-400 hover:text-zinc-200 transition-all uppercase tracking-widest">
                         <Share2 className="w-3 h-3" /> Community
                     </button>
                 </div>
             </div>
 
-            <div className="px-4 py-2 bg-primary/5 text-center">
+            <div className="px-3 py-2 bg-primary/5 text-center border-t border-primary/10 hover:bg-primary/10 transition-colors cursor-pointer">
                 <span className="text-[8px] font-black text-primary uppercase tracking-[0.2em] flex items-center justify-center gap-1.5 pointer-events-none">
-                    <ExternalLink className="w-2.5 h-2.5" /> Launch Cyber Terminal v3.2
+                    <ExternalLink className="w-3 h-3" /> Launch Cyber Terminal v3.2
                 </span>
             </div>
         </div>

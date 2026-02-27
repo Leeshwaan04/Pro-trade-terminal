@@ -24,7 +24,7 @@ const PositionRow = memo(({ position }: { position: Position }) => {
     const isProfit = pnl >= 0;
 
     return (
-        <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_0.5fr] text-right py-1.5 px-3 border-b border-white/[0.03] hover:bg-white/[0.05] text-[9.5px] items-center font-mono group transition-all duration-200">
+        <div className="relative grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_0.5fr] text-right py-1 px-2 border-b border-white/[0.01] hover:bg-white/[0.02] items-center font-mono group transition-all duration-200">
             {/* Symbol & Product */}
             <div className="text-left flex flex-col leading-tight">
                 <div className="font-black text-white/90 group-hover:text-primary transition-colors tracking-tighter uppercase text-[10px]">{position.symbol}</div>
@@ -35,36 +35,38 @@ const PositionRow = memo(({ position }: { position: Position }) => {
             </div>
 
             {/* Net Qty */}
-            <div className={cn("font-black", position.quantity > 0 ? "text-up" : "text-down")}>
+            <div className={cn("font-bold text-[10px] tabular-nums", position.quantity > 0 ? "text-up" : "text-down")}>
                 {position.quantity > 0 ? "+" : ""}{position.quantity}
             </div>
 
             {/* Avg Price */}
-            <div className="text-zinc-400 font-bold">{position.average_price.toFixed(2)}</div>
+            <div className="text-zinc-400 font-bold text-[9px] tabular-nums">{position.average_price.toFixed(2)}</div>
 
             {/* LTP */}
-            <div className={cn("font-bold", (ticker?.net_change ?? 0) >= 0 ? "text-up/80" : "text-down/80")}>
+            <div className={cn("font-bold text-[9px] tabular-nums", (ticker?.net_change ?? 0) >= 0 ? "text-up/80" : "text-down/80")}>
                 {ltp.toFixed(2)}
             </div>
 
             {/* P&L */}
-            <div className={cn("font-black", isProfit ? "text-up" : "text-down")}>
+            <div className={cn("font-bold tabular-nums", isProfit ? "text-up" : "text-down")}>
                 <div className="flex flex-col items-end leading-tight">
-                    <span className="text-[11px]">{pnl > 0 ? "+" : ""}{pnl.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    <span className="text-[8px] font-bold opacity-70 tracking-tighter">{pnlPercent.toFixed(2)}%</span>
+                    <span className="text-[10px]">{pnl > 0 ? "+" : ""}{pnl.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <span className="text-[8px] opacity-70 tracking-tighter">{pnlPercent.toFixed(2)}%</span>
                 </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Lightning Hover Actions */}
+            <div className="absolute right-2 inset-y-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-l from-[#0c0f13] via-[#0c0f13] to-transparent pl-8 z-10">
+                <button className="px-1.5 py-0.5 rounded-[2px] bg-up/10 hover:bg-up border border-up/20 hover:border-up text-up hover:text-black text-[8px] font-black transition-all">B</button>
+                <button className="px-1.5 py-0.5 rounded-[2px] bg-down/10 hover:bg-down border border-down/20 hover:border-down text-down hover:text-black text-[8px] font-black transition-all">S</button>
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
                         useOrderStore.getState().closePosition(position.symbol, ltp);
                     }}
-                    className="p-1 hover:bg-down/20 rounded text-zinc-600 hover:text-down transition-colors"
+                    className="px-2 py-0.5 rounded-[2px] bg-white/5 hover:bg-white/10 border border-white/5 text-zinc-400 hover:text-white text-[8px] font-black uppercase tracking-widest flex items-center gap-1 transition-all"
                 >
-                    <Target className="w-3 h-3" />
+                    <Target className="w-2.5 h-2.5" /> EXIT
                 </button>
             </div>
         </div >
@@ -83,7 +85,7 @@ export const PositionsTable = () => {
 
     if (positions.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center h-full text-zinc-600 gap-4 p-4 bg-[#0a0f18]">
+            <div className="flex flex-col items-center justify-center h-full text-zinc-600 gap-3 p-4 bg-[#080a0c]">
                 <div className="w-14 h-14 rounded-2xl border border-white/5 bg-white/[0.02] flex items-center justify-center shadow-inner">
                     <Shield className="w-7 h-7 opacity-20" />
                 </div>
@@ -99,9 +101,9 @@ export const PositionsTable = () => {
     }
 
     return (
-        <div className="flex flex-col h-full bg-[#0a0f18] relative">
+        <div className="flex flex-col h-full bg-[#080a0c] relative">
             {/* Widget Tool Header */}
-            <div className="flex items-center justify-between px-3 py-1.5 border-b border-white/[0.08] bg-white/[0.03]">
+            <div className="flex items-center justify-between px-2 py-1 border-b border-white/5 bg-[#0c0f13]">
                 <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-up shadow-[0_0_8px_var(--up)]" />
                     <span className="text-[8px] font-black text-white/80 uppercase tracking-[0.2em]">Active Positions</span>
@@ -114,7 +116,7 @@ export const PositionsTable = () => {
             </div>
 
             {/* Table Header */}
-            <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_0.5fr] text-right py-2 px-3 bg-black/40 text-[8px] uppercase font-black text-zinc-500 border-b border-white/5 tracking-[0.2em] shadow-sm">
+            <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_0.5fr] text-right py-1 px-2 bg-[#0c0f13] text-[7px] uppercase font-bold text-zinc-500 border-b border-white/5 tracking-widest shadow-sm">
                 <div className="text-left">Symbol</div>
                 <div>Qty</div>
                 <div>Avg</div>
@@ -133,35 +135,35 @@ export const PositionsTable = () => {
             </ScrollArea>
 
             {/* 915 GREEKS BAR - HIGH DENSITY REPLICATION */}
-            <div className="h-9 border-t border-white/[0.1] bg-black/40 backdrop-blur-xl flex items-center justify-between px-4 sticky bottom-0 z-20 shadow-[0_-10px_20px_rgba(0,0,0,0.6)]">
-                <div className="flex items-center gap-5">
-                    <div className="flex items-center gap-2">
-                        <span className="text-[7.5px] font-black text-zinc-600 uppercase tracking-[0.2em]">Delta</span>
-                        <div className="flex items-center gap-1 text-[9px] font-mono font-black text-up text-glow">
-                            <ArrowUpRight className="w-2.5 h-2.5" />
+            <div className="h-7 border-t border-white/5 bg-[#0c0f13] flex items-center justify-between px-2 sticky bottom-0 z-20">
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-[7px] font-bold text-zinc-500 uppercase tracking-widest">Delta</span>
+                        <div className="flex items-center gap-0.5 text-[8.5px] font-mono font-bold text-up">
+                            <ArrowUpRight className="w-2h-2" />
                             {netDelta.toFixed(2)}
                         </div>
                     </div>
-                    <div className="w-px h-3 bg-white/10" />
-                    <div className="flex items-center gap-2">
-                        <span className="text-[7.5px] font-black text-zinc-600 uppercase tracking-[0.2em]">Theta</span>
-                        <div className="flex items-center gap-1 text-[9px] font-mono font-black text-down text-glow">
-                            <ArrowDownLeft className="w-2.5 h-2.5" />
+                    <div className="w-px h-2.5 bg-white/5" />
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-[7px] font-bold text-zinc-500 uppercase tracking-widest">Theta</span>
+                        <div className="flex items-center gap-0.5 text-[8.5px] font-mono font-bold text-down">
+                            <ArrowDownLeft className="w-2 h-2" />
                             {netTheta.toFixed(2)}
                         </div>
                     </div>
-                    <div className="w-px h-3 bg-white/10" />
-                    <div className="flex items-center gap-2">
-                        <span className="text-[7.5px] font-black text-zinc-600 uppercase tracking-[0.2em]">Vega</span>
-                        <div className="text-[9px] font-mono font-black text-white/70">
+                    <div className="w-px h-2.5 bg-white/5" />
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-[7px] font-bold text-zinc-500 uppercase tracking-widest">Vega</span>
+                        <div className="text-[8.5px] font-mono font-bold text-zinc-300">
                             {netVega.toFixed(2)}
                         </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-sm cursor-help group relative">
+                <div className="flex items-center gap-1 bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-sm cursor-help group relative">
                     <Zap className="w-2.5 h-2.5 text-primary animate-pulse" />
-                    <span className="text-[7.5px] font-black text-primary uppercase tracking-[0.2em]">Hedge Needed</span>
+                    <span className="text-[7px] font-bold text-primary uppercase tracking-widest">Hedge Needed</span>
 
                     {/* Tooltip */}
                     <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-zinc-900 border border-white/10 rounded-lg shadow-2xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all pointer-events-none">

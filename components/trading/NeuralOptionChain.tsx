@@ -10,42 +10,7 @@ import { cn } from "@/lib/utils";
 import { ArrowUpRight, ArrowDownRight, Layers, Zap } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { WidgetHeader } from "@/components/ui/WidgetHeader";
-
-interface OptionChainRow {
-    strike: number;
-    ce: { ltp: number; oi: number; volume: number; change: number };
-    pe: { ltp: number; oi: number; volume: number; change: number };
-}
-
-// Mock Data Generator (Replace with Real Data Hook later)
-const generateMockChain = (spot: number): OptionChainRow[] => {
-    const startStrike = Math.floor(spot / 50) * 50 - 500;
-    return Array.from({ length: 21 }).map((_, i) => {
-        const strike = startStrike + (i * 50);
-        const dist = Math.abs(strike - spot);
-        const isATM = dist < 25;
-
-        // Simulate OI/Vol decaying away from ATM
-        const oiBase = 5000000 * Math.exp(-dist / 500);
-        const volBase = 10000000 * Math.exp(-dist / 300);
-
-        return {
-            strike,
-            ce: {
-                ltp: Math.max(0.05, (spot - strike) + (Math.random() * 50)), // Basic pricing model
-                oi: Math.floor(oiBase * (0.8 + Math.random() * 0.4)),
-                volume: Math.floor(volBase * (0.8 + Math.random() * 0.4)),
-                change: (Math.random() * 20) - 10
-            },
-            pe: {
-                ltp: Math.max(0.05, (strike - spot) + (Math.random() * 50)),
-                oi: Math.floor(oiBase * (0.8 + Math.random() * 0.4)),
-                volume: Math.floor(volBase * (0.8 + Math.random() * 0.4)),
-                change: (Math.random() * 20) - 10
-            }
-        };
-    });
-};
+import { useMockOptionChain } from "@/hooks/useMockOptionChain";
 
 export const NeuralOptionChain = ({ symbol = "NIFTY 50" }: { symbol?: string }) => {
     const { tickers } = useMarketStore();
@@ -53,9 +18,8 @@ export const NeuralOptionChain = ({ symbol = "NIFTY 50" }: { symbol?: string }) 
     const { isArmed } = useSafetyStore();
     const { executeStraddle } = useStrategyStore();
 
-    // Determine active spot
-    const spotPrice = useMemo(() => tickers[symbol]?.last_price || 25471.10, [tickers, symbol]);
-    const chainData = useMemo(() => generateMockChain(spotPrice), [spotPrice]);
+    // Custom Live-Streaming Option Chain Mock
+    const { spotPrice, chainData } = useMockOptionChain(symbol);
 
     // Heatmap scaling
     const maxOI = Math.max(...chainData.flatMap(r => [r.ce.oi, r.pe.oi]));

@@ -7,6 +7,7 @@ import { useAuthStore } from "@/hooks/useAuthStore";
 import { useWorkerTicker } from "@/hooks/useWorkerTicker";
 import { getChartColors, type DesignTokens } from "@/lib/design-tokens";
 import { getInstrumentToken } from "@/lib/market-config";
+import { useLayoutStore } from "@/hooks/useLayoutStore";
 
 // ─── Types ───────────────────────────────────────────────────
 interface Candle {
@@ -22,6 +23,7 @@ interface CustomCandlestickChartProps {
     symbol: string;
     interval?: string;
     chartType?: "candle" | "line";
+    showOIProfile?: boolean;
 }
 
 const mapIntervalToKite = (interval: string): string => {
@@ -49,7 +51,7 @@ const formatTime = (ts: number, interval: string): string => {
 };
 
 // ─── Main Component ──────────────────────────────────────────
-export const CustomCandlestickChart = ({ symbol, interval = "1D", chartType = "candle" }: CustomCandlestickChartProps) => {
+export const CustomCandlestickChart = ({ symbol, interval = "1D", chartType = "candle", showOIProfile = false }: CustomCandlestickChartProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -58,6 +60,8 @@ export const CustomCandlestickChart = ({ symbol, interval = "1D", chartType = "c
     const [draggingLine, setDraggingLine] = useState<string | null>(null);
     const [hoveredLine, setHoveredLine] = useState<string | null>(null);
     const [colors, setColors] = useState<DesignTokens | null>(null);
+
+    const { syncCrosshair, syncedMousePos, setSyncedMousePos } = useLayoutStore();
 
     const MARGIN = { top: 10, right: 70, bottom: 30, left: 0 };
     const VOLUME_HEIGHT_RATIO = 0.15;
@@ -377,6 +381,57 @@ export const CustomCandlestickChart = ({ symbol, interval = "1D", chartType = "c
             const yBot = MARGIN.top + priceH + volumeH;
             ctx.fillStyle = d.close >= d.open ? colors.chartVolumeBull : colors.chartVolumeBear;
             ctx.fillRect(x - candleW / 2, yTop, candleW, yBot - yTop);
+        }
+
+        // ─── OI Profile Overlay ──────────────────────────────
+        if (showOIProfile && data.length > 0) {
+            // Mock OI Profile Generator for the visible price range
+            const profileSteps = 40; // Number of price buckets
+            const stepH = priceRange / profileSteps;
+            const maxBarWidth = chartW * 0.3; // Take up max 30% of width
+
+            ctx.save();
+            ctx.globalAlpha = 0.6;
+
+            for (let i = 0; i <= profileSteps; i++) {
+                const stepPrice = priceMin + i * stepH;
+                const y = yPrice(stepPrice);
+
+                // Normal distribution mock based on current price
+                const distance = Math.abs(stepPrice - currentPrice);
+                const variance = priceRange * 0.2; // tighter bell curve
+                const weight = Math.exp(-(distance * distance) / (2 * variance * variance));
+
+                // Randomize slightly for realistic look
+                const callOI = weight * maxBarWidth * (0.8 + Math.random() * 0.4);
+                const putOI = weight * maxBarWidth * (0.8 + Math.random() * 0.4);
+
+                // Puts (Support - Green/Cyan) project from left
+                ctx.fillStyle = colors.up || "rgba(0, 255, 128, 0.4)";
+                ctx.fillRect(MARGIN.left, y - (priceH / profileSteps) / 2, putOI * 0.8, priceH / profileSteps - 1);
+
+                // Calls (Resistance - Red/Magenta) project from right 
+                // Wait, typically they are stacked or side-by-side. Let's stack them from the left
+                ctx.fillStyle = colors.down || "rgba(255, 0, 128, 0.4)";
+                ctx.fillRect(MARGIN.left + putOI * 0.8, y - (priceH / profileSteps) / 2, callOI * 0.8, priceH / profileSteps - 1);
+            }
+
+            // Draw Point of Control (POC) Line
+            const pocY = yPrice(currentPrice); // Simplified POC to current price for mock
+            ctx.strokeStyle = "#F59E0B"; // Amber for POC
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(MARGIN.left, pocY);
+            ctx.lineTo(MARGIN.left + maxBarWidth * 1.5, pocY);
+            ctx.stroke();
+
+            // POC Label
+            ctx.fillStyle = "#F59E0B";
+            ctx.font = "bold 9px 'JetBrains Mono', monospace";
+            ctx.textAlign = "left";
+            ctx.fillText("POC", MARGIN.left + maxBarWidth * 1.5 + 4, pocY);
+
+            ctx.restore();
         }
 
         // ─── Ghost Overlay (Historical Arbitrage) ────────────
@@ -752,7 +807,7 @@ export const CustomCandlestickChart = ({ symbol, interval = "1D", chartType = "c
         drawings.forEach(d => renderDrawing(d));
         if (currentDrawing) renderDrawing(currentDrawing, true);
 
-    }, [data, secondaryData, drawings, currentDrawing, dimensions, mousePos, currentPrice, isCurrentUp, interval, chartType, symbol, scales, orderLines, hoveredLine, draggingLine, colors]);
+    }, [data, secondaryData, drawings, currentDrawing, dimensions, mousePos, currentPrice, isCurrentUp, interval, chartType, symbol, scales, orderLines, hoveredLine, draggingLine, colors, showOIProfile]);
 
     useEffect(() => { draw(); }, [draw]);
 
@@ -804,6 +859,7 @@ export const CustomCandlestickChart = ({ symbol, interval = "1D", chartType = "c
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         setMousePos({ x, y });
+        if (syncCrosshair) setSyncedMousePos({ x, y });
 
         if (draggingLine) {
             const newPrice = scales.priceFromY(y);
@@ -846,10 +902,22 @@ export const CustomCandlestickChart = ({ symbol, interval = "1D", chartType = "c
     }, [draggingLine, currentDrawing]);
     const handleMouseLeave = useCallback(() => {
         setMousePos(null);
+        if (syncCrosshair) setSyncedMousePos(null);
         setHoveredCandle(null);
         setDraggingLine(null);
         setHoveredLine(null);
-    }, []);
+    }, [syncCrosshair, setSyncedMousePos]);
+
+    // Apply synced position from external charts
+    useEffect(() => {
+        if (syncCrosshair && syncedMousePos) {
+            // We set it as long as we aren't the primary mouse holder? 
+            // Actually, setting it is fine as it triggers re-render of crosshairs.
+            setMousePos(syncedMousePos);
+        } else if (syncCrosshair && !syncedMousePos) {
+            setMousePos(null);
+        }
+    }, [syncCrosshair, syncedMousePos]);
 
     const activeCandle = hoveredCandle || data[data.length - 1];
     const isActiveUp = activeCandle ? activeCandle.close >= activeCandle.open : true;

@@ -33,97 +33,96 @@ export const OrderConfirmDialog: React.FC<OrderConfirmDialogProps> = ({
     const bgClass = isBuy ? "bg-up" : "bg-down";
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center">
+        <div className="fixed inset-0 z-[100] flex justify-end">
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/50 backdrop-blur-[1px] animate-in fade-in duration-200"
                 onClick={onCancel}
             />
 
-            {/* Dialog */}
-            <div className="relative bg-[var(--surface-1)] border border-white/10 rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] w-full max-w-md mx-4 overflow-hidden">
+            {/* Slide-out Drawer */}
+            <div className="relative bg-[#080a0c] border-l border-white/5 shadow-2xl w-full max-w-[300px] h-full flex flex-col animate-in slide-in-from-right-16 duration-300 ease-out">
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-[#0c0f13]">
                     <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 text-amber-400" />
-                        <h3 className="text-sm font-bold text-white">Confirm Live Order</h3>
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                        <h3 className="text-[11px] font-black text-white uppercase tracking-widest">Confirm Live Order</h3>
                     </div>
                     <button
                         onClick={onCancel}
-                        className="p-1 hover:bg-white/5 rounded-md transition-colors"
+                        className="p-1 hover:bg-white/5 rounded-[4px] transition-colors"
                     >
-                        <X className="w-4 h-4 text-zinc-400" />
+                        <X className="w-3.5 h-3.5 text-zinc-500" />
                     </button>
                 </div>
 
                 {/* Body */}
-                <div className="px-5 py-5 space-y-4">
+                <div className="px-4 py-4 space-y-4 flex-1 overflow-y-auto">
                     {/* Order Summary */}
-                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 space-y-3">
+                    <div className="bg-[#0c0f13] border border-white/5 rounded-md p-3 space-y-2">
                         <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Action</span>
-                            <span className={`text-sm font-black ${accentClass}`}>
+                            <span className="text-[9px] text-zinc-500 uppercase tracking-widest font-bold">Action</span>
+                            <span className={`text-[10px] font-black tabular-nums ${accentClass}`}>
                                 {orderDetails.transaction_type} {orderDetails.quantity} × {orderDetails.tradingsymbol}
                             </span>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Exchange</span>
-                            <span className="text-xs text-zinc-300 font-mono">{orderDetails.exchange}</span>
+                            <span className="text-[9px] text-zinc-500 uppercase tracking-widest font-bold">Exchange</span>
+                            <span className="text-[9px] text-zinc-300 font-mono font-bold">{orderDetails.exchange}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Type</span>
-                            <span className="text-xs text-zinc-300 font-mono">
+                            <span className="text-[9px] text-zinc-500 uppercase tracking-widest font-bold">Type</span>
+                            <span className="text-[9px] text-zinc-300 font-mono font-bold">
                                 {orderDetails.order_type} / {orderDetails.product}
                             </span>
                         </div>
                         {orderDetails.price && (
                             <div className="flex items-center justify-between">
-                                <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Price</span>
-                                <span className="text-xs text-zinc-300 font-mono">₹{orderDetails.price.toLocaleString()}</span>
+                                <span className="text-[9px] text-zinc-500 uppercase tracking-widest font-bold">Price</span>
+                                <span className="text-[9px] text-zinc-300 font-mono font-bold tabular-nums">₹{orderDetails.price.toLocaleString()}</span>
                             </div>
                         )}
                     </div>
 
                     {/* Warning */}
-                    <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/5 border border-amber-500/10">
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-400 mt-0.5 shrink-0" />
-                        <p className="text-[10px] text-amber-300/80 leading-relaxed">
-                            This order will be placed on the <strong>live exchange</strong> using real funds.
-                            This action cannot be undone once the order is matched.
+                    <div className="flex items-start gap-2 p-2.5 rounded-md bg-amber-500/5 border border-amber-500/10">
+                        <AlertTriangle className="w-3 h-3 text-amber-500 mt-0.5 shrink-0" />
+                        <p className="text-[9px] text-amber-500/80 leading-relaxed font-bold">
+                            Live exchange order. Real funds will be utilized. This action cannot be undone once matched.
                         </p>
                     </div>
 
                     {/* Acknowledge */}
-                    <label className="flex items-center gap-2 cursor-pointer group">
+                    <label className="flex items-center gap-2 cursor-pointer group hover:bg-white/[0.02] p-2 rounded-md transition-colors border border-transparent hover:border-white/5">
                         <input
                             type="checkbox"
                             checked={acknowledged}
                             onChange={(e) => setAcknowledged(e.target.checked)}
-                            className="w-3.5 h-3.5 rounded border-zinc-600 text-[var(--primary)] focus:ring-[var(--primary)] focus:ring-offset-0 bg-transparent"
+                            className="w-3 h-3 rounded-[2px] border-zinc-700 bg-transparent text-primary focus:ring-primary focus:ring-offset-0 transition-all"
                         />
-                        <span className="text-[11px] text-zinc-400 group-hover:text-zinc-300 transition-colors">
-                            I understand this is a real order with real money
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                            Acknowledge Risk
                         </span>
                     </label>
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center gap-3 px-5 py-4 border-t border-white/5">
+                <div className="flex items-center gap-2 px-4 py-3 border-t border-white/5 bg-[#0c0f13] mt-auto">
                     <button
                         onClick={onCancel}
-                        className="flex-1 px-4 py-2.5 text-xs font-bold text-zinc-400 bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg transition-colors"
+                        className="flex-1 px-3 py-2 text-[9px] uppercase tracking-widest font-bold text-zinc-400 bg-white/5 hover:bg-white/10 border border-white/5 rounded-[4px] transition-colors"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={onConfirm}
                         disabled={!acknowledged}
-                        className={`flex-1 px-4 py-2.5 text-xs font-black rounded-lg transition-all ${acknowledged
-                                ? `${bgClass} text-black hover:opacity-90 active:scale-[0.98]`
-                                : "bg-zinc-800 text-zinc-600 cursor-not-allowed"
+                        className={`flex-1 px-3 py-2 text-[9px] uppercase tracking-widest font-black rounded-[4px] transition-all border ${acknowledged
+                            ? `${bgClass}/10 text-${isBuy ? "up" : "down"} border-${isBuy ? "up" : "down"}/20 hover:bg-${isBuy ? "up" : "down"} hover:text-black`
+                            : "bg-white/5 text-zinc-600 border-white/5 cursor-not-allowed"
                             }`}
                     >
-                        {orderDetails.transaction_type === "BUY" ? "Place Buy Order" : "Place Sell Order"}
+                        {orderDetails.transaction_type}
                     </button>
                 </div>
             </div>

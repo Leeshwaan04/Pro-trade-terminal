@@ -23,6 +23,13 @@ import {
     AreaChart,
     Area
 } from "recharts";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useMockOptionChain } from "@/hooks/useMockOptionChain";
 
 const INDICES = ["NIFTY", "BANKNIFTY", "FINNIFTY", "MIDCPNIFTY"];
 const EXPIRIES = ["27 MAR 2026", "03 APR 2026", "10 APR 2026"];
@@ -34,37 +41,45 @@ export const StraddleWidget = () => {
     const [history, setHistory] = useState<any[]>([]);
 
     const { tickers } = useMarketStore();
-    const spot = tickers[underlying]?.last_price || 0;
+    const { spotPrice, chainData } = useMockOptionChain(underlying);
 
     // Derived ATM Strike
     useEffect(() => {
-        if (spot > 0) {
+        if (spotPrice > 0) {
             const step = underlying === "NIFTY" ? 50 : 100;
-            const atm = Math.round(spot / step) * step;
+            const atm = Math.round(spotPrice / step) * step;
             if (strike === null) setStrike(atm);
         }
-    }, [spot, underlying, strike]);
+    }, [spotPrice, underlying, strike]);
 
     // Mock Premium Stream (Aggregated CE+PE)
+    // Mock Premium Stream (Aggregated CE+PE from live chain)
     useEffect(() => {
         const interval = setInterval(() => {
             const now = new Date();
             const time = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
 
             setHistory(prev => {
-                const lastVal = prev.length > 0 ? prev[prev.length - 1].value : 250;
-                const change = (Math.random() - 0.5) * 5;
-                const newVal = Math.max(100, lastVal + change);
+                let newVal = 250;
+                const atmRow = chainData.find(r => r.strike === strike);
+
+                if (atmRow) {
+                    newVal = atmRow.ce.ltp + atmRow.pe.ltp;
+                } else {
+                    const lastVal = prev.length > 0 ? prev[prev.length - 1].value : 250;
+                    const change = (Math.random() - 0.5) * 5;
+                    newVal = Math.max(100, lastVal + change);
+                }
 
                 return [...prev.slice(-29), {
                     time,
                     value: newVal,
-                    spot: spot + (Math.random() - 0.5) * 2
+                    spot: spotPrice + (Math.random() - 0.5) * 2
                 }];
             });
-        }, 2000);
+        }, 1000);
         return () => clearInterval(interval);
-    }, [spot]);
+    }, [spotPrice, strike, chainData]);
 
     const currentStraddlePrice = history.length > 0 ? history[history.length - 1].value : 0;
 
@@ -80,28 +95,46 @@ export const StraddleWidget = () => {
 
                     <div className="flex items-center gap-2">
                         {/* Underlying Select */}
-                        <div className="relative group">
-                            <button className="flex items-center gap-2 px-2 py-1 bg-white/[0.05] border border-white/5 rounded-sm hover:bg-white/[0.08] transition-all">
-                                <span className="text-[10px] font-bold text-white/80">{underlying}</span>
-                                <ChevronDown className="w-3 h-3 text-zinc-600" />
-                            </button>
-                        </div>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button className="flex items-center gap-2 px-2 py-1 bg-white/[0.05] border border-white/5 rounded-sm hover:bg-white/[0.08] transition-all">
+                                    <span className="text-[10px] font-bold text-white/80">{underlying}</span>
+                                    <ChevronDown className="w-3 h-3 text-zinc-600" />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-[#0c0f13] border-white/5 min-w-[120px]">
+                                {INDICES.map(idx => (
+                                    <DropdownMenuItem key={idx} onClick={() => setUnderlying(idx)} className="text-[10px] font-bold text-zinc-300">
+                                        {idx}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
 
                         {/* Expiry Select */}
-                        <div className="relative group">
-                            <button className="flex items-center gap-2 px-2 py-1 bg-white/[0.05] border border-white/5 rounded-sm hover:bg-white/[0.08] transition-all">
-                                <Calendar className="w-3 h-3 text-zinc-500" />
-                                <span className="text-[10px] font-bold text-white/80">{expiry}</span>
-                                <ChevronDown className="w-3 h-3 text-zinc-600" />
-                            </button>
-                        </div>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button className="flex items-center gap-2 px-2 py-1 bg-white/[0.05] border border-white/5 rounded-sm hover:bg-white/[0.08] transition-all">
+                                    <Calendar className="w-3 h-3 text-zinc-500" />
+                                    <span className="text-[10px] font-bold text-white/80">{expiry}</span>
+                                    <ChevronDown className="w-3 h-3 text-zinc-600" />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-[#0c0f13] border-white/5 min-w-[120px]">
+                                {EXPIRIES.map(exp => (
+                                    <DropdownMenuItem key={exp} onClick={() => setExpiry(exp)} className="text-[10px] font-bold text-zinc-300">
+                                        {exp}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-3">
                     <div className="flex flex-col items-end leading-none">
                         <span className="text-[8px] font-black text-zinc-500 uppercase tracking-tighter">Spot Price</span>
-                        <span className="text-[11px] font-mono font-black text-white">{spot.toFixed(2)}</span>
+                        <span className="text-[11px] font-mono font-black text-white">{spotPrice.toFixed(2)}</span>
                     </div>
                     <button className="p-1.5 text-zinc-600 hover:text-white transition-colors">
                         <RefreshCcw className="w-3.5 h-3.5" />

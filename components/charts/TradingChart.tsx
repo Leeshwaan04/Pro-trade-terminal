@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { CustomCandlestickChart } from "./CustomCandlestickChart";
 import { FloatingOrderTicket } from "@/components/trading/FloatingOrderTicket";
 import { ChartControls } from "./ChartControls";
+import { useLayoutStore } from "@/hooks/useLayoutStore";
 
 interface TradingChartProps {
     symbol: string;
@@ -14,6 +15,23 @@ export const TradingChart = ({ symbol, widgetId }: TradingChartProps) => {
     const [timeframe, setTimeframe] = useState("1D");
     const [chartType, setChartType] = useState<"candle" | "line">("candle");
     const [showOrderTicket, setShowOrderTicket] = useState(false);
+    const [showOIProfile, setShowOIProfile] = useState(false);
+
+    const { syncInterval, syncedInterval, setSyncedInterval } = useLayoutStore();
+
+    // Sync Interval from Global State
+    React.useEffect(() => {
+        if (syncInterval && syncedInterval !== timeframe) {
+            setTimeframe(syncedInterval);
+        }
+    }, [syncInterval, syncedInterval]);
+
+    const handleIntervalChange = (newInterval: string) => {
+        setTimeframe(newInterval);
+        if (syncInterval) {
+            setSyncedInterval(newInterval);
+        }
+    };
 
     return (
         <div className="relative w-full h-full group bg-[var(--chart-bg)] flex flex-col overflow-hidden">
@@ -24,14 +42,16 @@ export const TradingChart = ({ symbol, widgetId }: TradingChartProps) => {
                         symbol={symbol}
                         widgetId={widgetId || "default-chart"}
                         period={timeframe}
-                        onPeriodChange={setTimeframe}
+                        onPeriodChange={handleIntervalChange}
                         interval={timeframe}
-                        onIntervalChange={setTimeframe}
+                        onIntervalChange={handleIntervalChange}
                         onTradeClick={() => setShowOrderTicket(!showOrderTicket)}
                         chartType={chartType}
                         onChartTypeChange={setChartType}
                         hideIndicators={false}
                         hideSnapshot={false}
+                        showOIProfile={showOIProfile}
+                        onToggleOIProfile={() => setShowOIProfile(!showOIProfile)}
                     />
                 </div>
             </div>
@@ -42,6 +62,7 @@ export const TradingChart = ({ symbol, widgetId }: TradingChartProps) => {
                     symbol={symbol}
                     interval={timeframe}
                     chartType={chartType}
+                    showOIProfile={showOIProfile}
                 />
 
                 {/* Floating Order Ticket Overlay */}

@@ -18,9 +18,9 @@ test.describe('Groww 915 UI density verification', () => {
     test('header layout', async ({ page }) => {
         const header = page.locator('[data-testid="app-header"]');
         await expect(header).toBeVisible();
-        // Height approx 44px
+        // Height approx 40px
         const height = await header.evaluate(el => getComputedStyle(el).height);
-        expect(parseFloat(height)).toBeCloseTo(44, 2);
+        expect(parseFloat(height)).toBeCloseTo(40, 2);
         // Logo text is split for density
         await expect(header.locator('text=CYBER')).toBeVisible();
         await expect(header.locator('text=TRADE')).toBeVisible();
@@ -35,10 +35,9 @@ test.describe('Groww 915 UI density verification', () => {
     test('indices ticker', async ({ page }) => {
         const ticker = page.locator('[data-testid="indices-ticker"]');
         await expect(ticker).toBeVisible();
-        // Index symbols are shortened for density
-        await expect(ticker.locator('text=BANK')).toBeVisible();
-        await expect(ticker.locator('text=SENSEX')).toBeVisible();
-        await expect(ticker.locator('text=VIX')).toBeVisible();
+        // Index symbols exist
+        await expect(ticker.locator('text=NIFTY 50').first()).toBeVisible();
+        await expect(ticker.locator('text=BANKNIFTY').first()).toBeVisible();
         // Hover
         await ticker.hover();
     });

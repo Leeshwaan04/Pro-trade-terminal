@@ -13,28 +13,30 @@ export const HoldingsTable = () => {
     const totalPnLPercent = totalInvested !== 0 ? (totalPnL / totalInvested) * 100 : 0;
 
     return (
-        <div className="flex flex-col h-full bg-background">
+        <div className="flex flex-col h-full bg-[#080a0c]">
             {/* Summary Header */}
-            <div className="grid grid-cols-2 gap-4 p-5 border-b border-border bg-card">
-                <div className="space-y-1">
-                    <div className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.2em]">Invested</div>
-                    <div className="font-mono text-xl font-bold tracking-tighter text-foreground">₹{totalInvested.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
+            <div className="grid grid-cols-2 gap-4 p-3 border-b border-white/5 bg-[#0c0f13]">
+                <div className="space-y-0.5">
+                    <div className="text-[8px] text-zinc-500 font-bold uppercase tracking-widest">Invested</div>
+                    <div className="font-mono text-[14px] font-bold tracking-tighter text-zinc-200 tabular-nums my-0.5">₹{totalInvested.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
                 </div>
-                <div className="space-y-1 text-right">
-                    <div className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.2em]">Current</div>
-                    <div className="font-mono text-xl font-bold tracking-tighter text-primary neon-glow">₹{currentValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
+                <div className="space-y-0.5 text-right">
+                    <div className="text-[8px] text-zinc-500 font-bold uppercase tracking-widest">Current</div>
+                    <div className="font-mono text-[14px] font-bold tracking-tighter text-blue-400 tabular-nums my-0.5">₹{currentValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
                 </div>
-                <div className="col-span-2 flex items-center justify-between pt-4 border-t border-border mt-2">
-                    <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Total P&L</div>
-                    <div className={cn("font-mono text-sm font-black flex items-center gap-2", totalPnL >= 0 ? "text-up" : "text-down")}>
-                        <span>{totalPnL >= 0 ? "▲" : "▼"} ₹{Math.abs(totalPnL).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                        <span className="text-[10px] opacity-70 border border-current/20 px-1 py-0.5 rounded-sm bg-current/5">{totalPnLPercent.toFixed(2)}%</span>
+                <div className="col-span-2 flex items-center justify-between pt-2 border-t border-white/5 mt-1">
+                    <div className="text-[8px] uppercase font-bold text-zinc-500 tracking-widest">Total P&L</div>
+                    <div className={cn("font-mono text-[11px] font-bold flex items-center gap-2 tabular-nums", totalPnL >= 0 ? "text-up" : "text-down")}>
+                        <span>{totalPnL >= 0 ? "+" : "-"}₹{Math.abs(totalPnL).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                        <span className={cn("text-[9px] px-1 py-0.5 rounded-[2px] font-bold uppercase", totalPnL >= 0 ? "bg-up/10 border border-up/20 text-up" : "bg-down/10 border border-down/20 text-down")}>
+                            {totalPnLPercent.toFixed(2)}%
+                        </span>
                     </div>
                 </div>
             </div>
 
             {/* Table Header */}
-            <div className="grid grid-cols-4 text-right py-2 px-3 bg-surface-1 text-[9px] uppercase font-black text-muted-foreground border-b border-border tracking-[0.15em]">
+            <div className="grid grid-cols-4 text-right py-1 px-2 bg-[#0c0f13] text-[7px] uppercase font-bold text-zinc-500 border-b border-white/5 tracking-widest">
                 <div className="text-left">Instrument</div>
                 <div>Qty</div>
                 <div>Avg price</div>
@@ -42,11 +44,11 @@ export const HoldingsTable = () => {
             </div>
 
             {/* Rows */}
-            <ScrollArea className="flex-1">
-                <div className="divide-y divide-border/20">
+            <ScrollArea className="flex-1 custom-scrollbar">
+                <div className="divide-y divide-white/[0.02]">
                     {positions.length === 0 && (
-                        <div className="flex flex-col items-center justify-center h-40 text-muted-foreground opacity-50">
-                            <span className="text-xs uppercase tracking-widest font-mono">No Open Positions</span>
+                        <div className="flex flex-col items-center justify-center h-40 text-zinc-600 opacity-50">
+                            <span className="text-[9px] uppercase tracking-widest font-bold">No Open Holdings</span>
                         </div>
                     )}
                     {positions.map((p) => {
@@ -55,34 +57,39 @@ export const HoldingsTable = () => {
                         const pnlPercent = investVal !== 0 ? (p.pnl / investVal) * 100 : 0;
 
                         return (
-                            <div key={`${p.symbol}-${p.product}`} className="grid grid-cols-4 text-right py-3.5 px-3 hover:bg-surface-4 text-[11px] items-center font-mono transition-colors group">
+                            <div key={`${p.symbol}-${p.product}`} className="relative grid grid-cols-4 text-right py-1 px-2 border-b border-white/[0.01] hover:bg-white/[0.02] items-center font-mono group transition-all duration-200">
                                 {/* Symbol */}
-                                <div className="text-left">
-                                    <div className="font-bold text-foreground group-hover:text-primary transition-colors">{p.symbol}</div>
-                                    <div className="text-[9px] text-muted-foreground flex gap-1 uppercase font-bold tracking-tighter">
-                                        <span>{p.product}</span>
-                                        <span className="text-xs text-muted-foreground mx-1">|</span>
-                                        <span className="text-muted-foreground">LTP ₹{p.last_price.toFixed(2)}</span>
+                                <div className="text-left flex flex-col leading-tight">
+                                    <div className="font-black text-white/90 group-hover:text-primary transition-colors tracking-tighter uppercase text-[10px]">{p.symbol}</div>
+                                    <div className="flex items-center gap-1 mt-[1px]">
+                                        <span className="text-[7px] text-zinc-600 font-bold uppercase tracking-tighter bg-white/5 px-1 rounded-[1px] border border-white/5">{p.product}</span>
+                                        <span className="text-[7px] text-zinc-500 font-bold uppercase tracking-tighter">LTP <span className="text-zinc-300">₹{p.last_price.toFixed(2)}</span></span>
                                     </div>
                                 </div>
 
                                 {/* Qty */}
-                                <div className={cn("font-medium", p.quantity > 0 ? "text-up" : "text-down")}>
+                                <div className={cn("font-bold text-[10px] tabular-nums", p.quantity > 0 ? "text-up" : "text-down")}>
                                     {p.quantity}
                                 </div>
 
                                 {/* Avg */}
-                                <div className="text-muted-foreground">{p.average_price.toFixed(2)}</div>
+                                <div className="text-zinc-400 font-bold text-[9px] tabular-nums">{p.average_price.toFixed(2)}</div>
 
                                 {/* P&L */}
                                 <div className={cn(
-                                    "font-bold",
+                                    "font-bold tabular-nums",
                                     isProfit ? "text-up" : "text-down"
                                 )}>
-                                    <div className="flex flex-col items-end">
-                                        <span>{isProfit ? "+" : ""}{p.pnl.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                                        <span className="text-[9px] opacity-60 font-medium tracking-tighter">{pnlPercent.toFixed(2)}%</span>
+                                    <div className="flex flex-col items-end leading-tight">
+                                        <span className="text-[10px]">{isProfit ? "+" : ""}{p.pnl.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                                        <span className="text-[8px] opacity-70 tracking-tighter">{pnlPercent.toFixed(2)}%</span>
                                     </div>
+                                </div>
+
+                                {/* Lightning Hover Actions */}
+                                <div className="absolute right-2 inset-y-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-l from-[#080a0c] via-[#080a0c] to-transparent pl-8 z-10">
+                                    <button className="px-1.5 py-0.5 rounded-[2px] bg-up/10 hover:bg-up border border-up/20 hover:border-up text-up hover:text-black text-[8px] font-black transition-all">B</button>
+                                    <button className="px-1.5 py-0.5 rounded-[2px] bg-down/10 hover:bg-down border border-down/20 hover:border-down text-down hover:text-black text-[8px] font-black transition-all">S</button>
                                 </div>
                             </div>
                         );

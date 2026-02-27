@@ -43,6 +43,17 @@ interface LayoutState {
     setCommandCenterOpen: (open: boolean) => void;
     settingsOpen: boolean;
     setSettingsOpen: (open: boolean) => void;
+    // Sync States
+    syncCrosshair: boolean;
+    setSyncCrosshair: (sync: boolean) => void;
+    syncSymbol: boolean;
+    setSyncSymbol: (sync: boolean) => void;
+    syncInterval: boolean;
+    setSyncInterval: (sync: boolean) => void;
+    syncedMousePos: { x: number, y: number } | null;
+    setSyncedMousePos: (pos: { x: number, y: number } | null) => void;
+    syncedInterval: string;
+    setSyncedInterval: (interval: string) => void;
 }
 
 export const useLayoutStore = create<LayoutState>()(
@@ -295,7 +306,18 @@ export const useLayoutStore = create<LayoutState>()(
             commandCenterOpen: false,
             setCommandCenterOpen: (open) => set({ commandCenterOpen: open }),
             settingsOpen: false,
-            setSettingsOpen: (open) => set({ settingsOpen: open }),
+            setSettingsOpen: (open: boolean) => set({ settingsOpen: open }),
+
+            syncCrosshair: false,
+            setSyncCrosshair: (sync) => set({ syncCrosshair: sync }),
+            syncSymbol: false,
+            setSyncSymbol: (sync) => set({ syncSymbol: sync }),
+            syncInterval: false,
+            setSyncInterval: (sync) => set({ syncInterval: sync }),
+            syncedMousePos: null,
+            setSyncedMousePos: (pos) => set({ syncedMousePos: pos }),
+            syncedInterval: "1D",
+            setSyncedInterval: (interval) => set({ syncedInterval: interval }),
         }),
         {
             name: "pro-terminal-layout-v10", // bumped for YouTube Layouts

@@ -9,45 +9,9 @@ import { cn } from "@/lib/utils";
 import { Search, Plus, Trash2, BarChart2, Settings } from "lucide-react";
 import { useLayoutStore } from "@/hooks/useLayoutStore";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { searchLite, SearchInstrument } from "@/lib/lite-search-engine";
 
-// ─── Cyber-Nerve: Price Sparkline ───
-const PriceSparkline = ({ price, color }: { price: number, color: string }) => {
-    const [history, setHistory] = useState<number[]>([]);
-
-    useEffect(() => {
-        if (price > 0) {
-            setHistory(prev => [...prev.slice(-19), price]);
-        }
-    }, [price]);
-
-    if (history.length < 2) return <div className="w-10 h-4" />;
-
-    const min = Math.min(...history);
-    const max = Math.max(...history);
-    const range = max - min || 1;
-
-    const points = history.map((p, i) => {
-        const x = (i / (history.length - 1)) * 40;
-        const y = 16 - ((p - min) / range) * 12;
-        return `${x},${y}`;
-    }).join(" ");
-
-    return (
-        <svg className="w-10 h-4 overflow-visible" viewBox="0 0 40 16">
-            <polyline
-                fill="none"
-                stroke={color === "text-up" ? "#22c55e" : "#ef4444"}
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                points={points}
-                className="transition-all duration-300"
-            />
-        </svg>
-    );
-};
-
-// ─── Cyber-Nerve: Dynamic Price Cell ───
+// ─── Cyber-Nerve: Price Cell ───
 const PriceCell = ({ price, isUp }: { price: number, isUp: boolean }) => {
     const [glow, setGlow] = useState<"up" | "down" | null>(null);
     const prevPriceRef = useRef(price);
@@ -80,7 +44,8 @@ export const WatchlistWidget = ({ widgetId }: { widgetId?: string }) => {
         setActiveWatchlistId,
         removeFromWatchlist,
         addWatchlist,
-        deleteWatchlist
+        deleteWatchlist,
+        addToWatchlist
     } = useWatchlistStore();
 
     const { tickers, subscribe } = useMarketStore();
@@ -88,6 +53,7 @@ export const WatchlistWidget = ({ widgetId }: { widgetId?: string }) => {
     const setColorGroupSymbol = useLayoutStore(state => state.setColorGroupSymbol);
     const workspaces = useLayoutStore(state => state.workspaces);
     const activeWorkspaceId = useLayoutStore(state => state.activeWorkspaceId);
+    const syncSymbol = useLayoutStore(state => state.syncSymbol);
 
     // Determine the color group for this watchlist widget instance
     const thisWidgetColorGroup = widgetId
@@ -95,6 +61,16 @@ export const WatchlistWidget = ({ widgetId }: { widgetId?: string }) => {
         : undefined;
 
     const [filter, setFilter] = useState("");
+    const [searchResults, setSearchResults] = useState<SearchInstrument[]>([]);
+
+    useEffect(() => {
+        if (filter.length > 1) {
+            const results = searchLite(filter);
+            setSearchResults(results);
+        } else {
+            setSearchResults([]);
+        }
+    }, [filter]);
 
     useEffect(() => {
         const activeList = watchlists.find(w => w.id === activeWatchlistId);
@@ -110,10 +86,10 @@ export const WatchlistWidget = ({ widgetId }: { widgetId?: string }) => {
     ) || [];
 
     return (
-        <div data-testid="watchlist-widget" className="flex flex-col h-full bg-[#111318] font-sans">
+        <div data-testid="watchlist-widget" className="flex flex-col h-full bg-[#080a0c] font-sans">
 
-            {/* Groww 915 Style Header & Tabs */}
-            <div className="flex flex-col bg-[#0c0f13] border-b border-white/[0.05]">
+            {/* Header & Tabs */}
+            <div className="flex flex-col bg-[#0c0f13] border-b border-white/5">
                 <div className="flex items-center justify-between px-2 pt-2 gap-1 overflow-x-auto no-scrollbar">
                     <div className="flex items-center gap-1">
                         {watchlists.map((wl) => (
@@ -144,7 +120,7 @@ export const WatchlistWidget = ({ widgetId }: { widgetId?: string }) => {
                 </div>
 
                 {/* Inline Search & Add */}
-                <div className="px-3 py-2 bg-black/20">
+                <div className="px-3 py-2 bg-black/20 relative">
                     <div className="relative flex items-center group">
                         <Search className="absolute left-2.5 w-3 h-3 text-zinc-600 group-focus-within:text-primary transition-colors" />
                         <input
@@ -160,20 +136,52 @@ export const WatchlistWidget = ({ widgetId }: { widgetId?: string }) => {
                             </span>
                         </div>
                     </div>
+
+                    {/* Search Results Dropdown */}
+                    {searchResults.length > 0 && (
+                        <div className="absolute left-2 right-2 top-[100%] z-50 mt-1 bg-[#111318] border border-white/5 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+                            {searchResults.map((res) => (
+                                <button
+                                    key={res.symbol}
+                                    onClick={() => {
+                                        const currentPrice = tickers[res.symbol]?.last_price || 0;
+                                        addToWatchlist(activeWatchlistId, {
+                                            ...res,
+                                            addedAtPrice: currentPrice,
+                                            addedAtTimestamp: Date.now()
+                                        });
+                                        setFilter("");
+                                        setSearchResults([]);
+                                    }}
+                                    className="w-full flex items-center justify-between px-2 py-1.5 hover:bg-primary/5 border-b border-white/5 last:border-0 transition-colors group"
+                                >
+                                    <div className="flex flex-col items-start">
+                                        <span className="text-[10px] font-black group-hover:text-primary transition-colors">{res.symbol}</span>
+                                        <span className="text-[8px] text-zinc-500 font-bold">{res.description}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[7px] font-black px-1.5 py-0.5 rounded-sm bg-white/5 text-zinc-400">{res.exchange}</span>
+                                        <Plus className="w-3 h-3 text-zinc-700 group-hover:text-primary" />
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Column Headers - Groww 915 Parity */}
-            <div className="grid grid-cols-[1fr_75px_75px_70px] px-3 py-1.5 border-b border-white/[0.04] bg-white/[0.01]">
-                <span className="text-[7.5px] font-black text-zinc-600 uppercase tracking-[0.2em]">Instrument</span>
-                <span className="text-[7.5px] font-black text-zinc-600 uppercase tracking-[0.2em] text-right">LTP</span>
-                <span className="text-[7.5px] font-black text-zinc-600 uppercase tracking-[0.2em] text-right">Change%</span>
-                <span className="text-[7.5px] font-black text-zinc-600 uppercase tracking-[0.2em] text-right pr-1">Vol/OI</span>
+            {/* Column Headers */}
+            <div className="grid grid-cols-[1fr_65px_65px_60px_40px] px-2 py-1 border-b border-white/5 bg-[#0c0f13]">
+                <span className="text-[7px] font-bold text-zinc-500 uppercase tracking-widest">Instrument</span>
+                <span className="text-[7px] font-bold text-zinc-500 uppercase tracking-widest text-right">LTP</span>
+                <span className="text-[7px] font-bold text-zinc-500 uppercase tracking-widest text-right">Chg%</span>
+                <span className="text-[7px] font-bold text-zinc-500 uppercase tracking-widest text-right">Vol/OI</span>
+                <span className="text-[7px] font-bold text-zinc-500 uppercase tracking-widest text-right pr-1"></span>
             </div>
 
             {/* Items */}
             <ScrollArea className="flex-1">
-                <div>
+                <div className="flex flex-col">
                     {filteredItems.map((item) => {
                         const ticker = tickers[item.symbol] || { last_price: 0, net_change: 0, change_percent: 0 };
                         const isUp = (ticker.net_change ?? 0) >= 0;
@@ -182,22 +190,23 @@ export const WatchlistWidget = ({ widgetId }: { widgetId?: string }) => {
                             <div
                                 key={item.symbol}
                                 onClick={() => {
-                                    if (thisWidgetColorGroup) {
+                                    if (syncSymbol) {
+                                        setWorkspaceSymbol(item.symbol);
+                                    } else if (thisWidgetColorGroup) {
                                         setColorGroupSymbol(thisWidgetColorGroup, item.symbol);
                                     } else {
                                         setWorkspaceSymbol(item.symbol);
                                     }
                                 }}
-                                className="group relative grid grid-cols-[1fr_75px_75px_70px] items-center px-3 py-1.5 hover:bg-white/[0.05] border-b border-white/[0.02] transition-all cursor-pointer overflow-hidden"
+                                className="group relative grid grid-cols-[1fr_65px_65px_60px_40px] items-center px-2 py-1 hover:bg-white/[0.02] border-b border-white/[0.01] transition-all cursor-pointer overflow-hidden"
                             >
-                                {/* Symbol & Exchange - High Density */}
                                 <div className="flex flex-col min-w-0">
                                     <div className="flex items-center gap-1.5">
-                                        <span className="text-[10px] font-black text-white/90 group-hover:text-primary transition-colors truncate uppercase tracking-tighter">
+                                        <span className="text-[10px] font-bold text-zinc-200 group-hover:text-primary transition-colors truncate uppercase tracking-tighter">
                                             {item.symbol}
                                         </span>
                                         {item.segment !== "EQ" && (
-                                            <span className="px-1 py-0 rounded-[2px] bg-white/[0.05] text-[7px] font-bold text-zinc-600 border border-white/5">
+                                            <span className="px-1 py-0 rounded-sm bg-[#111318] text-[7px] font-bold text-zinc-500 border border-white/5">
                                                 {item.segment}
                                             </span>
                                         )}
@@ -207,37 +216,35 @@ export const WatchlistWidget = ({ widgetId }: { widgetId?: string }) => {
                                     </span>
                                 </div>
 
-                                {/* LTP with Tick Glow */}
-                                <div className="text-right flex items-center justify-end gap-1.5 pr-1">
-                                    {/* <PriceSparkline price={ticker.last_price} color={isUp ? "text-up" : "text-down"} /> */}
+                                <div className="text-right flex items-center justify-end gap-1.5 pr-1 tabular-nums">
                                     <PriceCell price={ticker.last_price} isUp={isUp} />
                                 </div>
 
-                                {/* Change % */}
-                                <div className="text-right">
+                                <div className="text-right tabular-nums flex items-center justify-end">
                                     <span className={cn(
-                                        "text-[9.5px] font-bold font-mono tracking-tighter",
-                                        isUp ? "text-up/60" : "text-down/60"
+                                        "text-[9px] font-bold tracking-tighter",
+                                        isUp ? "text-up" : "text-down"
                                     )}>
                                         {isUp ? "+" : ""}{(ticker.change_percent ?? 0).toFixed(2)}%
                                     </span>
                                 </div>
 
-                                {/* Volume/OI - 915 Parity */}
-                                <div className="text-right pr-1">
-                                    <div className="flex flex-col leading-none">
-                                        <span className="text-[9px] font-black text-zinc-500 font-mono tracking-tighter uppercase">
-                                            {(ticker as any).volume ? `${((ticker as any).volume / 1000000).toFixed(1)}M` : "—"}
-                                        </span>
-                                        <span className="text-[7px] font-bold text-primary/40 uppercase tracking-tighter">
-                                            {(ticker as any).oi ? `OI: ${((ticker as any).oi / 1000).toFixed(0)}K` : "VOL"}
-                                        </span>
-                                    </div>
+                                <div className="text-right tabular-nums flex items-center justify-end">
+                                    <span className="text-[8px] font-bold text-zinc-400 tracking-tighter uppercase whitespace-nowrap">
+                                        {(ticker as any).volume ? `${((ticker as any).volume / 1000000).toFixed(2)}M` : "—"}
+                                    </span>
                                 </div>
 
-                                {/* ⚡ Lightning Hover Action Pad — Ultra Dense */}
+                                <div className="text-right pr-1 flex items-center justify-end">
+                                    <div className={cn(
+                                        "w-1 h-1 rounded-full",
+                                        isUp ? "bg-up" : "bg-down"
+                                    )} />
+                                </div>
+
+                                {/* Hover Actions */}
                                 <div className="absolute inset-y-0 right-0 w-[120px] bg-gradient-to-l from-[#0c0f13] via-[#0c0f13]/95 to-transparent opacity-0 group-hover:opacity-100 flex items-center justify-end px-2 transition-all translate-x-4 group-hover:translate-x-0">
-                                    <div className="flex items-center gap-1">
+                                    <div className="flex items-center gap-0.5">
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -246,13 +253,13 @@ export const WatchlistWidget = ({ widgetId }: { widgetId?: string }) => {
                                                     transactionType: 'BUY',
                                                     orderType: 'MARKET',
                                                     productType: 'MIS',
-                                                    qty: 1, // Default lightning qty
+                                                    qty: 1,
                                                     price: ticker.last_price
                                                 });
                                             }}
-                                            className="h-[22px] px-2.5 bg-up hover:bg-up/80 text-black text-[9px] font-black rounded-sm shadow-[0_0_10px_rgba(34,197,94,0.3)] transition-all active:scale-95"
+                                            className="h-5 px-1.5 bg-up/10 text-up hover:bg-up hover:text-black text-[8px] font-bold transition-all active:scale-95"
                                         >
-                                            BUY
+                                            B
                                         </button>
                                         <button
                                             onClick={(e) => {
@@ -266,17 +273,13 @@ export const WatchlistWidget = ({ widgetId }: { widgetId?: string }) => {
                                                     price: ticker.last_price
                                                 });
                                             }}
-                                            className="h-[22px] px-2.5 bg-down hover:bg-down/80 text-black text-[9px] font-black rounded-sm shadow-[0_0_10px_rgba(239,68,68,0.3)] transition-all active:scale-95"
+                                            className="h-5 px-1.5 bg-down/10 text-down hover:bg-down hover:text-black text-[8px] font-bold transition-all active:scale-95"
                                         >
-                                            SELL
-                                        </button>
-                                        <div className="w-px h-3 bg-white/10 mx-0.5" />
-                                        <button className="h-[22px] w-6 flex items-center justify-center text-zinc-500 hover:text-white transition-colors">
-                                            <BarChart2 className="w-3.5 h-3.5" />
+                                            S
                                         </button>
                                         <button
                                             onClick={(e) => { e.stopPropagation(); removeFromWatchlist(activeWatchlistId, item.symbol); }}
-                                            className="h-[22px] w-6 flex items-center justify-center text-zinc-500 hover:text-down transition-colors"
+                                            className="h-5 w-5 flex items-center justify-center text-zinc-500 hover:text-down transition-colors"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />
                                         </button>
@@ -286,36 +289,24 @@ export const WatchlistWidget = ({ widgetId }: { widgetId?: string }) => {
                         );
                     })}
 
-                    {/* Empty State */}
                     {activeList?.items.length === 0 && (
                         <div className="p-10 flex flex-col items-center justify-center text-center">
                             <Search className="w-6 h-6 mb-3 text-zinc-800" />
                             <span className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest">Empty Watchlist</span>
-                            <span className="text-[9px] text-zinc-800 mt-1">Press ⌘K to search & add symbols</span>
+                            <span className="text-[9px] text-zinc-800 mt-1">Search above to add symbols</span>
                         </div>
                     )}
                 </div>
             </ScrollArea>
 
-            {/* Watchlist Quick Actions (Bottom) */}
-            <div className="flex items-center justify-between border-t border-white/[0.05] bg-[#0c0f13] px-3 py-1.5">
+            {/* Bottom Actions */}
+            <div className="flex items-center justify-between border-t border-white/5 bg-[#0c0f13] px-2 py-1">
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={() => {
-                            if (confirm("Clear all items in this watchlist?")) {
-                                // Logic to clear items (needs store action update)
-                            }
-                        }}
-                        className="text-[8px] font-black text-zinc-600 hover:text-white uppercase tracking-widest transition-colors"
-                    >
-                        Clear List
-                    </button>
-                    <div className="w-px h-3 bg-white/5" />
-                    <button
                         onClick={() => deleteWatchlist(activeWatchlistId)}
-                        className="text-[8px] font-black text-down/60 hover:text-down uppercase tracking-widest transition-colors"
+                        className="text-[7px] font-bold text-down/40 hover:text-down uppercase tracking-widest transition-colors"
                     >
-                        Delete Watchlist
+                        Delete
                     </button>
                 </div>
                 <button className="p-1 text-zinc-700 hover:text-zinc-400 transition-colors">

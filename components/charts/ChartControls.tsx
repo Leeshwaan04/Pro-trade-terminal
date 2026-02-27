@@ -12,7 +12,11 @@ import {
     MoreHorizontal,
     PictureInPicture,
     MonitorPlay,
-    LayoutTemplate
+    LayoutTemplate,
+    Crosshair,
+    Link2,
+    Clock,
+    BarChartBig
 } from "lucide-react";
 import { useMarketStore } from "@/hooks/useMarketStore";
 import { useOrderStore } from "@/hooks/useOrderStore";
@@ -41,6 +45,8 @@ interface ChartControlsProps {
     onSnapshot?: () => void;
     hideIndicators?: boolean;
     hideSnapshot?: boolean;
+    showOIProfile?: boolean;
+    onToggleOIProfile?: () => void;
 }
 
 export const ChartControls = ({
@@ -57,7 +63,9 @@ export const ChartControls = ({
     onToggleIndicators,
     onSnapshot,
     hideIndicators = false,
-    hideSnapshot = false
+    hideSnapshot = false,
+    showOIProfile = false,
+    onToggleOIProfile
 }: ChartControlsProps) => {
     const intervals = ["1m", "5m", "15m", "30m", "1H", "4H", "1D", "1W"];
     const tickerData = useMarketStore(state => state.tickers[symbol]);
@@ -69,7 +77,14 @@ export const ChartControls = ({
         toggleTheaterMode,
         updateMultiChartConfig,
         workspaces,
-        activeWorkspaceId
+        activeWorkspaceId,
+        syncCrosshair,
+        setSyncCrosshair,
+        syncSymbol,
+        setSyncSymbol,
+        syncInterval,
+        setSyncInterval,
+        setWorkspaceSymbol
     } = useLayoutStore();
     const { toast } = useToast();
 
@@ -147,13 +162,26 @@ export const ChartControls = ({
                 </div>
             </div>
 
-            {/* Center: Drawing Tools */}
+            {/* Center: Drawing Tools & Overlays */}
             <div className="flex items-center gap-0.5 pl-3 border-l border-white/5 h-full">
                 <ToolButton icon={Pencil} label="Draw" />
                 <ToolButton icon={Square} label="Rectangle" />
                 <ToolButton icon={Minus} label="Horizontal Line" />
                 <ToolButton icon={MessageCircle} label="Annotation" />
                 <ToolButton icon={Magnet} label="Magnet" />
+
+                {/* OI Profile Toggle */}
+                <div className="w-[1px] h-6 bg-white/10 mx-1" />
+                <button
+                    onClick={onToggleOIProfile}
+                    className={cn(
+                        "p-1.5 rounded transition-colors",
+                        showOIProfile ? "bg-white/10 text-amber-500" : "text-[#555] hover:text-white hover:bg-white/5"
+                    )}
+                    title="Toggle OI Profile Overlay"
+                >
+                    <BarChartBig className="w-3.5 h-3.5" />
+                </button>
             </div>
 
             {/* Center-Right: Timeframes */}
@@ -206,6 +234,39 @@ export const ChartControls = ({
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
+
+                <div className="flex items-center gap-0.5 border-l border-white/5 mx-1 px-1">
+                    <button
+                        onClick={() => setSyncCrosshair(!syncCrosshair)}
+                        className={cn(
+                            "p-1.5 rounded transition-colors",
+                            syncCrosshair ? "bg-white/10 text-primary" : "text-[#555] hover:text-white"
+                        )}
+                        title="Sync Crosshair"
+                    >
+                        <Crosshair className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                        onClick={() => setSyncSymbol(!syncSymbol)}
+                        className={cn(
+                            "p-1.5 rounded transition-colors",
+                            syncSymbol ? "bg-white/10 text-primary" : "text-[#555] hover:text-white"
+                        )}
+                        title="Sync Symbol"
+                    >
+                        <Link2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                        onClick={() => setSyncInterval(!syncInterval)}
+                        className={cn(
+                            "p-1.5 rounded transition-colors",
+                            syncInterval ? "bg-white/10 text-primary" : "text-[#555] hover:text-white"
+                        )}
+                        title="Sync Interval"
+                    >
+                        <Clock className="w-3.5 h-3.5" />
+                    </button>
+                </div>
 
                 <button
                     onClick={() => togglePiP(widgetId)}

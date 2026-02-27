@@ -11,67 +11,68 @@
   */
 
   /* ─── BASE COLORS ─── */
-  --background: #111318;
-  /* Groww near-black */
-  --foreground: #e0e2e6;
-  /* Slightly cool white */
+  --background: #080a0c;
+  /* Much darker background for 915 */
+  --foreground: #d1d5db;
+  /* Softer text for less fatigue */
 
   /* ─── COMPONENT COLORS ─── */
-  --card: #181c22;
-  /* Groww card */
-  --card-foreground: #e0e2e6;
+  --card: #0c0f13;
+  /* Primary widget bg */
+  --card-foreground: #d1d5db;
 
-  --popover: #181c22;
-  --popover-foreground: #e0e2e6;
+  --popover: #0c0f13;
+  --popover-foreground: #d1d5db;
 
-  --primary: #3b82f6;
-  /* Blue accent */
-  --primary-foreground: #ffffff;
+  --primary: #22c55e;
+  /* Groww Green is usually the primary action */
+  --primary-foreground: #000000;
 
-  --secondary: #1e2228;
-  --secondary-foreground: #e0e2e6;
+  --secondary: #181c22;
+  --secondary-foreground: #a1a1aa;
 
-  --muted: #1e2228;
-  --muted-foreground: #7a7d85;
-  /* Groww muted grey */
+  --muted: #181c22;
+  --muted-foreground: #71717a;
 
   --accent: #1e2228;
-  --accent-foreground: #60a5fa;
+  --accent-foreground: #e4e4e7;
 
   --destructive: #ef4444;
+  /* Groww Red */
   --destructive-foreground: #ffffff;
 
-  --border: #1e2228;
-  --input: #1e2228;
-  --ring: #3b82f6;
+  --border: rgba(255, 255, 255, 0.05);
+  /* Extremely subtle borders */
+  --input: #181c22;
+  --ring: rgba(255, 255, 255, 0.1);
 
-  --radius: 0.375rem;
-  /* Slightly tighter than before */
+  --radius: 0.25rem;
+  /* Tighter radius for a "pro" feel */
 
   /* ─── SEMANTIC TRADING COLORS ─── */
   --up: #22c55e;
-  /* Groww Green */
   --down: #ef4444;
-  /* Groww Red */
+  --up-muted: rgba(34, 197, 94, 0.15);
+  --down-muted: rgba(239, 68, 68, 0.15);
 
   /* ─── SURFACE HIERARCHY ─── */
-  --surface-0: #0c0f13;
-  --surface-1: #111318;
-  --surface-2: #181c22;
-  --surface-3: #1e2228;
-  --surface-4: #252a32;
+  --surface-0: #080a0c;
+  --surface-1: #0c0f13;
+  --surface-2: #111318;
+  --surface-3: #181c22;
+  --surface-4: #1e2228;
 
   /* ─── CHART COLORS ─── */
   --chart-bg: #0c0f13;
-  --chart-grid: rgba(255, 255, 255, 0.03);
-  --chart-crosshair: rgba(59, 130, 246, 0.4);
-  --chart-watermark: rgba(255, 255, 255, 0.02);
-  --chart-volume-bull: rgba(34, 197, 94, 0.15);
-  --chart-volume-bear: rgba(239, 68, 68, 0.15);
+  --chart-grid: rgba(255, 255, 255, 0.02);
+  --chart-crosshair: rgba(255, 255, 255, 0.4);
+  --chart-watermark: rgba(255, 255, 255, 0.01);
+  --chart-volume-bull: rgba(34, 197, 94, 0.2);
+  --chart-volume-bear: rgba(239, 68, 68, 0.2);
 
   /* ─── ORDER LINES ─── */
-  --order-entry-buy: #4ade80;
-  --order-entry-sell: #f87171;
+  --order-entry-buy: #22c55e;
+  --order-entry-sell: #ef4444;
   --order-label-bg: rgba(11, 16, 26, 0.9);
 
   /* ─── NEURAL UI VARIABLES ─── */
@@ -158,7 +159,7 @@
 
 body {
   @apply text-foreground antialiased selection:bg-primary/30 selection:text-primary;
-  background: #111318;
+  background: var(--background);
   font-family: var(--font-sans);
 }
 
@@ -168,8 +169,9 @@ body {
 
 /* Custom Scrollbar - Sleek */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  /* Denser scrollbars */
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -177,12 +179,13 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 3px;
+  background: #27272a;
+  /* subtle grey */
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #3f3f46;
 }
 
 /* Semantic Text */
@@ -192,6 +195,14 @@ body {
 
 .text-down {
   color: var(--down);
+}
+
+.bg-up {
+  background-color: var(--up);
+}
+
+.bg-down {
+  background-color: var(--down);
 }
 
 /* ─── GLASSMORPHISM & UTILITIES ─── */
