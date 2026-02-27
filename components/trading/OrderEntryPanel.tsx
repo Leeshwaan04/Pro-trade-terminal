@@ -8,6 +8,8 @@ import { useAuthStore } from "@/hooks/useAuthStore";
 import { useOrderStore } from "@/hooks/useOrderStore";
 import { useToast } from "@/hooks/use-toast";
 
+import { useMarketStore } from "@/hooks/useMarketStore";
+
 export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) => {
     const [side, setSide] = useState<"buy" | "sell">("buy");
     const [product, setProduct] = useState("MIS");
@@ -19,11 +21,14 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
     const [blitzSlices, setBlitzSlices] = useState("5");
     const [blitzInterval, setBlitzInterval] = useState("3");
     const [submitting, setSubmitting] = useState(false);
+    const submitLock = React.useRef(false);
 
     const { activeBroker } = useAuthStore();
     const { toast } = useToast();
 
     const handleOrderSubmit = async () => {
+        if (submitLock.current || submitting) return;
+        submitLock.current = true;
         setSubmitting(true);
         try {
             if (!activeBroker) {
@@ -37,38 +42,89 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
             }
 
             const { placeOrder, executeBlitz } = useOrderStore.getState();
-            const orderParams = {
-                symbol: symbol,
-                transactionType: side.toUpperCase() as any,
-                orderType: type.toUpperCase() as any,
-                productType: product.toUpperCase() as any,
-                qty: quantity,
-                price: parseFloat(price),
-                triggerPrice: parseFloat(trigger),
-            };
+            const { tickers } = useMarketStore.getState();
 
-            if (isBlitz) {
-                const slices = parseInt(blitzSlices);
-                const interval = parseFloat(blitzInterval);
+            if (type === "GTT") {
+                const triggerPrice = parseFloat(trigger);
+                const limitPrice = parseFloat(price);
 
-                if (isNaN(slices) || slices < 2) throw new Error("Need at least 2 slices for Blitz");
-                if (isNaN(interval) || interval < 0.5) throw new Error("Interval must be > 0.5s");
+                if (isNaN(triggerPrice) || triggerPrice <= 0) throw new Error("Invalid trigger price for GTT");
+                if (isNaN(limitPrice) || limitPrice <= 0) throw new Error("Invalid limit price for GTT");
 
-                executeBlitz(orderParams, {
-                    enabled: true,
-                    slices,
-                    interval
+                const ltp = tickers[symbol]?.last_price || limitPrice;
+
+                const condition = {
+                    exchange: symbol.includes('FUT') || symbol.includes('CE') || symbol.includes('PE') ? 'NFO' : 'NSE',
+                    tradingsymbol: symbol,
+                    trigger_values: [triggerPrice],
+                    last_price: ltp
+                };
+
+                const orders = [{
+                    exchange: condition.exchange,
+                    tradingsymbol: symbol,
+                    transaction_type: side.toUpperCase(),
+                    quantity,
+                    order_type: "LIMIT",
+                    product: product.toUpperCase(),
+                    price: limitPrice
+                }];
+
+                const payload = {
+                    type: "single",
+                    condition,
+                    orders
+                };
+
+                const res = await fetch('/api/orders/gtt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 });
-                toast({ title: "⚡ Blitz Initiated", description: `Executing ${quantity} qty over ${slices} slices` });
+
+                const json = await res.json();
+                if (!res.ok || json.status !== 'success') {
+                    throw new Error(json.error || json.message || "Failed to place GTT");
+                }
+
+                toast({ title: "GTT Placed", description: `${side.toUpperCase()} ${qty} qty @ ${limitPrice} (Trigger: ${triggerPrice})` });
             } else {
-                await placeOrder(orderParams);
-                toast({ title: "Order Placed", description: `${side.toUpperCase()} ${qty} qty @ ${price}` });
+                const orderParams = {
+                    symbol: symbol,
+                    transactionType: side.toUpperCase() as any,
+                    orderType: type.toUpperCase() as any,
+                    productType: product.toUpperCase() as any,
+                    qty: quantity,
+                    price: parseFloat(price),
+                    triggerPrice: parseFloat(trigger),
+                };
+
+                if (isBlitz) {
+                    const slices = parseInt(blitzSlices);
+                    const interval = parseFloat(blitzInterval);
+
+                    if (isNaN(slices) || slices < 2) throw new Error("Need at least 2 slices for Blitz");
+                    if (isNaN(interval) || interval < 0.5) throw new Error("Interval must be > 0.5s");
+
+                    executeBlitz(orderParams, {
+                        enabled: true,
+                        slices,
+                        interval
+                    });
+                    toast({ title: "⚡ Blitz Initiated", description: `Executing ${quantity} qty over ${slices} slices` });
+                } else {
+                    await placeOrder(orderParams);
+                    toast({ title: "Order Placed", description: `${side.toUpperCase()} ${qty} qty @ ${price}` });
+                }
             }
 
         } catch (error: any) {
             toast({ title: "Order Failed", description: error.message, variant: "destructive" });
         } finally {
-            setSubmitting(false);
+            setTimeout(() => {
+                submitLock.current = false;
+                setSubmitting(false);
+            }, 500); // 500ms safety debounce
         }
     };
 
@@ -168,8 +224,8 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
                 {/* Order Type */}
                 <div className="space-y-1">
                     <Label>Type</Label>
-                    <div className="grid grid-cols-4 gap-1">
-                        {["LMT", "MKT", "SL", "SL-M"].map((t) => (
+                    <div className="grid grid-cols-5 gap-1">
+                        {["LMT", "MKT", "SL", "SL-M", "GTT"].map((t) => (
                             <button
                                 key={t}
                                 onClick={() => setType(t)}

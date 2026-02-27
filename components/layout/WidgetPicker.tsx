@@ -51,6 +51,7 @@ const WIDGETS_COLLECTION = [
     { type: "STRADDLE_CHART", label: "Straddle Chart", desc: "Visualized combined premium decay", icon: <TrendingUp className="w-5 h-5" />, color: "text-amber-400", gradient: "from-amber-500/20 to-amber-600/40" },
     { type: "HISTORY", label: "Order History", desc: "Comprehensive log of past trades", icon: <History className="w-5 h-5" />, color: "text-zinc-400", gradient: "from-zinc-500/20 to-zinc-600/40" },
     { type: "PORTFOLIO", label: "Portfolio", desc: "Consolidated view of all holdings", icon: <PieChart className="w-5 h-5" />, color: "text-indigo-400", gradient: "from-indigo-500/20 to-indigo-600/40" },
+    { type: "FII_DII", label: "FII/DII Flows", desc: "Institutional capital flow visualizations", icon: <BarChart3 className="w-5 h-5" />, color: "text-emerald-400", gradient: "from-emerald-500/20 to-emerald-600/40" },
     { type: "ALGO_FEED", label: "Algo Feed", desc: "Real-time signals from automated bots", icon: <Shield className="w-5 h-5" />, color: "text-primary", gradient: "from-primary/20 to-primary/40" },
 ];
 

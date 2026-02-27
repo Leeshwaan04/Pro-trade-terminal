@@ -8,63 +8,94 @@
  * 3. Session Watchdog (via apiClient Interceptor)
  */
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useAuthStore } from './useAuthStore';
 import { useMarketStore } from './useMarketStore';
-import { useOrderStore } from './useOrderStore';
+import { useOrderStore, Order, Position } from './useOrderStore';
 import { apiClient } from '@/lib/api-client';
 
 export function useAccountSync() {
     const activeBroker = useAuthStore(s => s.activeBroker);
     const isLoggedIn = useAuthStore(s => s.isLoggedIn);
     const updateUnifiedMargin = useMarketStore(s => s.updateUnifiedMargin);
+
     const lastOrderTime = useOrderStore(s => s.lastOrderTime);
+    const setOrders = useOrderStore(s => s.setOrders);
+    const setPositions = useOrderStore(s => s.setPositions);
 
-    // Sync Logic
-    useEffect(() => {
-        // Only run for KITE/LIVE or if user specifically wants Real Data
-        // For PAPER, we might want to simulate (or just show 0 margin used for now)
-        if (!isLoggedIn) return;
+    const syncAccounts = useCallback(async () => {
+        if (!isLoggedIn || activeBroker !== 'KITE') return;
 
-        const syncMargins = async () => {
-            if (activeBroker !== 'KITE') return; // Only Kite supported for now
+        try {
+            const isMock = typeof window !== 'undefined' && window.location.search.includes("mock=true");
 
-            try {
-                // Fetch Unified Margins
-                // Expects { status: 'success', data: { totalAvailable: number, netUsed: number, ... } }
-                const isMock = typeof window !== 'undefined' && window.location.search.includes("mock=true");
-                const url = isMock ? '/api/user/margins?mock=true' : '/api/user/margins';
+            const [marginRes, ordersRes, positionsRes] = await Promise.all([
+                apiClient(isMock ? '/api/user/margins?mock=true' : '/api/user/margins').catch(() => null),
+                apiClient(isMock ? '/api/orders/list?mock=true' : '/api/orders/list').catch(() => null),
+                apiClient(isMock ? '/api/portfolio/positions?mock=true' : '/api/portfolio/positions').catch(() => null),
+            ]);
 
-                const data: any = await apiClient(url);
-
-                if (data && typeof data.totalAvailable === 'number') {
-                    updateUnifiedMargin({
-                        totalMargin: data.totalAvailable,
-                        brokers: {
-                            [activeBroker]: {
-                                available: data.totalAvailable,
-                                used: data.netUsed,
-                                util_percent: data.util_percent
-                            }
+            // Sync Margins
+            if (marginRes && typeof marginRes.totalAvailable === 'number') {
+                updateUnifiedMargin({
+                    totalMargin: marginRes.totalAvailable,
+                    brokers: {
+                        [activeBroker]: {
+                            available: marginRes.totalAvailable,
+                            used: marginRes.netUsed,
+                            util_percent: marginRes.util_percent
                         }
-                    });
-                }
-            } catch (error) {
-                console.warn("[AccountSync] Margin fetch failed", error);
+                    }
+                });
             }
-        };
 
-        // Initial Sync
-        syncMargins();
+            // Sync Orders
+            if (ordersRes && Array.isArray(ordersRes)) {
+                const mappedOrders: Order[] = ordersRes.map((ko: any) => ({
+                    id: ko.order_id,
+                    symbol: ko.tradingsymbol,
+                    transactionType: ko.transaction_type,
+                    orderType: ko.order_type,
+                    productType: ko.product,
+                    qty: ko.quantity,
+                    price: ko.price || ko.average_price || 0,
+                    triggerPrice: ko.trigger_price,
+                    status: (ko.status === 'COMPLETE' ? 'EXECUTED' : ko.status) as any,
+                    timestamp: ko.order_timestamp ? new Date(ko.order_timestamp).getTime() : Date.now(),
+                    rejectionReason: ko.status_message
+                }));
 
-        // Event-Driven Sync (On Order Completion)
-        if (lastOrderTime > 0) {
-            syncMargins();
+                // Keep only today's relevant orders naturally managed by Kite
+                // Exclude the 'UPDATE' historical filler if possible, but Kite natively returns today's orders
+                setOrders(mappedOrders.reverse()); // Reverse to show latest first
+            }
+
+            // Sync Positions
+            if (positionsRes && positionsRes.net && Array.isArray(positionsRes.net)) {
+                const mappedPositions: Position[] = positionsRes.net.map((kp: any) => ({
+                    ...kp,
+                    symbol: kp.tradingsymbol, // Map tradingsymbol -> symbol
+                }));
+                // We overwrite our local dummy positions with the true backend positions
+                setPositions(mappedPositions);
+            }
+
+        } catch (error) {
+            console.warn("[AccountSync] Sync failed", error);
         }
+    }, [isLoggedIn, activeBroker, updateUnifiedMargin, setOrders, setPositions]);
 
-        // Polling (Every 30s as per plan)
-        const interval = setInterval(syncMargins, 30000);
-
+    // Fast-Sync interval loop
+    useEffect(() => {
+        syncAccounts();
+        const interval = setInterval(syncAccounts, 5000); // Poll every 5 seconds for snappier UI
         return () => clearInterval(interval);
-    }, [isLoggedIn, activeBroker, lastOrderTime, updateUnifiedMargin]);
+    }, [syncAccounts]);
+
+    // Force sync immediately when a local interaction (e.g., placeOrder button hit) triggers
+    useEffect(() => {
+        if (lastOrderTime > 0) {
+            syncAccounts();
+        }
+    }, [lastOrderTime, syncAccounts]);
 }

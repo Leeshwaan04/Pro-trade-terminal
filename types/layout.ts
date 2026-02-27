@@ -12,7 +12,9 @@ export type WidgetType =
     | "ORDER_ENTRY"
     | "WHALE_SONAR"
     | "STRADDLE"
-    | "HYPER_CHART";
+    | "HYPER_CHART"
+    | "OI_ANALYSIS"
+    | "FII_DII";
 
 // ... (existing constants) ...
 

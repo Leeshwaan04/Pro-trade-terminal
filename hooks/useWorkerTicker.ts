@@ -14,8 +14,8 @@ interface UseWorkerTickerProps {
 
 export function useWorkerTicker({ url, type, enabled = true, isSecondary = false }: UseWorkerTickerProps) {
     const workerRef = useRef<Worker | null>(null);
-    const updateTicker = useMarketStore((s) => s.updateTicker);
-    const updateSecondaryTicker = useMarketStore((s) => s.updateSecondaryTicker);
+    const updateTickers = useMarketStore((s) => s.updateTickers);
+    const updateSecondaryTickers = useMarketStore((s) => s.updateSecondaryTickers);
     const updateUnifiedMargin = useMarketStore((s) => s.updateUnifiedMargin);
     const setConnectionStatus = useMarketStore((s) => s.setConnectionStatus);
     const activeBroker = useAuthStore((s) => s.activeBroker);
@@ -38,10 +38,8 @@ export function useWorkerTicker({ url, type, enabled = true, isSecondary = false
                 case 'TICK':
                     const { data, key: sourceKey } = payload;
                     if (sourceKey === url && Array.isArray(data)) {
-                        data.forEach(tick => {
-                            if (isSecondary) updateSecondaryTicker(tick);
-                            else updateTicker(tick);
-                        });
+                        if (isSecondary) updateSecondaryTickers(data);
+                        else updateTickers(data);
                     }
                     break;
                 case 'UNIFIED_MARGIN':
@@ -77,7 +75,7 @@ export function useWorkerTicker({ url, type, enabled = true, isSecondary = false
             type: 'CONNECT',
             payload: { url, type }
         });
-    }, [url, type, updateTicker, updateSecondaryTicker, updateUnifiedMargin, setConnectionStatus, activeBroker, isSecondary]);
+    }, [url, type, updateTickers, updateSecondaryTickers, updateUnifiedMargin, setConnectionStatus, activeBroker, isSecondary]);
 
     useEffect(() => {
         if (enabled && url && url.startsWith('http')) {

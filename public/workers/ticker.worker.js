@@ -2,6 +2,11 @@
  * ZenG Trade: Ticker Worker
  * Offloads WebSocket parsing and state management to a background thread.
  * Vanilla JS version for Production Compatibility.
+ *
+ * Supports three connection modes:
+ * 1. SSE (primary) — real-time streaming via Server-Sent Events
+ * 2. REST Polling (automatic fallback) — polls /api/ws/poll every 1.5s
+ * 3. WebSocket (secondary brokers) — direct WS connection
  */
 
 // Global State
@@ -10,6 +15,8 @@ const instances = new Map();
 const brokerMargins = new Map();
 const RECONNECT_INTERVAL = 5000;
 const LAG_THRESHOLD = 3000; // 3 seconds lag = switch
+const POLL_INTERVAL = 1500; // 1.5s REST polling interval
+const SSE_FAILURE_THRESHOLD = 3; // After 3 SSE failures, switch to polling
 
 let riskLimits = { maxLoss: -10000, maxTrades: 50 }; // Defaults
 let isHaltActive = false;
@@ -67,6 +74,7 @@ function cleanupInstance(key) {
     instance.socket?.close();
     instance.eventSource?.close();
     if (instance.reconnectTimer) clearTimeout(instance.reconnectTimer);
+    if (instance.pollTimer) clearInterval(instance.pollTimer);
 
     instances.delete(key);
     self.postMessage({ type: 'STATUS', payload: { connected: false, key } });
@@ -101,46 +109,83 @@ function calculateFusedPrice(symbol, broker, price) {
 
     if (brokerPrices.size < 2) return price;
 
-    // Golden Price = Median or Mean of all sources to neutralize glitches
     const allPrices = Array.from(brokerPrices.values()).sort((a, b) => a - b);
     const mid = Math.floor(allPrices.length / 2);
     return allPrices.length % 2 !== 0 ? allPrices[mid] : (allPrices[mid - 1] + allPrices[mid]) / 2;
 }
+
+// ─── OPTIMIZATION: Tick Batching ─────────────────────────────
+// Instead of spamming the main thread on every single tick (which causes React to freeze),
+// we accumulate them in this buffer and flush them every 250ms.
+const TICK_FLUSH_INTERVAL = 250;
+const tickBuffer = new Map(); // key -> current map of token -> tick
+let isTickFlushRunning = false;
+
+function startTickFlush() {
+    if (isTickFlushRunning) return;
+    isTickFlushRunning = true;
+    setInterval(() => {
+        if (tickBuffer.size === 0) return;
+
+        tickBuffer.forEach((ticksMap, key) => {
+            const ticksArray = Array.from(ticksMap.values());
+            if (ticksArray.length > 0) {
+                self.postMessage({ type: 'TICK', payload: { data: ticksArray, key } });
+                ticksMap.clear(); // Clear after flushing
+            }
+        });
+    }, TICK_FLUSH_INTERVAL);
+}
+
+// Start immediately
+startTickFlush();
 
 function broadcast(type, key, payload) {
     const instance = instances.get(key);
     if (instance) instance.lastTickAt = Date.now();
 
     if (type === 'TICK' && payload.data) {
-        // Handle both single tick and array of ticks
         const ticks = Array.isArray(payload.data) ? payload.data : [payload.data];
+
+        // Ensure map exists for this key
+        if (!tickBuffer.has(key)) tickBuffer.set(key, new Map());
+        const instanceBuffer = tickBuffer.get(key);
+
         ticks.forEach((tick) => {
-            if (tick.last_price) {
+            if (tick.last_price || tick.instrument_token || tick.symbol) {
                 const symbol = tick.symbol || key;
                 const broker = instance?.broker || 'UNKNOWN';
 
-                // 1. Fusion (Golden Price)
-                tick.fused_price = calculateFusedPrice(symbol, broker, tick.last_price);
+                // Enhance tick with fusion/indicators
+                if (tick.last_price) {
+                    tick.fused_price = calculateFusedPrice(symbol, broker, tick.last_price);
+                    tick.indicators = {
+                        ema20: calculateEMA(symbol, tick.fused_price, 20)
+                    };
 
-                // 2. Indicators
-                tick.indicators = {
-                    ema20: calculateEMA(symbol, tick.fused_price, 20)
-                };
-
-                // 3. Basis Intelligence (Spot-Futures Divergence)
-                if (symbol.includes && symbol.includes('FUT')) {
-                    const spotSymbol = symbol.split(' ')[0];
-                    const spotPrice = priceFusionMap.get(spotSymbol)?.get(broker);
-                    if (spotPrice) {
-                        tick.basis = tick.fused_price - spotPrice;
+                    if (symbol.includes && symbol.includes('FUT')) {
+                        const spotSymbol = symbol.split(' ')[0];
+                        const spotPrice = priceFusionMap.get(spotSymbol)?.get(broker);
+                        if (spotPrice) {
+                            tick.basis = tick.fused_price - spotPrice;
+                        }
                     }
                 }
+
+                // Aggregate into buffer (latest tick per instrument overwrites older ones in same batch)
+                const uid = tick.instrument_token || symbol;
+                // Merge with existing tick in buffer to preserve fields (e.g. ohlc + depth from different packets)
+                const existing = instanceBuffer.get(uid) || {};
+                instanceBuffer.set(uid, { ...existing, ...tick });
             }
         });
-    }
-    self.postMessage({ type, payload: { ...payload, key } });
 
-    // Holistic Fail-Safe Logic
+        // DO NOT postMessage immediately containing ticks. The interval flushes it.
+    } else {
+        // Immediate broadcast for STATUS/ERROR events
+        self.postMessage({ type, payload: { ...payload, key } });
+    }
+
     checkFailover();
 }
 
@@ -148,7 +193,6 @@ function checkFailover() {
     const now = Date.now();
     instances.forEach((instance, key) => {
         if (instance.type === 'sse' && instance.lastTickAt > 0 && (now - instance.lastTickAt > LAG_THRESHOLD)) {
-            // Priority Failover: SSE is lagging, notify main thread to potential swap
             self.postMessage({
                 type: 'FAILOVER_SUGGESTION',
                 payload: { laggyKey: key, broker: instance.broker }
@@ -157,36 +201,143 @@ function checkFailover() {
     });
 }
 
+// ─── SSE Connection (Primary) ─────────────────────────────────
 function connectSSE(url, key, broker) {
     cleanupInstance(key);
+
+    const instance = {
+        eventSource: null,
+        type: 'sse',
+        lastTickAt: Date.now(),
+        broker,
+        sseFailureCount: 0,
+        pollTimer: null,
+        pollUrl: null,
+        reconnectTimer: null,
+    };
+
+    // Extract the poll URL from the SSE URL
+    try {
+        const sseUrl = new URL(url, self.location.origin);
+        const tokens = sseUrl.searchParams.get('tokens');
+        const brokerParam = sseUrl.searchParams.get('broker');
+        const brokerQuery = brokerParam ? `&broker=${brokerParam}` : '';
+        instance.pollUrl = `${sseUrl.origin}/api/ws/poll?tokens=${tokens}${brokerQuery}`;
+    } catch (e) {
+        // Fallback: construct poll URL manually
+        const tokensMatch = url.match(/tokens=([^&]+)/);
+        const brokerMatch = url.match(/broker=([^&]+)/);
+        if (tokensMatch) {
+            const brokerQuery = brokerMatch ? `&broker=${brokerMatch[1]}` : '';
+            instance.pollUrl = `/api/ws/poll?tokens=${tokensMatch[1]}${brokerQuery}`;
+        }
+    }
+
+    instances.set(key, instance);
 
     try {
         const absoluteUrl = new URL(url, self.location.origin).href;
         const eventSource = new EventSource(absoluteUrl);
-
-        instances.set(key, { eventSource, type: 'sse', lastTickAt: Date.now(), broker });
+        instance.eventSource = eventSource;
 
         eventSource.addEventListener('status', (e) => {
             try {
-                broadcast('STATUS', key, JSON.parse(e.data));
+                const data = JSON.parse(e.data);
+                broadcast('STATUS', key, data);
+                // SSE is working — reset failure count and stop polling if active
+                instance.sseFailureCount = 0;
+                stopPolling(key);
             } catch (err) { }
         });
 
         eventSource.addEventListener('tick', (e) => {
             try {
                 broadcast('TICK', key, { data: JSON.parse(e.data) });
+                // SSE is delivering ticks — reset failure count
+                instance.sseFailureCount = 0;
             } catch (err) { }
         });
 
         eventSource.onerror = () => {
-            broadcast('ERROR', key, { message: 'SSE Connection Failed' });
-            scheduleReconnect(url, 'sse', key, broker);
+            instance.sseFailureCount = (instance.sseFailureCount || 0) + 1;
+            console.warn(`[Worker] SSE error #${instance.sseFailureCount} for ${key}`);
+
+            // After threshold failures, switch to polling fallback
+            if (instance.sseFailureCount >= SSE_FAILURE_THRESHOLD) {
+                console.warn(`[Worker] SSE failed ${SSE_FAILURE_THRESHOLD}x. Switching to REST polling.`);
+                // Close the broken SSE connection
+                eventSource.close();
+                instance.eventSource = null;
+                // Start polling
+                startPolling(key);
+            } else {
+                // Let EventSource auto-reconnect for a few tries
+                broadcast('ERROR', key, { message: 'SSE Connection Failed, retrying...' });
+            }
         };
     } catch (err) {
         console.error('Worker SSE Error:', err);
+        // SSE creation failed entirely — go straight to polling
+        startPolling(key);
     }
 }
 
+// ─── REST Polling Fallback ────────────────────────────────────
+function startPolling(key) {
+    const instance = instances.get(key);
+    if (!instance || instance.pollTimer) return; // Already polling
+
+    const pollUrl = instance.pollUrl;
+    if (!pollUrl) {
+        console.error('[Worker] No poll URL available for fallback');
+        broadcast('ERROR', key, { message: 'No fallback polling URL' });
+        return;
+    }
+
+    console.log(`[Worker] Starting REST polling fallback: ${pollUrl}`);
+    broadcast('STATUS', key, { connected: true, source: 'poll', fallback: true });
+
+    // Immediate first poll
+    doPoll(key, pollUrl);
+
+    // Then poll on interval
+    instance.pollTimer = setInterval(() => {
+        doPoll(key, pollUrl);
+    }, POLL_INTERVAL);
+}
+
+function stopPolling(key) {
+    const instance = instances.get(key);
+    if (!instance || !instance.pollTimer) return;
+    clearInterval(instance.pollTimer);
+    instance.pollTimer = null;
+    console.log(`[Worker] Stopped REST polling for ${key} (SSE recovered)`);
+}
+
+async function doPoll(key, pollUrl) {
+    try {
+        const absoluteUrl = new URL(pollUrl, self.location.origin).href;
+        const res = await fetch(absoluteUrl, { cache: 'no-store' });
+
+        if (!res.ok) {
+            if (res.status === 401) {
+                broadcast('ERROR', key, { message: 'Not authenticated — please log in via Kite' });
+                stopPolling(key);
+            }
+            return;
+        }
+
+        const json = await res.json();
+        if (json.status === 'success' && json.data && json.data.length > 0) {
+            broadcast('TICK', key, { data: json.data });
+        }
+    } catch (err) {
+        // Network error — keep polling, it may recover
+        console.warn('[Worker] Poll error:', err.message);
+    }
+}
+
+// ─── WebSocket Connection (Secondary Brokers) ─────────────────
 function connectWS(url, key, broker) {
     cleanupInstance(key);
 

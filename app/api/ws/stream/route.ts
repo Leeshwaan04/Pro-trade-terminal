@@ -18,6 +18,9 @@ const KITE_API_BASE = "https://api.kite.trade";
 const GROWW_WS_BASE = "wss://api.groww.in/v1/market/feed";
 import { MARKET_INSTRUMENTS } from "@/lib/market-config";
 
+// Vercel Pro: extend serverless function timeout to 5 minutes for SSE streaming
+export const maxDuration = 300;
+
 export async function GET(req: NextRequest) {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("kite_access_token")?.value;

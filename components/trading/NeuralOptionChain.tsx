@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { ArrowUpRight, ArrowDownRight, Layers, Zap } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { WidgetHeader } from "@/components/ui/WidgetHeader";
-import { useMockOptionChain } from "@/hooks/useMockOptionChain";
+import { useLiveOptionChain } from "@/hooks/useLiveOptionChain";
 
 export const NeuralOptionChain = ({ symbol = "NIFTY 50" }: { symbol?: string }) => {
     const { tickers } = useMarketStore();
@@ -18,8 +18,8 @@ export const NeuralOptionChain = ({ symbol = "NIFTY 50" }: { symbol?: string }) 
     const { isArmed } = useSafetyStore();
     const { executeStraddle } = useStrategyStore();
 
-    // Custom Live-Streaming Option Chain Mock
-    const { spotPrice, chainData } = useMockOptionChain(symbol);
+    // Authentic Live-Streaming Option Chain via WebSockets
+    const { spotPrice, chainData, loading } = useLiveOptionChain(symbol);
 
     // Heatmap scaling
     const maxOI = Math.max(...chainData.flatMap(r => [r.ce.oi, r.pe.oi]));
@@ -48,7 +48,10 @@ export const NeuralOptionChain = ({ symbol = "NIFTY 50" }: { symbol?: string }) 
                 id="option-chain"
                 title="Option Chain"
                 symbol={symbol}
-                action={<span className="text-[10px] text-zinc-400">SPOT: <span className="text-white font-bold">{spotPrice.toFixed(2)}</span></span>}
+                action={
+                    loading ? <div className="animate-spin w-3 h-3 border-2 border-[var(--neon-cyan)] border-t-transparent rounded-full" />
+                        : <span className="text-[10px] text-zinc-400">SPOT: <span className="text-white font-bold">{spotPrice.toFixed(2)}</span></span>
+                }
             />
 
             {/* Table Header */}
@@ -72,14 +75,16 @@ export const NeuralOptionChain = ({ symbol = "NIFTY 50" }: { symbol?: string }) 
             {/* Chain Rows */}
             <div className="flex-1 overflow-auto custom-scrollbar relative">
                 {/* Spot Line */}
-                <div
-                    className="absolute left-0 right-0 h-[1px] bg-yellow-400/50 z-20 pointer-events-none border-b border-dashed border-yellow-400"
-                    style={{
-                        top: `${((chainData.findIndex(r => r.strike > spotPrice) || 10) * (isMobile ? 40 : 28)) + (isMobile ? 20 : 14)}px`
-                    }}
-                >
-                    <div className="absolute right-0 -top-2 bg-yellow-400 text-black text-[8px] font-bold px-1 rounded-l-sm">SPOT</div>
-                </div>
+                {!loading && (
+                    <div
+                        className="absolute left-0 right-0 h-[1px] bg-yellow-400/50 z-20 pointer-events-none border-b border-dashed border-yellow-400"
+                        style={{
+                            top: `${((chainData.findIndex(r => r.strike > spotPrice) || 10) * (isMobile ? 40 : 28)) + (isMobile ? 20 : 14)}px`
+                        }}
+                    >
+                        <div className="absolute right-0 -top-2 bg-yellow-400 text-black text-[8px] font-bold px-1 rounded-l-sm">SPOT</div>
+                    </div>
+                )}
 
                 {chainData.map((row) => (
                     <div

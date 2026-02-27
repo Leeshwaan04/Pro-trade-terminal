@@ -3,28 +3,11 @@
 import React from "react";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { Zap, Shield, BarChart3, Activity } from "lucide-react";
-import { AngelLoginForm } from "./AngelLoginForm";
-import { FivePaisaLoginForm } from "./FivePaisaLoginForm";
 import { useState } from "react";
 
 export const LoginScreen = () => {
     const login = useAuthStore((s) => s.login);
     const setBroker = useAuthStore((s) => s.setBroker);
-    const [showAngelLogin, setShowAngelLogin] = useState(false);
-    const [show5PaisaLogin, setShow5PaisaLogin] = useState(false);
-
-    // Handler for Angel Success
-    const handleAngelSuccess = () => {
-        setBroker("ANGEL");
-        // Reload or redirect to ensure state is synced
-        window.location.reload();
-    };
-
-    // Handler for 5Paisa Success
-    const handle5PaisaSuccess = () => {
-        setBroker("5PAISA");
-        window.location.reload();
-    };
 
     return (
         <div className="min-h-screen bg-[#050506] flex items-center justify-center relative overflow-hidden">
@@ -44,66 +27,31 @@ export const LoginScreen = () => {
 
             <div className="relative z-10 flex flex-col items-center gap-10 max-w-md mx-auto px-6">
                 {/* Logo */}
-                <div className="flex flex-col items-center gap-3">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-[var(--up)] to-[var(--primary)] rounded-xl flex items-center justify-center shadow-[0_0_30px_color-mix(in_srgb,var(--up)_25%,transparent)]">
-                            <Zap className="w-5 h-5 text-black" />
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-black text-white tracking-tight">
-                                ZenG <span className="text-[var(--primary)]">TRADE</span>
-                            </h1>
-                            <p className="text-[9px] text-zinc-500 uppercase tracking-[0.3em] font-mono">
-                                Pro Trading Terminal
-                            </p>
-                        </div>
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[var(--up)] to-[var(--primary)] rounded-xl flex items-center justify-center shadow-[0_0_40px_color-mix(in_srgb,var(--up)_30%,transparent)]">
+                        <Zap className="w-6 h-6 text-black" />
+                    </div>
+                    <div className="flex flex-col items-center text-center">
+                        <h1 className="text-2xl font-black text-white tracking-tight">
+                            ZenG <span className="text-[var(--primary)]">TRADE</span>
+                        </h1>
+                        <p className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-mono mt-1">
+                            Pro Trading Terminal
+                        </p>
                     </div>
                 </div>
 
-                {/* Broker Grid */}
-                <div className="grid grid-cols-2 gap-3 w-full">
-                    <BrokerCard
-                        name="Zerodha Kite"
-                        status="Ready"
-                        color="from-[#ff5722] to-[#ff8a65]"
-                        icon={<Zap className="w-5 h-5" />}
-                        onClick={login}
-                    />
-                    <BrokerCard
-                        name="Upstox Pro"
-                        status="Ready"
-                        color="from-[#5e35b1] to-[#7e57c2]"
-                        icon={<Activity className="w-5 h-5" />}
-                        onClick={() => window.location.href = '/api/upstox/auth/login'}
-                    />
-                    <BrokerCard
-                        name="Dhan"
-                        status="Coming Soon"
-                        color="from-[#7b1fa2] to-[#ab47bc]"
-                        icon={<BarChart3 className="w-5 h-5" />}
-                        disabled
-                    />
-                    <BrokerCard
-                        name="Angel One"
-                        status="Ready"
-                        color="from-[#0277bd] to-[#29b6f6]"
-                        icon={<Shield className="w-5 h-5" />}
-                        onClick={() => setShowAngelLogin(true)}
-                    />
-                    <BrokerCard
-                        name="Fyers"
-                        status="Coming Soon"
-                        color="from-[#00838f] to-[#26c6da]"
-                        icon={<Activity className="w-5 h-5" />}
-                        disabled
-                    />
-                    <BrokerCard
-                        name="5Paisa"
-                        status="Ready"
-                        color="from-[#ef6c00] to-[#ff9800]"
-                        icon={<Zap className="w-5 h-5" />}
-                        onClick={() => setShow5PaisaLogin(true)}
-                    />
+                {/* Broker Grid - Exclusive Focus */}
+                <div className="flex justify-center w-full mt-4">
+                    <div className="w-full max-w-xs">
+                        <BrokerCard
+                            name="Zerodha Kite"
+                            status="Ready"
+                            color="from-[#ff5722] to-[#ff8a65]"
+                            icon={<Zap className="w-5 h-5" />}
+                            onClick={login}
+                        />
+                    </div>
                 </div>
 
                 <p className="text-[10px] text-zinc-600 text-center leading-relaxed max-w-xs mt-4">
@@ -112,32 +60,15 @@ export const LoginScreen = () => {
                 </p>
 
                 {/* Version */}
-                <div className="flex items-center gap-2 text-[9px] text-zinc-700 font-mono">
-                    <span>v0.4.0-universal</span>
-                    <span>•</span>
-                    <span>Multi-Broker Engine</span>
+                <div className="flex flex-col items-center gap-2 text-[9px] text-zinc-700 font-mono">
+                    <div className="flex items-center gap-2">
+                        <span>v0.4.0-kite</span>
+                        <span>•</span>
+                        <span>Kite Connect v3 Engine</span>
+                    </div>
+                    <span>Powered by deep market integration</span>
                 </div>
             </div>
-
-            {/* Angel One Login Modal */}
-            {showAngelLogin && (
-                <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                    <AngelLoginForm
-                        onSuccess={handleAngelSuccess}
-                        onCancel={() => setShowAngelLogin(false)}
-                    />
-                </div>
-            )}
-
-            {/* 5Paisa Login Modal */}
-            {show5PaisaLogin && (
-                <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                    <FivePaisaLoginForm
-                        onSuccess={handle5PaisaSuccess}
-                        onCancel={() => setShow5PaisaLogin(false)}
-                    />
-                </div>
-            )}
         </div>
     );
 };
@@ -194,8 +125,8 @@ const BrokerCard = ({ name, status, color, icon, onClick, disabled }: BrokerCard
                     {icon}
                 </div>
                 {status === "Ready" ? (
-                    <span className="text-[9px] font-bold text-[var(--up)] bg-[var(--up)]/10 px-2 py-0.5 rounded-full border border-[var(--up)]/20 shadow-[0_0_10px_var(--up)]">
-                        ONLINE
+                    <span className="text-[9px] font-bold text-zinc-300 bg-white/10 px-2 py-0.5 rounded-full border border-white/10">
+                        READY
                     </span>
                 ) : (
                     <span className="text-[9px] font-medium text-zinc-500 bg-zinc-800/50 px-2 py-0.5 rounded-full">

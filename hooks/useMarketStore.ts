@@ -41,7 +41,9 @@ interface MarketState {
     tickers: Record<string, TickerData>;
     secondaryTickers: Record<string, TickerData>;
     updateTicker: (data: TickerData) => void;
+    updateTickers: (dataArray: TickerData[]) => void;
     updateSecondaryTicker: (data: TickerData) => void;
+    updateSecondaryTickers: (dataArray: TickerData[]) => void;
     unifiedMargin: { totalMargin: number; brokers: Record<string, any> };
     updateUnifiedMargin: (data: any) => void;
     // Unified Subscription Management
@@ -154,6 +156,14 @@ export const useMarketStore = create<MarketState>((set) => ({
                 [data.symbol]: data,
             },
         })),
+    updateTickers: (dataArray) =>
+        set((state) => {
+            const newTickers = { ...state.tickers };
+            for (const data of dataArray) {
+                newTickers[data.symbol] = data;
+            }
+            return { tickers: newTickers };
+        }),
     updateSecondaryTicker: (data) =>
         set((state) => ({
             secondaryTickers: {
@@ -161,6 +171,14 @@ export const useMarketStore = create<MarketState>((set) => ({
                 [data.symbol]: data,
             },
         })),
+    updateSecondaryTickers: (dataArray) =>
+        set((state) => {
+            const newTickers = { ...state.secondaryTickers };
+            for (const data of dataArray) {
+                newTickers[data.symbol] = data;
+            }
+            return { secondaryTickers: newTickers };
+        }),
     unifiedMargin: { totalMargin: 0, brokers: {} },
     updateUnifiedMargin: (data) => set({ unifiedMargin: data }),
     subscribe: (identifiers) => set((state) => {

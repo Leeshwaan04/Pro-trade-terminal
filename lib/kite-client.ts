@@ -24,6 +24,12 @@ export interface KiteOrderParams {
     tag?: string;
 }
 
+export interface KiteGTTParams {
+    type: "single" | "two-leg";
+    condition: any; // { exchange, tradingsymbol, trigger_values, last_price }
+    orders: any[];  // [{ exchange, tradingsymbol, transaction_type, quantity, order_type, product, price }]
+}
+
 export interface KiteResponse<T = any> {
     status: "success" | "error";
     data: T;
@@ -176,6 +182,34 @@ export async function getOrders(
     accessToken: string
 ): Promise<any[]> {
     const res = await kiteRequest<any[]>("/orders", apiKey, accessToken);
+    return res.data;
+}
+
+// ─── GTT Orders ──────────────────────────────────────────────
+export async function placeGTTOrder(
+    apiKey: string,
+    accessToken: string,
+    params: KiteGTTParams
+): Promise<{ trigger_id: number }> {
+    const body = new URLSearchParams();
+    body.set("type", params.type);
+    body.set("condition", JSON.stringify(params.condition));
+    body.set("orders", JSON.stringify(params.orders));
+
+    const res = await kiteRequest<{ trigger_id: number }>(
+        "/gtt/triggers",
+        apiKey,
+        accessToken,
+        { method: "POST", body }
+    );
+    return res.data;
+}
+
+export async function getGTTOrders(
+    apiKey: string,
+    accessToken: string
+): Promise<any[]> {
+    const res = await kiteRequest<any[]>("/gtt/triggers", apiKey, accessToken);
     return res.data;
 }
 

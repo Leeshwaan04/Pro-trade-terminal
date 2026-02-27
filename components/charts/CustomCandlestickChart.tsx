@@ -98,12 +98,23 @@ export const CustomCandlestickChart = ({ symbol, interval = "1D", chartType = "c
         const fetchHistory = async () => {
             setIsLoading(true);
             try {
-                // Calculate date range
+                // Calculate date range based on Interval
+                // Kite API has strict limits on historical data duration per request:
+                // minute: 60 days, 3-15 minute: 100 days, 60 minute: 400 days, day: 2000 days
                 const toDate = new Date();
                 const fromDate = new Date();
-                if (interval === "1D") fromDate.setDate(toDate.getDate() - 200);
-                else if (interval === "1H") fromDate.setDate(toDate.getDate() - 30);
-                else fromDate.setDate(toDate.getDate() - 5);
+
+                if (interval === "1D" || interval === "1W") {
+                    fromDate.setDate(toDate.getDate() - 365); // 1 year of daily
+                } else if (interval === "1H" || interval === "2H" || interval === "3H") {
+                    fromDate.setDate(toDate.getDate() - 90);  // 3 months of hourly
+                } else if (interval === "15m" || interval === "30m") {
+                    fromDate.setDate(toDate.getDate() - 30);  // 1 month
+                } else if (interval === "5m") {
+                    fromDate.setDate(toDate.getDate() - 15);  // 15 days
+                } else {
+                    fromDate.setDate(toDate.getDate() - 5);   // 5 days of 1-minute
+                }
 
                 const fromStr = fromDate.toISOString().split('T')[0];
                 const toStr = toDate.toISOString().split('T')[0];
@@ -208,6 +219,49 @@ export const CustomCandlestickChart = ({ symbol, interval = "1D", chartType = "c
     const currentPrice = tickerData?.fused_price ?? tickerData?.last_price ?? data[data.length - 1]?.close ?? 0;
     const secondaryTicker = useMarketStore(s => s.secondaryTickers[symbol]);
     const secondaryPrice = secondaryTicker?.last_price ?? null;
+
+    // ─── Live Data Fusion (Merge Tick into History) ──────────
+    useEffect(() => {
+        if (!tickerData || data.length === 0) return;
+
+        setData(prevData => {
+            if (prevData.length === 0) return prevData;
+            const newData = [...prevData];
+            const lastCandle = newData[newData.length - 1];
+
+            // Determine candle interval in ms
+            const stepMs = interval === "1D" ? 86400000 :
+                interval === "1H" ? 3600000 :
+                    interval === "15m" ? 900000 :
+                        interval === "5m" ? 300000 : 60000;
+
+            const now = Date.now();
+            const currentPrice = tickerData.fused_price ?? tickerData.last_price;
+
+            // If we are still within the same time bucket as the last candle, update it
+            if (now - lastCandle.time < stepMs) {
+                lastCandle.close = currentPrice;
+                lastCandle.high = Math.max(lastCandle.high, currentPrice);
+                lastCandle.low = Math.min(lastCandle.low, currentPrice);
+                lastCandle.volume = tickerData.volume || lastCandle.volume; // Update vol if available
+            } else {
+                // Time bucket has passed, push a new candle
+                newData.push({
+                    time: Math.floor(now / stepMs) * stepMs, // Align to bucket start
+                    open: currentPrice,
+                    high: currentPrice,
+                    low: currentPrice,
+                    close: currentPrice,
+                    volume: tickerData.last_quantity || 0
+                });
+
+                // Keep memory bounded
+                if (newData.length > 2000) newData.shift();
+            }
+
+            return newData;
+        });
+    }, [tickerData?.last_price, tickerData?.volume, interval]);
 
     // ─── Arbitrage Overlay (Secondary Source) ────────────────
     const arbitrageBroker = activeBroker === 'KITE' ? 'UPSTOX' : 'KITE';

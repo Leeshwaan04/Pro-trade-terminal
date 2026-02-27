@@ -90,11 +90,13 @@ export default function AppShell() {
             <header data-testid="app-header" className="h-[44px] border-b border-white/[0.08] flex items-center justify-between gap-4 bg-black/40 backdrop-blur-2xl z-20 shrink-0 shadow-2xl">
                 {/* LEFT SECTION (Logo + Tabs) */}
                 <div className="flex items-center h-full min-w-0">
-                    <div className="flex items-center gap-2 px-4 shrink-0 group cursor-pointer border-r border-white/[0.06] h-full">
-                        <Terminal className="w-4 h-4 text-primary" />
-                        <div className="flex items-center gap-1.5 px-3">
-                            <span className="text-[12px] font-black tracking-tight text-white">ZenG</span>
-                            <span className="text-[10px] font-bold text-primary uppercase tracking-[0.15em]">TRADE</span>
+                    <div className="flex items-center gap-2.5 px-4 shrink-0 group cursor-pointer border-r border-white/[0.06] h-full transition-colors hover:bg-white/[0.02]">
+                        <div className="w-6 h-6 bg-gradient-to-br from-[var(--up)] to-[var(--primary)] rounded-md flex items-center justify-center shadow-[0_0_15px_color-mix(in_srgb,var(--up)_20%,transparent)]">
+                            <Terminal className="w-3.5 h-3.5 text-black" />
+                        </div>
+                        <div className="flex items-center gap-1.5 px-1 pr-2">
+                            <span className="text-[13px] font-black tracking-tight text-white drop-shadow-md">ZenG</span>
+                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.15em] drop-shadow-[0_0_8px_rgba(34,197,94,0.4)]">TRADE</span>
                         </div>
                     </div>
 

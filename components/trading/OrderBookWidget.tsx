@@ -5,17 +5,35 @@ import { useMarketStore } from "@/hooks/useMarketStore";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { WidgetHeader } from "@/components/ui/WidgetHeader";
+import { useKiteTicker } from "@/hooks/useKiteTicker";
+import { getInstrumentToken } from "@/lib/market-config";
 
 const DEPTH_LEVELS = 5;
 
 export const OrderBookWidget = ({ symbol = "NIFTY 50" }: { symbol?: string }) => {
     const ticker = useMarketStore(state => state.tickers[symbol]);
+    const instrumentToken = getInstrumentToken(symbol) || 256265;
+
+    // Establish a localized SSE connection ONLY for this symbol in "full" mode
+    useKiteTicker({
+        instrumentTokens: [instrumentToken],
+        mode: "full",
+        broker: "KITE", // Or handle auth context dynamically
+        enabled: true
+    });
 
     // Use depth from store, or fallback to empty arrays
     const depth = useMemo(() => {
         if (!ticker?.depth) return { buy: [], sell: [] };
-        return ticker.depth;
+        return {
+            buy: [...ticker.depth.buy].sort((a, b) => b.price - a.price),
+            sell: [...ticker.depth.sell].sort((a, b) => a.price - b.price)
+        };
     }, [ticker?.depth]);
+
+    // Calculate totals for UI
+    const totalBuy = depth.buy.reduce((acc, b) => acc + b.quantity, 0);
+    const totalSell = depth.sell.reduce((acc, s) => acc + s.quantity, 0);
 
     const maxQty = Math.max(
         ...(depth.buy.length > 0 ? depth.buy.map(b => b.quantity) : [1]),
@@ -30,8 +48,8 @@ export const OrderBookWidget = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
 
             {/* Header Info (Total Qty) */}
             <div className="px-2 py-1 border-b border-white/5 bg-[#080a0c] flex justify-between items-end">
-                <span className="text-[8px] text-zinc-500 uppercase font-black tracking-widest">Total Qty</span>
-                <span className="text-[9px] font-mono font-bold text-zinc-300">1.2M</span>
+                <span className="text-[8px] text-zinc-500 uppercase font-black tracking-widest">Total Bids: <span className="text-up font-bold">{(totalBuy / 1000).toFixed(1)}K</span></span>
+                <span className="text-[8px] text-zinc-500 uppercase font-black tracking-widest">Total Asks: <span className="text-down font-bold">{(totalSell / 1000).toFixed(1)}K</span></span>
             </div>
 
             {/* Table Header */}

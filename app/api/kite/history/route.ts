@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
     const interval = searchParams.get("interval") || "day";
     const from = searchParams.get("from");
     const to = searchParams.get("to");
+    const forceMock = searchParams.get("mock") === "true";
 
     if (!instrument_token || !from || !to) {
         return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
@@ -18,9 +19,13 @@ export async function GET(req: NextRequest) {
     const accessToken = cookieStore.get("kite_access_token")?.value;
     const apiKey = process.env.KITE_API_KEY;
 
-    // MOCK FLIGHT PATH: Bypass Auth if requested or unauthenticated
-    if (searchParams.get("mock") === "true" || !accessToken || !apiKey) {
-        const basePrice = instrument_token === "260105" ? 60000 : 25000;
+    // Determine baseline price for mock generation
+    const basePrice = instrument_token === "260105" ? 60000 :
+        instrument_token === "256265" ? 25000 :
+            1000;
+
+    // If forcing mock or unauthenticated, return mock data immediately
+    if (forceMock || !accessToken || !apiKey) {
         return NextResponse.json(generateMockData(from, to, interval, basePrice));
     }
 
@@ -31,20 +36,32 @@ export async function GET(req: NextRequest) {
             headers: {
                 "X-Kite-Version": "3",
                 "Authorization": `token ${apiKey}:${accessToken}`
-            }
+            },
+            // Reduce cache time for historical data
+            next: { revalidate: 60 }
         });
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error("Kite History Error:", errorText);
-            return NextResponse.json({ error: "Failed to fetch from Kite" }, { status: response.status });
+            console.error(`[Kite History] Error ${response.status}:`, errorText);
+
+            // GRACEFUL FALLBACK: 
+            // The Historical API is a paid add-on (₹2000/mo). If the user doesn't have it, 
+            // Kite returns 403 Forbidden. We intercept this and return mock data 
+            // so the UI charts don't break.
+            if (response.status === 403) {
+                console.warn("[Kite History] 403 Forbidden detected. Missing Historical API subscription. Falling back to Mock Data.");
+                return NextResponse.json(generateMockData(from, to, interval, basePrice));
+            }
+
+            return NextResponse.json({ error: "Failed to fetch from Kite", details: errorText }, { status: response.status });
         }
 
         const data = await response.json();
         return NextResponse.json(data);
 
     } catch (error) {
-        console.error("Server Error:", error);
+        console.error("[Kite History] Server exception:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
