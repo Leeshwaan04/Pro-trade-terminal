@@ -1,39 +1,20 @@
 /**
- * Cyber Trade: Ticker Worker
+ * ZenG Trade: Ticker Worker
  * Offloads WebSocket parsing and state management to a background thread.
+ * Vanilla JS version for Production Compatibility.
  */
 
-interface WorkerMessage {
-    type: 'CONNECT' | 'SUBSCRIBE' | 'UNSUBSCRIBE' | 'DISCONNECT' | 'UPDATE_MARGIN' | 'UPDATE_RISK_LIMITS';
-    payload?: {
-        url: string;
-        type: 'sse' | 'ws';
-        tokens?: number[];
-        broker?: string;
-        marginData?: any;
-        riskLimits?: { maxLoss: number; maxTrades: number };
-        currentMtm?: number;
-    };
-}
-
 // Global State
-const instances = new Map<string, {
-    socket?: WebSocket;
-    eventSource?: EventSource;
-    reconnectTimer?: any;
-    type: 'sse' | 'ws';
-    lastTickAt: number;
-    broker: string;
-}>();
+const instances = new Map();
 
-const brokerMargins = new Map<string, any>();
+const brokerMargins = new Map();
 const RECONNECT_INTERVAL = 5000;
 const LAG_THRESHOLD = 3000; // 3 seconds lag = switch
 
 let riskLimits = { maxLoss: -10000, maxTrades: 50 }; // Defaults
 let isHaltActive = false;
 
-self.onmessage = (event: MessageEvent<WorkerMessage>) => {
+self.onmessage = (event) => {
     const { type, payload } = event.data;
     const instanceKey = payload?.url || 'default';
 
@@ -71,7 +52,7 @@ function haltAllTrading() {
 }
 
 function broadcastMargin() {
-    const unified: any = { totalMargin: 0, brokers: {} };
+    const unified = { totalMargin: 0, brokers: {} };
     brokerMargins.forEach((data, broker) => {
         unified.brokers[broker] = data;
         unified.totalMargin += (data.available || 0);
@@ -79,7 +60,7 @@ function broadcastMargin() {
     self.postMessage({ type: 'UNIFIED_MARGIN', payload: unified });
 }
 
-function cleanupInstance(key: string) {
+function cleanupInstance(key) {
     const instance = instances.get(key);
     if (!instance) return;
 
@@ -92,11 +73,11 @@ function cleanupInstance(key: string) {
 }
 
 // --- Technical Indicators ---
-const indicatorHistory = new Map<string, number[]>();
+const indicatorHistory = new Map();
 
-function calculateEMA(symbol: string, price: number, period: number = 20) {
+function calculateEMA(symbol, price, period = 20) {
     if (!indicatorHistory.has(symbol)) indicatorHistory.set(symbol, []);
-    const prices = indicatorHistory.get(symbol)!;
+    const prices = indicatorHistory.get(symbol);
     prices.push(price);
     if (prices.length > 500) prices.shift();
 
@@ -111,11 +92,11 @@ function calculateEMA(symbol: string, price: number, period: number = 20) {
 }
 
 // Multi-Broker Fusion Registry
-const priceFusionMap = new Map<string, Map<string, number>>();
+const priceFusionMap = new Map();
 
-function calculateFusedPrice(symbol: string, broker: string, price: number) {
+function calculateFusedPrice(symbol, broker, price) {
     if (!priceFusionMap.has(symbol)) priceFusionMap.set(symbol, new Map());
-    const brokerPrices = priceFusionMap.get(symbol)!;
+    const brokerPrices = priceFusionMap.get(symbol);
     brokerPrices.set(broker, price);
 
     if (brokerPrices.size < 2) return price;
@@ -126,14 +107,14 @@ function calculateFusedPrice(symbol: string, broker: string, price: number) {
     return allPrices.length % 2 !== 0 ? allPrices[mid] : (allPrices[mid - 1] + allPrices[mid]) / 2;
 }
 
-function broadcast(type: 'TICK' | 'STATUS' | 'ERROR', key: string, payload: any) {
+function broadcast(type, key, payload) {
     const instance = instances.get(key);
     if (instance) instance.lastTickAt = Date.now();
 
     if (type === 'TICK' && payload.data) {
         // Handle both single tick and array of ticks
         const ticks = Array.isArray(payload.data) ? payload.data : [payload.data];
-        ticks.forEach((tick: any) => {
+        ticks.forEach((tick) => {
             if (tick.last_price) {
                 const symbol = tick.symbol || key;
                 const broker = instance?.broker || 'UNKNOWN';
@@ -147,8 +128,8 @@ function broadcast(type: 'TICK' | 'STATUS' | 'ERROR', key: string, payload: any)
                 };
 
                 // 3. Basis Intelligence (Spot-Futures Divergence)
-                if (symbol.includes('FUT')) {
-                    const spotSymbol = symbol.split(' ')[0]; // Basic heuristic
+                if (symbol.includes && symbol.includes('FUT')) {
+                    const spotSymbol = symbol.split(' ')[0];
                     const spotPrice = priceFusionMap.get(spotSymbol)?.get(broker);
                     if (spotPrice) {
                         tick.basis = tick.fused_price - spotPrice;
@@ -176,7 +157,7 @@ function checkFailover() {
     });
 }
 
-function connectSSE(url: string, key: string, broker: string) {
+function connectSSE(url, key, broker) {
     cleanupInstance(key);
 
     try {
@@ -186,11 +167,15 @@ function connectSSE(url: string, key: string, broker: string) {
         instances.set(key, { eventSource, type: 'sse', lastTickAt: Date.now(), broker });
 
         eventSource.addEventListener('status', (e) => {
-            broadcast('STATUS', key, JSON.parse(e.data));
+            try {
+                broadcast('STATUS', key, JSON.parse(e.data));
+            } catch (err) { }
         });
 
         eventSource.addEventListener('tick', (e) => {
-            broadcast('TICK', key, { data: JSON.parse(e.data) });
+            try {
+                broadcast('TICK', key, { data: JSON.parse(e.data) });
+            } catch (err) { }
         });
 
         eventSource.onerror = () => {
@@ -202,7 +187,7 @@ function connectSSE(url: string, key: string, broker: string) {
     }
 }
 
-function connectWS(url: string, key: string, broker: string) {
+function connectWS(url, key, broker) {
     cleanupInstance(key);
 
     try {
@@ -234,7 +219,7 @@ function connectWS(url: string, key: string, broker: string) {
     }
 }
 
-function scheduleReconnect(url: string, type: 'sse' | 'ws', key: string, broker: string) {
+function scheduleReconnect(url, type, key, broker) {
     const instance = instances.get(key);
     if (instance?.reconnectTimer) clearTimeout(instance.reconnectTimer);
 

@@ -28,7 +28,7 @@ export function useWorkerTicker({ url, type, enabled = true, isSecondary = false
             workerRef.current.terminate();
         }
 
-        const worker = new Worker('/workers/ticker.worker.ts');
+        const worker = new Worker('/workers/ticker.worker.js');
         workerRef.current = worker;
 
         worker.onmessage = (event) => {
