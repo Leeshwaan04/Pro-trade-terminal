@@ -93,7 +93,7 @@ export default function AppShell() {
                     <div className="flex items-center gap-2 px-4 shrink-0 group cursor-pointer border-r border-white/[0.06] h-full">
                         <Terminal className="w-4 h-4 text-primary" />
                         <div className="flex items-center gap-1.5 px-3">
-                            <span className="text-[12px] font-black tracking-tight text-white">ZENG</span>
+                            <span className="text-[12px] font-black tracking-tight text-white">ZenG</span>
                             <span className="text-[10px] font-bold text-primary uppercase tracking-[0.15em]">TRADE</span>
                         </div>
                     </div>

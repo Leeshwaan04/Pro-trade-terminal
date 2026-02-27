@@ -51,7 +51,7 @@ export const LoginScreen = () => {
                         </div>
                         <div>
                             <h1 className="text-xl font-black text-white tracking-tight">
-                                ZENG <span className="text-[var(--primary)]">TRADE</span>
+                                ZenG <span className="text-[var(--primary)]">TRADE</span>
                             </h1>
                             <p className="text-[9px] text-zinc-500 uppercase tracking-[0.3em] font-mono">
                                 Pro Trading Terminal
