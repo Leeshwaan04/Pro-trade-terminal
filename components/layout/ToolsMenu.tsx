@@ -100,7 +100,7 @@ export const ToolsMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
 
             <div className="px-3 py-2 bg-primary/5 text-center border-t border-primary/10 hover:bg-primary/10 transition-colors cursor-pointer">
                 <span className="text-[8px] font-black text-primary uppercase tracking-[0.2em] flex items-center justify-center gap-1.5 pointer-events-none">
-                    <ExternalLink className="w-3 h-3" /> Launch Cyber Terminal v3.2
+                    <ExternalLink className="w-3 h-3" /> Launch ZenG Terminal v3.2
                 </span>
             </div>
         </div>

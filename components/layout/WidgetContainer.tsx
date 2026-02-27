@@ -43,7 +43,7 @@ export const WidgetContainer = ({
         if (isPoppedOut) {
             return (
                 <PopoutWindow
-                    title={`CyberTrade - ${activeWidget.title}`}
+                    title={`ZenG Trade - ${activeWidget.title}`}
                     onClose={() => setPoppedOut(activeWidgetId, false)}
                 >
                     <div className="h-full w-full bg-[#0f1318] flex flex-col">

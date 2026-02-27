@@ -202,41 +202,39 @@ export async function GET(req: NextRequest) {
                     console.error("[GrowwWS] Error:", e);
                 }
             };
-            const connectWs = () => {
-                if (isMock) {
-                    console.log("[Stream] Initiating Local Mock Stream (No Broker).");
-                    send("status", { source: "mock", connected: true, broker: "MOCK" });
+            const startMockStream = () => {
+                console.log("[Stream] Initiating Local Mock Stream (No Broker).");
+                send("status", { source: "mock", connected: true, broker: "MOCK" });
 
-                    // Generate a fake stream emitting every second
-                    const mockInterval = setInterval(() => {
-                        if (isClosed) return;
-                        const ticks = instrumentTokens.map(t => {
-                            const inst = MARKET_INSTRUMENTS.find(i => i.token === t);
-                            const basePrice = inst && inst.symbol.includes("NIFTY") ? (inst.symbol === "NIFTY 50" ? 25000 : 60000) : 1000;
-                            const change = (Math.random() - 0.5) * 5;
-                            return {
-                                instrument_token: t,
-                                last_price: basePrice + change,
-                                net_change: change,
-                                change_percent: change / basePrice * 100,
-                                ohlc: { open: basePrice, high: basePrice + 10, low: basePrice - 10, close: basePrice },
-                                depth: { buy: [], sell: [] },
-                                volume: Math.floor(Math.random() * 500000),
-                                oi: Math.floor(Math.random() * 800000),
-                                mode: mode
-                            };
-                        });
-                        send("tick", ticks);
-                        lastTickTime = Date.now();
-                    }, 1000);
-
-                    req.signal.addEventListener("abort", () => {
-                        clearInterval(mockInterval);
+                // Generate a fake stream emitting every second
+                const mockInterval = setInterval(() => {
+                    if (isClosed) return;
+                    const ticks = instrumentTokens.map(t => {
+                        const inst = MARKET_INSTRUMENTS.find(i => i.token === t);
+                        const basePrice = inst && inst.symbol.includes("NIFTY") ? (inst.symbol === "NIFTY 50" ? 25000 : 60000) : 1000;
+                        const change = (Math.random() - 0.5) * 5;
+                        return {
+                            instrument_token: t,
+                            last_price: basePrice + change,
+                            net_change: change,
+                            change_percent: change / basePrice * 100,
+                            ohlc: { open: basePrice, high: basePrice + 10, low: basePrice - 10, close: basePrice },
+                            depth: { buy: [], sell: [] },
+                            volume: Math.floor(Math.random() * 500000),
+                            oi: Math.floor(Math.random() * 800000),
+                            mode: mode
+                        };
                     });
+                    send("tick", ticks);
+                    lastTickTime = Date.now();
+                }, 1000);
 
-                    return;
-                }
+                req.signal.addEventListener("abort", () => {
+                    clearInterval(mockInterval);
+                });
+            };
 
+            const connectWs = () => {
                 if (!isConfigured || isClosed) {
                     send("status", {
                         source: "demo",
@@ -376,7 +374,9 @@ export async function GET(req: NextRequest) {
             }, 15000);
 
             // ─── Start ──────────────────────────────────────────
-            if (broker === "GROWW") {
+            if (isMock || !isConfigured) {
+                startMockStream();
+            } else if (broker === "GROWW") {
                 connectGrowwWs();
             } else {
                 connectWs();

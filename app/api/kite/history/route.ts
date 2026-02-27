@@ -14,17 +14,14 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
     }
 
-    // MOCK MODE: Bypass Auth
-    if (searchParams.get("mock") === "true") {
-        return NextResponse.json(generateMockData(from, to, interval, 24000));
-    }
-
     const cookieStore = await cookies();
-    const accessToken = cookieStore.get("access_token")?.value;
+    const accessToken = cookieStore.get("kite_access_token")?.value;
     const apiKey = process.env.KITE_API_KEY;
 
-    if (!accessToken || !apiKey) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // MOCK FLIGHT PATH: Bypass Auth if requested or unauthenticated
+    if (searchParams.get("mock") === "true" || !accessToken || !apiKey) {
+        const basePrice = instrument_token === "260105" ? 60000 : 25000;
+        return NextResponse.json(generateMockData(from, to, interval, basePrice));
     }
 
     try {

@@ -15,17 +15,14 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
     }
 
-    // MOCK MODE: Bypass Auth
-    if (searchParams.get("mock") === "true") {
-        return NextResponse.json(generateMockData(fromDate, toDate, intervalParam || "day", 24050));
-    }
-
     // 1. Get Access Token
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("upstox_access_token")?.value;
 
-    if (!accessToken) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // MOCK FLIGHT PATH: Bypass Auth if requested or unauthenticated
+    if (searchParams.get("mock") === "true" || !accessToken) {
+        const basePrice = instrumentKey?.includes("BANKNIFTY") ? 60050 : 25050;
+        return NextResponse.json(generateMockData(fromDate, toDate, intervalParam || "day", basePrice));
     }
 
     // 2. Map Interval

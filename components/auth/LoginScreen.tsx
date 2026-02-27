@@ -51,7 +51,7 @@ export const LoginScreen = () => {
                         </div>
                         <div>
                             <h1 className="text-xl font-black text-white tracking-tight">
-                                CYBER <span className="text-[var(--primary)]">TRADE</span>
+                                ZENG <span className="text-[var(--primary)]">TRADE</span>
                             </h1>
                             <p className="text-[9px] text-zinc-500 uppercase tracking-[0.3em] font-mono">
                                 Pro Trading Terminal
@@ -107,7 +107,7 @@ export const LoginScreen = () => {
                 </div>
 
                 <p className="text-[10px] text-zinc-600 text-center leading-relaxed max-w-xs mt-4">
-                    Your credentials are encrypted locally and never shared with Cyber Trade.
+                    Your credentials are encrypted locally and never shared with ZenG Trade.
                     Redirects to broker's secure login.
                 </p>
 

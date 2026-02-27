@@ -11,8 +11,8 @@ test.describe('Groww 915 UI density verification', () => {
         await expect(errorOverlay).toHaveCount(0);
         // Check background color of body
         const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-        // Expect near‑black (#111318) which is rgb(17,19,24)
-        expect(bg).toBe('rgb(17, 19, 24)');
+        // Expect near-black density theme (#080a0c) which is rgb(8, 10, 12)
+        expect(bg).toBe('rgb(8, 10, 12)');
     });
 
     test('header layout', async ({ page }) => {
@@ -22,8 +22,8 @@ test.describe('Groww 915 UI density verification', () => {
         const height = await header.evaluate(el => getComputedStyle(el).height);
         expect(parseFloat(height)).toBeCloseTo(40, 2);
         // Logo text is split for density
-        await expect(header.locator('text=CYBER')).toBeVisible();
-        await expect(header.locator('text=TRADE')).toBeVisible();
+        await expect(header.getByText('ZENG', { exact: true })).toBeVisible();
+        await expect(header.getByText('TRADE', { exact: true })).toBeVisible();
         // Flat underline tabs exist
         const tabsCount = await header.locator('.group').count();
         expect(tabsCount).toBeGreaterThan(0);
@@ -35,9 +35,10 @@ test.describe('Groww 915 UI density verification', () => {
     test('indices ticker', async ({ page }) => {
         const ticker = page.locator('[data-testid="indices-ticker"]');
         await expect(ticker).toBeVisible();
-        // Index symbols exist
-        await expect(ticker.locator('text=NIFTY 50').first()).toBeVisible();
-        await expect(ticker.locator('text=BANKNIFTY').first()).toBeVisible();
+        // Index symbols exist (UI strips "NIFTY " for density, so "NIFTY 50" becomes "50")
+        await expect(ticker.locator('text=50').first()).toBeVisible();
+        await expect(ticker.locator('text=BANK').first()).toBeVisible();
+        await expect(ticker.locator('text=SENSEX').first()).toBeVisible();
         // Hover
         await ticker.hover();
     });

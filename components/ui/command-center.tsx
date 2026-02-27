@@ -361,7 +361,7 @@ export const CommandCenter = () => {
                             <span className="flex items-center gap-1 uppercase"><kbd className="border border-white/10 px-1">↵</kbd> Select</span>
                         </div>
                         <div className="text-[9px] text-primary/40 font-black uppercase tracking-[0.2em]">
-                            CyberTrade v0.4.0-cyber
+                            ZenG Trade v0.4.0-zeng
                         </div>
                     </div>
                 </Command>
