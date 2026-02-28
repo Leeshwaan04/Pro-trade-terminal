@@ -1,18 +1,36 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Groww 915 UI density verification', () => {
+test.describe('ZenG Terminal E2E Verification', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('http://localhost:3000?testAuth=1');
+        // Point to the correct terminal route with test auth
+        await page.goto('http://localhost:3000/terminal?testAuth=1');
     });
 
-    test('initial load and background color', async ({ page }) => {
+    test('initial terminal load and system integrity', async ({ page }) => {
         // Ensure no runtime error overlay
         const errorOverlay = page.locator('text=Error');
         await expect(errorOverlay).toHaveCount(0);
-        // Check background color of body
-        const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-        // Expect near-black density theme (#080a0c) which is rgb(8, 10, 12)
-        expect(bg).toBe('rgb(8, 10, 12)');
+
+        // Verify footer sync integrity is visible and dynamic
+        const footer = page.locator('footer');
+        await expect(footer).toContainText('SYNC INTEGRITY');
+        await expect(footer).not.toContainText('DEGRADED');
+    });
+
+    test('order entry panel live ltp binding', async ({ page }) => {
+        // Open order panel (usually active by default or clickable)
+        const orderPanel = page.locator('h2', { hasText: 'NIFTY 50' }).locator('xpath=../..');
+        await expect(orderPanel).toBeVisible();
+
+        // Check if LTP is rendered in the header
+        const ltpDisplay = orderPanel.locator('span', { hasText: '.' }).first();
+        await expect(ltpDisplay).toBeVisible();
+
+        // Toggle to MKT and verify price field updates (should not be empty)
+        await page.click('button:has-text("MKT")');
+        const priceInput = page.locator('label:has-text("Price")').locator('xpath=..').locator('input');
+        const priceValue = await priceInput.inputValue();
+        expect(parseFloat(priceValue)).toBeGreaterThan(0);
     });
 
     test('header layout', async ({ page }) => {

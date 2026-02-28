@@ -5,6 +5,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthCredentials } from "@/lib/auth-utils";
 import { cancelOrder, KiteError } from "@/lib/kite-client";
+import { z } from "zod";
+
+const cancelOrderSchema = z.object({
+    order_id: z.string().min(1, "order_id is required"),
+    variety: z.enum(["regular", "amo", "co", "iceberg", "auction"]).optional().default("regular")
+});
 
 export async function DELETE(req: NextRequest) {
     const auth = await getAuthCredentials();
@@ -13,11 +19,17 @@ export async function DELETE(req: NextRequest) {
     }
 
     try {
-        const { order_id, variety } = await req.json();
-        if (!order_id) {
-            return NextResponse.json({ error: "Missing order_id" }, { status: 400 });
+        const body = await req.json();
+        const validation = cancelOrderSchema.safeParse(body);
+
+        if (!validation.success) {
+            return NextResponse.json(
+                { error: "Invalid cancel payload", details: validation.error.format() },
+                { status: 400 }
+            );
         }
 
+        const { order_id, variety } = validation.data;
         const result = await cancelOrder(auth.apiKey!, auth.accessToken!, order_id, variety);
         return NextResponse.json({ status: "success", data: result });
     } catch (error: any) {

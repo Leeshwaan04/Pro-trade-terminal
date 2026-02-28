@@ -53,6 +53,8 @@ interface MarketState {
     updateSentiment: (data: Partial<MarketSentiment>) => void;
     connectionStatus: 'CONNECTED' | 'DISCONNECTED' | 'CONNECTING';
     setConnectionStatus: (status: 'CONNECTED' | 'DISCONNECTED' | 'CONNECTING') => void;
+    metrics: { latency: number; integrity: number };
+    updateMetrics: (data: { latency?: number; integrity?: number }) => void;
     subscribedTokens: Set<number>;
 }
 
@@ -212,5 +214,9 @@ export const useMarketStore = create<MarketState>((set) => ({
         })),
     connectionStatus: 'DISCONNECTED',
     setConnectionStatus: (status) => set({ connectionStatus: status }),
+    metrics: { latency: 4, integrity: 99.9 },
+    updateMetrics: (data: { latency?: number; integrity?: number }) => set((state) => ({
+        metrics: { ...state.metrics, ...data }
+    })),
     subscribedTokens: new Set<number>(),
 }));

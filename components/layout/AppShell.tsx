@@ -50,8 +50,7 @@ export default function AppShell() {
     const testAuth = searchParams.get('testAuth');
     const isLoggedIn = isLoggedInBase || testAuth === '1';
     const user = useAuthStore(state => state.user);
-    const connectionStatus = useMarketStore(state => state.connectionStatus);
-    const unifiedMargin = useMarketStore(state => state.unifiedMargin);
+    const { connectionStatus, unifiedMargin, metrics } = useMarketStore();
     const { activeBroker } = useAuthStore();
     const { setCommandCenterOpen, setSettingsOpen, setActiveWorkspace } = useLayoutStore();
 
@@ -189,16 +188,21 @@ export default function AppShell() {
                     </span>
                     <span className="flex items-center gap-1">
                         LATENCY:
-                        <span className={connectionStatus === 'CONNECTED' ? "text-up" : "text-amber-500"}>{connectionStatus === 'CONNECTED' ? '4ms' : '-'}</span>
+                        <span className={cn(
+                            "font-bold",
+                            metrics.latency < 50 ? "text-up" : "text-amber-500"
+                        )}>
+                            {connectionStatus === 'CONNECTED' ? `${metrics.latency}ms` : '-'}
+                        </span>
                     </span>
                     <span className="opacity-30">|</span>
                     <span className="flex items-center gap-1">
                         SYNC INTEGRITY:
                         <span className={cn(
                             "font-bold",
-                            connectionStatus === 'CONNECTED' ? "text-up" : "text-amber-500"
+                            metrics.integrity > 95 ? "text-up" : "text-amber-500"
                         )}>
-                            {connectionStatus === 'CONNECTED' ? '99.9%' : 'DEGRADED'}
+                            {connectionStatus === 'CONNECTED' ? `${metrics.integrity}%` : 'DEGRADED'}
                         </span>
                     </span>
                     <span className="opacity-30">|</span>

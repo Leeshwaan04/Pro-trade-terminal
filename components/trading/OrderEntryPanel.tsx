@@ -23,6 +23,7 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
     const [blitzInterval, setBlitzInterval] = useState("3");
     const [submitting, setSubmitting] = useState(false);
     const submitLock = React.useRef(false);
+    const lastSubmitTimeRef = React.useRef(0);
 
     const { activeBroker } = useAuthStore();
     const { tickers } = useMarketStore();
@@ -34,9 +35,16 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
     const isUp = change >= 0;
 
     const handleOrderSubmit = async () => {
-        if (submitLock.current || submitting) return;
+        const now = Date.now();
+        if (submitLock.current || submitting || (now - lastSubmitTimeRef.current < 1000)) {
+            console.warn("[OrderPanel] Submit blocked by debounce/lock");
+            return;
+        }
+
         submitLock.current = true;
         setSubmitting(true);
+        lastSubmitTimeRef.current = now;
+
         try {
             if (!activeBroker) {
                 toast({ title: "Broker Disconnected", description: "Please login to execute trades", variant: "destructive" });
@@ -139,7 +147,7 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
             setTimeout(() => {
                 submitLock.current = false;
                 setSubmitting(false);
-            }, 500); // 500ms safety debounce
+            }, 1000); // 1000ms safety debounce
         }
     };
 
@@ -150,16 +158,22 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
                 <div className="flex items-center justify-between mb-0.5">
                     <div className="flex items-center gap-1.5">
                         <span className="px-1 py-0.5 bg-white/5 rounded-[2px] text-[8px] items-center font-bold text-zinc-500 border border-white/5 uppercase tracking-widest">NFO</span>
-                        <h2 className="text-[11px] font-black text-zinc-200 tracking-tighter">{symbol}</h2>
+                        <h2 className="text-[11px] font-black text-zinc-200 tracking-tighter uppercase">{symbol}</h2>
                     </div>
-                    <span className={cn(
-                        "flex items-center gap-0.5 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-sm border tabular-nums transition-colors duration-300",
-                        isUp ? "text-up bg-up/10 border-up/20" : "text-down bg-down/10 border-down/20"
+                    <div className={cn(
+                        "flex flex-col items-end gap-0.5 px-1.5 py-0.5 rounded-sm border tabular-nums transition-colors duration-300",
+                        isUp ? "bg-up/10 border-up/20" : "bg-down/10 border-down/20"
                     )}>
-                        {isUp ? <ArrowUpRight className="w-3 h-3" /> : <div className="w-3 h-3 rotate-180"><ArrowUpRight className="w-3 h-3" /></div>}
-                        {ltp.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                        <span className="text-[8px] font-sans opacity-80 pl-0.5">({isUp ? '+' : ''}{change.toFixed(2)}%)</span>
-                    </span>
+                        <div className="flex items-center gap-1 font-mono font-bold text-[11px]">
+                            {isUp ? <ArrowUpRight className="w-3 h-3 text-up" /> : <div className="w-3 h-3 rotate-180"><ArrowUpRight className="w-3 h-3 text-down" /></div>}
+                            <span className={isUp ? "text-up" : "text-down"}>
+                                {ltp.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            </span>
+                        </div>
+                        <span className={cn("text-[8px] font-sans font-bold", isUp ? "text-up" : "text-down")}>
+                            {isUp ? '+' : ''}{change.toFixed(2)}%
+                        </span>
+                    </div>
                 </div>
                 <div className="flex items-center justify-between text-[9px] text-zinc-500 mt-1.5">
                     <span className="font-mono uppercase tracking-widest font-bold text-[8px]">LTP: <span className={cn("font-bold text-[10px] transition-colors", isUp ? "text-up" : "text-down")}>{ltp.toFixed(2)}</span></span>
@@ -248,7 +262,12 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
                         {["LMT", "MKT", "SL", "SL-M", "GTT"].map((t) => (
                             <button
                                 key={t}
-                                onClick={() => setType(t)}
+                                onClick={() => {
+                                    setType(t);
+                                    if (t === "MKT" || t === "SL-M") {
+                                        setPrice(ltp.toFixed(2));
+                                    }
+                                }}
                                 className={cn(
                                     "py-1 border rounded-[4px] text-[9px] font-black tracking-widest transition-all",
                                     type === t

@@ -56,6 +56,9 @@ export function useWorkerTicker({ url, type, enabled = true, isSecondary = false
                     alert(`🚨 CYBER-PAUSE: ${payload.reason}. Terminal locked to prevent revenge trading.`);
                     setConnectionStatus('DISCONNECTED');
                     break;
+                case 'METRICS':
+                    useMarketStore.getState().updateMetrics(payload);
+                    break;
                 case 'STATUS':
                     if (payload.key === url) {
                         setStatus(payload.connected ? 'connected' : 'disconnected');
