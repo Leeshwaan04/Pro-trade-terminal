@@ -14,6 +14,7 @@ export type WidgetType =
     | "STRADDLE"
     | "HYPER_CHART"
     | "OI_ANALYSIS"
+    | "DOM"
     | "FII_DII";
 
 // ... (existing constants) ...
@@ -130,11 +131,12 @@ export const PRESET_LAYOUTS: Record<string, WorkspaceConfig> = {
                 id: "tools-area",
                 gridArea: "2 / 2 / 3 / 3",
                 widgets: [
+                    { id: "sc-dom", type: "DOM", title: "Depth of Market", symbol: "NIFTY 50" },
                     { id: "sc-chain", type: "OPTION_CHAIN", title: "Option Chain", symbol: "NIFTY 50" },
                     { id: "sc-pos", type: "POSITIONS", title: "Positions" },
                     { id: "sc-book", type: "ORDER_BOOK", title: "Order Book" }
                 ],
-                activeWidgetId: "sc-chain"
+                activeWidgetId: "sc-dom"
             }
         ]
     },

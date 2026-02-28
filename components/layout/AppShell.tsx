@@ -30,6 +30,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { MobileNavBar } from "@/components/layout/MobileNavBar";
 import { CursorFollower } from "@/components/ui/CursorFollower";
 import { PiPWindow } from "@/components/charts/PiPWindow";
+import { AccountManager } from "@/components/trading/AccountManager";
 
 const INSTRUMENT_TOKENS = MARKET_INSTRUMENTS.map(i => i.token);
 
@@ -52,7 +53,17 @@ export default function AppShell() {
     const user = useAuthStore(state => state.user);
     const { connectionStatus, unifiedMargin, metrics } = useMarketStore();
     const { activeBroker } = useAuthStore();
-    const { setCommandCenterOpen, setSettingsOpen, setActiveWorkspace } = useLayoutStore();
+    const {
+        setCommandCenterOpen,
+        setSettingsOpen,
+        setActiveWorkspace,
+        accountManagerHeight,
+        setAccountManagerHeight,
+        isAccountManagerOpen,
+        toggleAccountManager
+    } = useLayoutStore();
+
+    const [isResizing, setIsResizing] = useState(false);
 
     useEffect(() => {
         const layoutParam = searchParams.get('layout');
@@ -158,8 +169,51 @@ export default function AppShell() {
             </div>
 
             {/* Main Grid Layout - DYNAMIC MANAGER */}
-            <main className="flex-1 overflow-hidden relative z-0">
-                <LayoutManager />
+            <main className="flex-1 overflow-hidden relative z-0 flex flex-col">
+                <div className="flex-1 min-h-0 relative">
+                    <LayoutManager />
+                </div>
+
+                {/* Vertical Resizer for Account Manager */}
+                {isAccountManagerOpen && (
+                    <div
+                        className={cn(
+                            "h-[3px] w-full cursor-row-resize hover:bg-primary/50 transition-colors z-[30] relative",
+                            isResizing ? "bg-primary" : "bg-white/5"
+                        )}
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            setIsResizing(true);
+
+                            const onMouseMove = (moveEvent: MouseEvent) => {
+                                const newHeight = window.innerHeight - moveEvent.clientY - 24; // 24 is footer height
+                                setAccountManagerHeight(Math.max(100, Math.min(newHeight, window.innerHeight * 0.7)));
+                            };
+
+                            const onMouseUp = () => {
+                                setIsResizing(false);
+                                window.removeEventListener('mousemove', onMouseMove);
+                                window.removeEventListener('mouseup', onMouseUp);
+                            };
+
+                            window.addEventListener('mousemove', onMouseMove);
+                            window.addEventListener('mouseup', onMouseUp);
+                        }}
+                    >
+                        {/* Visual Grabber */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-[1px] bg-white/20" />
+                    </div>
+                )}
+
+                {/* Account Manager Bottom Panel */}
+                {isAccountManagerOpen && (
+                    <div
+                        style={{ height: accountManagerHeight }}
+                        className="w-full shrink-0 z-20 overflow-hidden"
+                    >
+                        <AccountManager />
+                    </div>
+                )}
             </main>
 
 
@@ -210,6 +264,17 @@ export default function AppShell() {
                     {user && <span className="opacity-50">• {user.user_id}</span>}
                 </div>
                 <div className="flex gap-4 uppercase tracking-widest text-[9px]">
+                    <button
+                        onClick={toggleAccountManager}
+                        className={cn(
+                            "flex items-center gap-1.5 transition-colors hover:text-white",
+                            isAccountManagerOpen ? "text-primary" : "text-zinc-500"
+                        )}
+                    >
+                        <Terminal className="w-3 h-3" />
+                        Trading Panel
+                    </button>
+                    <span className="opacity-30">|</span>
                     <span className="text-muted-foreground/30">{isLoggedIn ? 'Unified Adapter' : 'Demo Mode'}</span>
                 </div>
             </footer >

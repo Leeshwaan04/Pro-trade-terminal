@@ -7,7 +7,6 @@ import { HyperChartCanvas } from "./engine/HyperChartCanvas";
 
 export const HyperChartWidget = ({ symbol = "NIFTY 50" }: { symbol?: string }) => {
     const [interval, setInterval] = useState("15m");
-    const [activeTool, setActiveTool] = useState("CURSOR");
 
     return (
         <div className="flex flex-col h-full w-full bg-black text-white overflow-hidden">
@@ -21,10 +20,7 @@ export const HyperChartWidget = ({ symbol = "NIFTY 50" }: { symbol?: string }) =
             {/* Main Area */}
             <div className="flex flex-1 overflow-hidden relative">
                 {/* Left Toolbar */}
-                <ChartToolbar
-                    activeTool={activeTool}
-                    onToolChange={setActiveTool}
-                />
+                <ChartToolbar symbol={symbol} />
 
                 {/* Canvas Area */}
                 <div className="flex-1 relative bg-black">

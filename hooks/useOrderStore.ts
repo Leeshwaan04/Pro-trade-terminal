@@ -33,6 +33,7 @@ export interface OrderLine {
     side: TransactionType;
     price: number;
     qty: number;
+    filledQty?: number;
     draggable: boolean;
     linkedOrderId: string;
     visible: boolean;
@@ -100,6 +101,9 @@ interface OrderState {
     updatePositionLTP: (symbol: string, ltp: number) => void;
     closePosition: (symbol: string, price: number) => void;
     updateOrderLinePrice: (lineId: string, newPrice: number) => void;
+    // Advanced Execution
+    placeBracketOrder: (order: Omit<Order, 'id' | 'status' | 'timestamp'>, slPrice: number, tpPrice: number) => void;
+    updateOrder: (orderId: string, updates: Partial<Order>) => void;
     // Institutional Blitz
     executeBlitz: (orderParams: Omit<Order, 'id' | 'status' | 'timestamp'>, config: BlitzConfig) => void;
 }
@@ -175,49 +179,24 @@ export const useOrderStore = create<OrderState>()(
                     const marginReq = orderParams.qty * orderParams.price * (orderParams.productType === 'MIS' ? 0.2 : 1);
 
                     // ─── Create Order Lines ──────────────────────
-                    const slPercent = 0.005; // 0.5% default SL
-                    const tpPercent = 0.01;  // 1.0% default TP
-                    const isBuy = orderParams.transactionType === 'BUY';
+                    // For standard placeOrder, we only add the entry line (Limit/SL-M).
+                    // Market orders execute immediately and might not need lines, but we add it for visual feedback if needed.
 
-                    const entryLine: OrderLine = {
-                        id: `${orderId}-entry`,
-                        symbol: orderParams.symbol,
-                        type: 'entry',
-                        side: orderParams.transactionType,
-                        price: orderParams.price,
-                        qty: orderParams.qty,
-                        draggable: false,
-                        linkedOrderId: orderId,
-                        visible: true,
-                    };
+                    const newOrderLines: OrderLine[] = [];
 
-                    const slLine: OrderLine = {
-                        id: `${orderId}-sl`,
-                        symbol: orderParams.symbol,
-                        type: 'stopLoss',
-                        side: orderParams.transactionType,
-                        price: isBuy
-                            ? Math.round((orderParams.price * (1 - slPercent)) * 100) / 100
-                            : Math.round((orderParams.price * (1 + slPercent)) * 100) / 100,
-                        qty: orderParams.qty,
-                        draggable: true,
-                        linkedOrderId: orderId,
-                        visible: true,
-                    };
-
-                    const tpLine: OrderLine = {
-                        id: `${orderId}-tp`,
-                        symbol: orderParams.symbol,
-                        type: 'target',
-                        side: orderParams.transactionType,
-                        price: isBuy
-                            ? Math.round((orderParams.price * (1 + tpPercent)) * 100) / 100
-                            : Math.round((orderParams.price * (1 - tpPercent)) * 100) / 100,
-                        qty: orderParams.qty,
-                        draggable: true,
-                        linkedOrderId: orderId,
-                        visible: true,
-                    };
+                    if (orderParams.orderType !== 'MARKET') {
+                        newOrderLines.push({
+                            id: `${orderId}-entry`,
+                            symbol: orderParams.symbol,
+                            type: 'entry',
+                            side: orderParams.transactionType,
+                            price: orderParams.price,
+                            qty: orderParams.qty,
+                            draggable: true, // Allow drag to modify limit price
+                            linkedOrderId: orderId,
+                            visible: true,
+                        });
+                    }
 
                     set((state: OrderState) => {
                         const existingPosIndex = state.positions.findIndex(
@@ -298,7 +277,7 @@ export const useOrderStore = create<OrderState>()(
                         return {
                             orders: [newOrder, ...state.orders],
                             positions: newPositions,
-                            activeOrderLines: [...state.activeOrderLines, entryLine, slLine, tpLine],
+                            activeOrderLines: [...state.activeOrderLines, ...newOrderLines],
                             marginUsed: newMarginUsed,
                             marginAvailable: available,
                             dailyPnL: totalPnL,
@@ -311,6 +290,86 @@ export const useOrderStore = create<OrderState>()(
                     alert(`🚨 Order Execution Failed\n\nReason: ${error.message}`);
                 }
             },
+
+            placeBracketOrder: async (orderParams, slPrice, tpPrice) => {
+                const { activeBroker } = useAuthStore.getState();
+                const { isArmed } = useSafetyStore.getState();
+
+                if (!isArmed) {
+                    alert("⚠️ SAFETY LOCK ENGAGED\n\nDisarm the 'Nuclear Toggle' in the header to execute Bracket Orders.");
+                    return;
+                }
+
+                try {
+                    console.info(`[BRACKET] Executing ${orderParams.transactionType} ${orderParams.qty} ${orderParams.symbol} [SL: ${slPrice}, TP: ${tpPrice}]`);
+
+                    // 1. Execute Main Entry (Mocking API response for now, assuming success like placeOrder)
+                    const orderId = Math.random().toString(36).substring(7);
+
+                    const newOrder: Order = {
+                        ...orderParams,
+                        id: orderId,
+                        status: orderParams.orderType === 'MARKET' ? 'EXECUTED' : 'OPEN',
+                        timestamp: Date.now(),
+                    };
+
+                    // 2. Create Order Lines for Bracket
+                    const isBuy = orderParams.transactionType === 'BUY';
+                    const oppositeSide = isBuy ? 'SELL' : 'BUY';
+
+                    const lines: OrderLine[] = [
+                        {
+                            id: `${orderId}-entry`,
+                            symbol: orderParams.symbol,
+                            type: 'entry',
+                            side: orderParams.transactionType,
+                            price: orderParams.price,
+                            qty: orderParams.qty,
+                            draggable: orderParams.orderType !== 'MARKET',
+                            linkedOrderId: orderId,
+                            visible: true,
+                        },
+                        {
+                            id: `${orderId}-sl`,
+                            symbol: orderParams.symbol,
+                            type: 'stopLoss',
+                            side: oppositeSide,
+                            price: slPrice,
+                            qty: orderParams.qty,
+                            draggable: true,
+                            linkedOrderId: orderId,
+                            visible: true,
+                        },
+                        {
+                            id: `${orderId}-tp`,
+                            symbol: orderParams.symbol,
+                            type: 'target',
+                            side: oppositeSide,
+                            price: tpPrice,
+                            qty: orderParams.qty,
+                            draggable: true,
+                            linkedOrderId: orderId,
+                            visible: true,
+                        }
+                    ];
+
+                    set((state) => ({
+                        orders: [newOrder, ...state.orders],
+                        activeOrderLines: [...state.activeOrderLines, ...lines],
+                        lastOrderTime: Date.now()
+                    }));
+
+                    // Note: We bypass full position updates here for simplicity of the UI mock,
+                    // but in a real scenario, this would trigger similar logic to `placeOrder`.
+
+                } catch (error: any) {
+                    console.error("Bracket Order Failed:", error);
+                }
+            },
+
+            updateOrder: (orderId, updates) => set((state) => ({
+                orders: state.orders.map(o => o.id === orderId ? { ...o, ...updates } : o)
+            })),
 
             executeBlitz: (orderParams, config) => {
                 const { placeOrder } = get();

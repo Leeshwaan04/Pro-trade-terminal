@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { CustomCandlestickChart } from "./CustomCandlestickChart";
 import { FloatingOrderTicket } from "@/components/trading/FloatingOrderTicket";
 import { ChartControls } from "./ChartControls";
+import { ChartToolbar } from "./ui/ChartToolbar";
+import { IndicatorSearchDialog } from "./ui/IndicatorSearchDialog";
 import { useLayoutStore } from "@/hooks/useLayoutStore";
 
 interface TradingChartProps {
@@ -56,21 +58,32 @@ export const TradingChart = ({ symbol, widgetId }: TradingChartProps) => {
                 </div>
             </div>
 
-            {/* Custom Canvas Chart Engine */}
-            <div className="flex-1 w-full relative min-h-0 overflow-hidden">
-                <CustomCandlestickChart
-                    symbol={symbol}
-                    interval={timeframe}
-                    chartType={chartType}
-                    showOIProfile={showOIProfile}
-                />
+            {/* Main Chart Area with Sidebar Toolbar */}
+            <div className="flex-1 w-full relative min-h-0 overflow-hidden flex">
+                {/* Left Drawing Toolbar */}
+                <div className="flex-none hidden md:block border-r border-white/5">
+                    <ChartToolbar symbol={symbol} />
+                </div>
 
-                {/* Floating Order Ticket Overlay */}
-                {showOrderTicket && (
-                    <div className="absolute top-4 right-4 z-50">
-                        <FloatingOrderTicket symbol={symbol} />
-                    </div>
-                )}
+                {/* Custom Canvas Chart Engine */}
+                <div className="flex-1 relative min-h-0 overflow-hidden">
+                    <CustomCandlestickChart
+                        symbol={symbol}
+                        interval={timeframe}
+                        chartType={chartType}
+                        showOIProfile={showOIProfile}
+                    />
+
+                    {/* Floating Order Ticket Overlay */}
+                    {showOrderTicket && (
+                        <div className="absolute top-4 right-4 z-50">
+                            <FloatingOrderTicket symbol={symbol} />
+                        </div>
+                    )}
+
+                    {/* Indicator Search Overlay */}
+                    <IndicatorSearchDialog />
+                </div>
             </div>
         </div>
     );

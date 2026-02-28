@@ -43,6 +43,8 @@ interface LayoutState {
     setCommandCenterOpen: (open: boolean) => void;
     settingsOpen: boolean;
     setSettingsOpen: (open: boolean) => void;
+    indicatorsOpen: boolean;
+    setIndicatorsOpen: (open: boolean) => void;
     // Sync States
     syncCrosshair: boolean;
     setSyncCrosshair: (sync: boolean) => void;
@@ -54,6 +56,12 @@ interface LayoutState {
     setSyncedMousePos: (pos: { x: number, y: number } | null) => void;
     syncedInterval: string;
     setSyncedInterval: (interval: string) => void;
+
+    // Bottom Panel (Account Manager)
+    accountManagerHeight: number;
+    setAccountManagerHeight: (height: number) => void;
+    isAccountManagerOpen: boolean;
+    toggleAccountManager: () => void;
 }
 
 export const useLayoutStore = create<LayoutState>()(
@@ -307,6 +315,8 @@ export const useLayoutStore = create<LayoutState>()(
             setCommandCenterOpen: (open) => set({ commandCenterOpen: open }),
             settingsOpen: false,
             setSettingsOpen: (open: boolean) => set({ settingsOpen: open }),
+            indicatorsOpen: false,
+            setIndicatorsOpen: (open: boolean) => set({ indicatorsOpen: open }),
 
             syncCrosshair: false,
             setSyncCrosshair: (sync) => set({ syncCrosshair: sync }),
@@ -318,6 +328,11 @@ export const useLayoutStore = create<LayoutState>()(
             setSyncedMousePos: (pos) => set({ syncedMousePos: pos }),
             syncedInterval: "1D",
             setSyncedInterval: (interval) => set({ syncedInterval: interval }),
+
+            accountManagerHeight: 250,
+            setAccountManagerHeight: (height) => set({ accountManagerHeight: height }),
+            isAccountManagerOpen: true,
+            toggleAccountManager: () => set((state) => ({ isAccountManagerOpen: !state.isAccountManagerOpen })),
         }),
         {
             name: "pro-terminal-layout-v10", // bumped for YouTube Layouts

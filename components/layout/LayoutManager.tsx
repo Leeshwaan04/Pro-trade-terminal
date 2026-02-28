@@ -6,6 +6,7 @@ import { PositionsTable } from "@/components/trading/PositionsTable";
 import { OrderEntryPanel } from "@/components/trading/OrderEntryPanel";
 import { WatchlistWidget } from "@/components/trading/WatchlistWidget";
 import { OrderBookWidget } from "@/components/trading/OrderBookWidget";
+import { DepthOfMarket } from "@/components/trading/DepthOfMarket";
 import { GridResizer } from "./GridResizer";
 import { NeuralOptionChain } from "@/components/trading/NeuralOptionChain";
 import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
@@ -222,6 +223,9 @@ export const LayoutManager = () => {
                         {targetWidget.type === "ORDER_BOOK" && (
                             <OrderBookWidget symbol={targetWidget.symbol} />
                         )}
+                        {targetWidget.type === "DOM" && (
+                            <DepthOfMarket symbol={targetWidget.symbol || "NIFTY 50"} />
+                        )}
                         {targetWidget.type === "POSITIONS" && <PositionsTable />}
                         {targetWidget.type === "ORDER_ENTRY" && (
                             <OrderEntryPanel symbol={targetWidget.symbol || "NIFTY 50"} />
@@ -361,6 +365,9 @@ export const LayoutManager = () => {
                                     {widgetConfig.type === "WATCHLIST" && <WatchlistWidget widgetId={widgetConfig.id} />}
                                     {widgetConfig.type === "ORDER_BOOK" && (
                                         <OrderBookWidget symbol={widgetConfig.symbol} />
+                                    )}
+                                    {widgetConfig.type === "DOM" && (
+                                        <DepthOfMarket symbol={widgetConfig.symbol || "NIFTY 50"} />
                                     )}
                                     {widgetConfig.type === "POSITIONS" && <PositionsTable />}
                                     {widgetConfig.type === "ORDER_ENTRY" && (

@@ -3,10 +3,10 @@
 import React from "react";
 import { MousePointer2, TrendingUp, Square, Type, Eraser, Ruler, ScanLine, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDrawingStore } from "@/hooks/useDrawingStore";
 
 interface ChartToolbarProps {
-    activeTool: string;
-    onToolChange: (tool: string) => void;
+    symbol: string;
 }
 
 const ToolButton = ({ icon: Icon, active, onClick, tooltip }: any) => (
@@ -26,57 +26,59 @@ const ToolButton = ({ icon: Icon, active, onClick, tooltip }: any) => (
     </button>
 );
 
-export const ChartToolbar = ({ activeTool, onToolChange }: ChartToolbarProps) => {
+export const ChartToolbar = ({ symbol }: ChartToolbarProps) => {
+    const { activeTool, setActiveTool, clearDrawings } = useDrawingStore();
+
     return (
         <div className="flex flex-col w-12 bg-black border-r border-white/10 h-full py-2 z-20">
             <ToolButton
                 icon={MousePointer2}
                 active={activeTool === "CURSOR"}
-                onClick={() => onToolChange("CURSOR")}
+                onClick={() => setActiveTool("CURSOR")}
                 tooltip="Crosshair (Alt+C)"
             />
             <div className="h-[1px] bg-white/10 mx-2 my-1" />
             <ToolButton
                 icon={TrendingUp}
                 active={activeTool === "TRENDLINE"}
-                onClick={() => onToolChange("TRENDLINE")}
+                onClick={() => setActiveTool("TRENDLINE")}
                 tooltip="Trendline (Alt+T)"
             />
             <ToolButton
                 icon={ScanLine}
                 active={activeTool === "FIB"}
-                onClick={() => onToolChange("FIB")}
+                onClick={() => setActiveTool("FIB")}
                 tooltip="Fib Retracement (Alt+F)"
             />
             <ToolButton
                 icon={Square}
                 active={activeTool === "RECTANGLE"}
-                onClick={() => onToolChange("RECTANGLE")}
+                onClick={() => setActiveTool("RECTANGLE")}
                 tooltip="Rectangle (Alt+R)"
             />
             <ToolButton
                 icon={Pencil}
                 active={activeTool === "BRUSH"}
-                onClick={() => onToolChange("BRUSH")}
+                onClick={() => setActiveTool("BRUSH")}
                 tooltip="Brush"
             />
             <ToolButton
                 icon={Type}
                 active={activeTool === "TEXT"}
-                onClick={() => onToolChange("TEXT")}
+                onClick={() => setActiveTool("TEXT")}
                 tooltip="Text"
             />
             <ToolButton
                 icon={Ruler}
                 active={activeTool === "MEASURE"}
-                onClick={() => onToolChange("MEASURE")}
+                onClick={() => setActiveTool("MEASURE")}
                 tooltip="Measure"
             />
             <div className="flex-1" />
             <ToolButton
                 icon={Eraser}
                 active={false}
-                onClick={() => console.log("Clear All")}
+                onClick={() => clearDrawings(symbol)}
                 tooltip="Remove All Drawings"
             />
         </div>

@@ -47,7 +47,8 @@ const WIDGET_META: Record<WidgetType, { label: string; icon: React.ReactNode; co
     WHALE_SONAR: { label: "Whale Sonar", icon: <Activity className="w-3.5 h-3.5" />, color: "text-cyan-400", desc: "Large order tracking" },
     HYPER_CHART: { label: "Hyper Chart", icon: <Activity className="w-3.5 h-3.5" />, color: "text-indigo-400", desc: "High octane technicals" },
     OI_ANALYSIS: { label: "OI Analysis", icon: <Target className="w-3.5 h-3.5" />, color: "text-teal-400", desc: "Sensibull style Open Interest Data" },
-    FII_DII: { label: "FII/DII Data", icon: <LineChart className="w-3.5 h-3.5" />, color: "text-sky-400", desc: "Institutional flow analysis" }
+    FII_DII: { label: "FII/DII Data", icon: <LineChart className="w-3.5 h-3.5" />, color: "text-sky-400", desc: "Institutional flow analysis" },
+    DOM: { label: "DOM", icon: <BookOpen className="w-3.5 h-3.5" />, color: "text-cyan-400", desc: "Depth of Market" }
 };
 
 /* ═══════════════════════════════════════════════════════════

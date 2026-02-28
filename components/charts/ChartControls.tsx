@@ -16,7 +16,8 @@ import {
     Crosshair,
     Link2,
     Clock,
-    BarChartBig
+    BarChartBig,
+    Zap
 } from "lucide-react";
 import { useMarketStore } from "@/hooks/useMarketStore";
 import { useOrderStore } from "@/hooks/useOrderStore";
@@ -84,7 +85,8 @@ export const ChartControls = ({
         setSyncSymbol,
         syncInterval,
         setSyncInterval,
-        setWorkspaceSymbol
+        setWorkspaceSymbol,
+        setIndicatorsOpen
     } = useLayoutStore();
     const { toast } = useToast();
 
@@ -181,6 +183,15 @@ export const ChartControls = ({
                     title="Toggle OI Profile Overlay"
                 >
                     <BarChartBig className="w-3.5 h-3.5" />
+                </button>
+
+                {/* Indicators Toggle */}
+                <button
+                    onClick={() => setIndicatorsOpen(true)}
+                    className="p-1.5 rounded text-[#555] hover:text-[#00E5FF] hover:bg-white/5 transition-colors"
+                    title="Add Indicators"
+                >
+                    <Zap className="w-3.5 h-3.5" />
                 </button>
             </div>
 
@@ -289,7 +300,7 @@ export const ChartControls = ({
                     <MonitorPlay className="w-3.5 h-3.5" />
                 </button>
             </div>
-        </div>
+        </div >
     );
 };
 
