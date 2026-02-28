@@ -9,7 +9,65 @@
  * responsive to theme changes (light ↔ dark).
  */
 
-// ─── Static Fallbacks (dark mode defaults) ───────────────────
+// ─── GROWW CLASSIC ───────────────────
+export const GROWW_TOKENS: Record<keyof typeof DARK_TOKENS, string> = {
+    up: "#22c55e",
+    down: "#ef4444",
+    primary: "#22c55e",
+    surface0: "#080a0c",
+    surface1: "#121418",
+    surface2: "#1e2228",
+    surface3: "#272a30",
+    surface4: "#333842",
+    chartBg: "#121418",
+    chartGrid: "rgba(255, 255, 255, 0.04)",
+    chartCrosshair: "rgba(255, 255, 255, 0.4)",
+    chartCrosshairLabel: "#080a0c",
+    chartWatermark: "rgba(255,255,255,0.02)",
+    chartVolumeBull: "rgba(34, 197, 94, 0.2)",
+    chartVolumeBear: "rgba(239, 68, 68, 0.2)",
+    chartCurrentPriceLine: "rgba(255, 255, 255, 0.5)",
+    chartAxisText: "#a1a1aa",
+    orderEntryBuy: "#3b82f6",
+    orderEntrySell: "#ef4444",
+    orderTarget: "#22c55e",
+    orderStoploss: "#ef4444",
+    orderLabelBg: "rgba(18, 20, 24, 0.95)",
+    foreground: "#d1d5db",
+    mutedForeground: "#71717a",
+    border: "rgba(255, 255, 255, 0.08)",
+} as const;
+
+// ─── MIDNIGHT PROTOCOL ───────────────────
+export const MIDNIGHT_TOKENS: Record<keyof typeof DARK_TOKENS, string> = {
+    up: "#475569",
+    down: "#94a3b8",
+    primary: "#94a3b8",
+    surface0: "#000000",
+    surface1: "#050505",
+    surface2: "#0f172a",
+    surface3: "#1e293b",
+    surface4: "#334155",
+    chartBg: "#000000",
+    chartGrid: "rgba(255, 255, 255, 0.05)",
+    chartCrosshair: "rgba(255, 255, 255, 0.2)",
+    chartCrosshairLabel: "#000000",
+    chartWatermark: "rgba(255,255,255,0.02)",
+    chartVolumeBull: "rgba(255, 255, 255, 0.1)",
+    chartVolumeBear: "rgba(255, 255, 255, 0.1)",
+    chartCurrentPriceLine: "rgba(255, 255, 255, 0.3)",
+    chartAxisText: "#64748b",
+    orderEntryBuy: "#64748b",
+    orderEntrySell: "#94a3b8",
+    orderTarget: "#475569",
+    orderStoploss: "#7f1d1d",
+    orderLabelBg: "rgba(0, 0, 0, 0.9)",
+    foreground: "#e2e8f0",
+    mutedForeground: "#64748b",
+    border: "rgba(255, 255, 255, 0.1)",
+} as const;
+
+// ─── ANTIGRAVITY (Default) ───────────────────
 export const DARK_TOKENS = {
     // Semantic Trading
     up: "#00ff66",   // Hyper Green
@@ -49,7 +107,7 @@ export const DARK_TOKENS = {
     border: "#1e293b",
 } as const;
 
-export const LIGHT_TOKENS = {
+export const LIGHT_TOKENS: Record<keyof typeof DARK_TOKENS, string> = {
     // Semantic Trading
     up: "#16a34a",
     down: "#dc2626",
@@ -88,7 +146,7 @@ export const LIGHT_TOKENS = {
     border: "#cbd5e1",
 } as const;
 
-export type DesignTokens = { [K in keyof typeof DARK_TOKENS]: string };
+export type DesignTokens = Record<keyof typeof DARK_TOKENS, string>;
 
 /**
  * Reads live CSS custom properties from the document.
@@ -99,8 +157,12 @@ export function getChartColors(el?: HTMLElement): DesignTokens {
 
     const root = el ?? document.documentElement;
     const s = getComputedStyle(root);
-    const isLight = root.classList.contains("light") || (root.parentElement && root.parentElement.classList.contains("light"));
-    const fallbacks = isLight ? LIGHT_TOKENS : DARK_TOKENS;
+    const themeName = root.getAttribute("data-theme") || "antigravity";
+
+    let fallbacks: DesignTokens = DARK_TOKENS;
+    if (themeName === "light") fallbacks = LIGHT_TOKENS;
+    else if (themeName === "groww") fallbacks = GROWW_TOKENS;
+    else if (themeName === "midnight") fallbacks = MIDNIGHT_TOKENS;
 
     const get = (prop: string, fallback: string) =>
         s.getPropertyValue(prop).trim() || fallback;
@@ -117,12 +179,12 @@ export function getChartColors(el?: HTMLElement): DesignTokens {
         chartBg: get("--chart-bg", fallbacks.chartBg),
         chartGrid: get("--chart-grid", fallbacks.chartGrid),
         chartCrosshair: get("--chart-crosshair", fallbacks.chartCrosshair),
-        chartCrosshairLabel: isLight ? LIGHT_TOKENS.chartCrosshairLabel : DARK_TOKENS.chartCrosshairLabel,
+        chartCrosshairLabel: fallbacks.chartCrosshairLabel,
         chartWatermark: get("--chart-watermark", fallbacks.chartWatermark),
         chartVolumeBull: get("--chart-volume-bull", fallbacks.chartVolumeBull),
         chartVolumeBear: get("--chart-volume-bear", fallbacks.chartVolumeBear),
-        chartCurrentPriceLine: isLight ? LIGHT_TOKENS.chartCurrentPriceLine : DARK_TOKENS.chartCurrentPriceLine,
-        chartAxisText: isLight ? LIGHT_TOKENS.chartAxisText : DARK_TOKENS.chartAxisText,
+        chartCurrentPriceLine: fallbacks.chartCurrentPriceLine,
+        chartAxisText: fallbacks.chartAxisText,
         orderEntryBuy: get("--order-entry-buy", fallbacks.orderEntryBuy),
         orderEntrySell: get("--order-entry-sell", fallbacks.orderEntrySell),
         orderTarget: get("--order-target", fallbacks.orderTarget),

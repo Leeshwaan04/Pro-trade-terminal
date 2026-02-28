@@ -9,5 +9,13 @@ export function ThemeProvider({
     ...props
 }: React.ComponentProps<typeof NextThemesProvider>) {
     useNeuralUI(); // Active Neural Engine
-    return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+    return (
+        <NextThemesProvider
+            themes={['antigravity', 'groww', 'midnight', 'light']}
+            defaultTheme="antigravity"
+            {...props}
+        >
+            {children}
+        </NextThemesProvider>
+    );
 }

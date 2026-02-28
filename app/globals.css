@@ -4,29 +4,22 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root {
+:root,
+[data-theme='antigravity'] {
   /* 
-     GROWW 915 THEME 
-     Near-black dark palette with precise green/red trading accents.
+     ANTIGRAVITY THEME (Default)
+     Deep Space Absolute Black w/ Neon Accents
   */
-
-  /* ─── BASE COLORS ─── */
   --background: #030508;
-  /* Deep Space Absolute Black */
-  /* Much darker background for 915 */
   --foreground: #d1d5db;
-  /* Softer text for less fatigue */
 
-  /* ─── COMPONENT COLORS ─── */
   --card: #0c0f13;
-  /* Primary widget bg */
   --card-foreground: #d1d5db;
 
   --popover: #0c0f13;
   --popover-foreground: #d1d5db;
 
-  --primary: #22c55e;
-  /* Groww Green is usually the primary action */
+  --primary: #00e5ff;
   --primary-foreground: #000000;
 
   --secondary: #181c22;
@@ -38,65 +31,167 @@
   --accent: #1e2228;
   --accent-foreground: #e4e4e7;
 
-  --destructive: #ef4444;
-  /* Groww Red */
+  --destructive: #ff003c;
   --destructive-foreground: #ffffff;
 
   --border: rgba(255, 255, 255, 0.05);
-  /* Extremely subtle borders */
   --input: #181c22;
-  --ring: rgba(255, 255, 255, 0.1);
+  --ring: rgba(0, 229, 255, 0.4);
 
   --radius: 0.25rem;
-  /* Tighter radius for a "pro" feel */
 
-  /* ─── SEMANTIC TRADING COLORS ─── */
-  --up: #22c55e;
-  --down: #ef4444;
-  --up-muted: rgba(34, 197, 94, 0.15);
-  --down-muted: rgba(239, 68, 68, 0.15);
+  --up: #00ff66;
+  --down: #ff003c;
+  --up-muted: rgba(0, 255, 102, 0.15);
+  --down-muted: rgba(255, 0, 60, 0.15);
 
-  /* ─── SURFACE HIERARCHY ─── */
-  --surface-0: #080a0c;
+  --surface-0: #030508;
   --surface-1: #0c0f13;
   --surface-2: #111318;
   --surface-3: #181c22;
   --surface-4: #1e2228;
 
-  /* ─── CHART COLORS ─── */
-  --chart-bg: #0c0f13;
+  --chart-bg: #030508;
   --chart-grid: rgba(255, 255, 255, 0.02);
-  --chart-crosshair: rgba(255, 255, 255, 0.4);
+  --chart-crosshair: rgba(0, 229, 255, 0.4);
   --chart-watermark: rgba(255, 255, 255, 0.01);
-  --chart-volume-bull: rgba(34, 197, 94, 0.2);
-  --chart-volume-bear: rgba(239, 68, 68, 0.2);
+  --chart-volume-bull: rgba(0, 255, 102, 0.2);
+  --chart-volume-bear: rgba(255, 0, 60, 0.2);
 
-  /* ─── ORDER LINES ─── */
   --order-entry-buy: #00e5ff;
   --order-entry-sell: #ff003c;
   --order-label-bg: rgba(3, 5, 8, 0.9);
 
-  /* ─── NEURAL UI VARIABLES ─── */
   --glass-blur: 24px;
-  --neon-glow-opacity: 0.2;
-  --chromatic-shift: 1px;
-
   --neon-cyan: #00e5ff;
   --neon-purple: #b400ff;
 }
 
-.dark {
-  /* Inherit :root, already dark by default */
+[data-theme='groww'] {
+  /* 
+     GROWW 915 THEME 
+     Softer dark panel with solid green/red investing colors.
+  */
+  --background: #080a0c;
+  --foreground: #d1d5db;
+
+  --card: #121418;
+  --card-foreground: #d1d5db;
+
+  --popover: #121418;
+  --popover-foreground: #d1d5db;
+
+  --primary: #22c55e;
+  --primary-foreground: #000000;
+
+  --secondary: #1e2228;
+  --secondary-foreground: #a1a1aa;
+
+  --muted: #1e2228;
+  --muted-foreground: #71717a;
+
+  --accent: #272a30;
+  --accent-foreground: #e4e4e7;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --input: #1e2228;
+  --ring: rgba(34, 197, 94, 0.4);
+
+  --up: #22c55e;
+  --down: #ef4444;
+  --up-muted: rgba(34, 197, 94, 0.15);
+  --down-muted: rgba(239, 68, 68, 0.15);
+
+  --surface-0: #080a0c;
+  --surface-1: #121418;
+  --surface-2: #1e2228;
+  --surface-3: #272a30;
+  --surface-4: #333842;
+
+  --chart-bg: #121418;
+  --chart-grid: rgba(255, 255, 255, 0.04);
+  --chart-crosshair: rgba(255, 255, 255, 0.4);
+  --chart-watermark: rgba(255, 255, 255, 0.02);
+  --chart-volume-bull: rgba(34, 197, 94, 0.2);
+  --chart-volume-bear: rgba(239, 68, 68, 0.2);
+
+  --order-entry-buy: #3b82f6;
+  --order-entry-sell: #ef4444;
+  --order-label-bg: rgba(18, 20, 24, 0.95);
+
+  --glass-blur: 12px;
+  --neon-cyan: #3b82f6;
+  --neon-purple: #8b5cf6;
 }
 
-.light {
-  /* ─── BASE COLORS (Light) ─── */
-  --background: #f8fafc;
-  /* Slate-50 */
-  --foreground: #0f172a;
-  /* Slate-900 */
+[data-theme='midnight'] {
+  /* 
+     MIDNIGHT PROTOCOL
+     Pure OLED Hardware Black w/ Monochrome/Slate accents.
+  */
+  --background: #000000;
+  --foreground: #e2e8f0;
 
-  /* ─── COMPONENT COLORS (Light) ─── */
+  --card: #050505;
+  --card-foreground: #e2e8f0;
+
+  --popover: #050505;
+  --popover-foreground: #e2e8f0;
+
+  --primary: #94a3b8;
+  --primary-foreground: #000000;
+
+  --secondary: #0f172a;
+  --secondary-foreground: #cbd5e1;
+
+  --muted: #0f172a;
+  --muted-foreground: #64748b;
+
+  --accent: #1e293b;
+  --accent-foreground: #f8fafc;
+
+  --destructive: #7f1d1d;
+  --destructive-foreground: #fecaca;
+
+  --border: rgba(255, 255, 255, 0.1);
+  --input: #0f172a;
+  --ring: rgba(148, 163, 184, 0.4);
+
+  --up: #475569;
+  --down: #94a3b8;
+  --up-muted: rgba(255, 255, 255, 0.05);
+  --down-muted: rgba(255, 255, 255, 0.05);
+
+  --surface-0: #000000;
+  --surface-1: #050505;
+  --surface-2: #0f172a;
+  --surface-3: #1e293b;
+  --surface-4: #334155;
+
+  --chart-bg: #000000;
+  --chart-grid: rgba(255, 255, 255, 0.05);
+  --chart-crosshair: rgba(255, 255, 255, 0.2);
+  --chart-watermark: rgba(255, 255, 255, 0.02);
+  --chart-volume-bull: rgba(255, 255, 255, 0.1);
+  --chart-volume-bear: rgba(255, 255, 255, 0.1);
+
+  --order-entry-buy: #64748b;
+  --order-entry-sell: #94a3b8;
+  --order-label-bg: rgba(0, 0, 0, 0.9);
+
+  --glass-blur: 0px;
+  --neon-cyan: #e2e8f0;
+  --neon-purple: #94a3b8;
+}
+
+[data-theme='light'] {
+  /* ─── LIGHT MODE (Corporate Slate) ─── */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+
   --card: #ffffff;
   --card-foreground: #0f172a;
 
@@ -104,47 +199,35 @@
   --popover-foreground: #0f172a;
 
   --primary: #0284c7;
-  /* Sky-600 */
   --primary-foreground: #ffffff;
 
   --secondary: #e2e8f0;
-  /* Slate-200 */
   --secondary-foreground: #334155;
-  /* Slate-700 */
 
   --muted: #f1f5f9;
-  /* Slate-100 */
   --muted-foreground: #64748b;
-  /* Slate-500 */
 
   --accent: #e2e8f0;
-  /* Slate-200 */
   --accent-foreground: #0f172a;
 
   --destructive: #ef4444;
-  /* Clean Red */
   --destructive-foreground: #ffffff;
 
   --border: rgba(0, 0, 0, 0.1);
   --input: #e2e8f0;
   --ring: rgba(2, 132, 199, 0.4);
 
-  /* ─── SEMANTIC TRADING COLORS (Light: slightly darker so text is readable against white) ─── */
   --up: #16a34a;
-  /* Green-600 */
   --down: #dc2626;
-  /* Red-600 */
   --up-muted: rgba(22, 163, 74, 0.15);
   --down-muted: rgba(220, 38, 38, 0.15);
 
-  /* ─── SURFACE HIERARCHY (Light) ─── */
   --surface-0: #f8fafc;
   --surface-1: #ffffff;
   --surface-2: #f1f5f9;
   --surface-3: #e2e8f0;
   --surface-4: #cbd5e1;
 
-  /* ─── CHART COLORS (Light) ─── */
   --chart-bg: #ffffff;
   --chart-grid: rgba(0, 0, 0, 0.05);
   --chart-crosshair: rgba(2, 132, 199, 0.5);
@@ -152,17 +235,13 @@
   --chart-volume-bull: rgba(22, 163, 74, 0.2);
   --chart-volume-bear: rgba(220, 38, 38, 0.2);
 
-  /* ─── ORDER LINES (Light) ─── */
   --order-entry-buy: #0284c7;
   --order-entry-sell: #dc2626;
   --order-label-bg: rgba(255, 255, 255, 0.9);
 
-  /* ─── LIGHT Glass/UI overrides ─── */
   --glass-blur: 16px;
   --neon-cyan: #0284c7;
-  /* Revert neon to a solid corporate sky blue for contrast */
   --neon-purple: #9333ea;
-  /* Purple-600 */
 }
 
 @theme inline {

@@ -26,7 +26,7 @@ import { LoginScreen } from "@/components/auth/LoginScreen";
 import { AuthInitializer } from "@/components/auth/AuthInitializer";
 import { IndicesTicker } from "@/components/market/IndicesTicker";
 import { SafetyToggle } from "@/components/layout/SafetyToggle";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { ThemeSelector } from "@/components/ui/theme-selector";
 import { Toaster } from "@/components/ui/toaster";
 import { MobileNavBar } from "@/components/layout/MobileNavBar";
 import { CursorFollower } from "@/components/ui/CursorFollower";
@@ -161,7 +161,7 @@ export default function AppShell() {
                         <WidgetPicker isOpen={isWidgetPickerOpen} onClose={() => setIsWidgetPickerOpen(false)} />
 
                         <div className="h-full flex items-center gap-1 px-2">
-                            <ThemeToggle />
+                            <ThemeSelector />
                             <SafetyToggle />
                             <ProfileMenu />
                         </div>
