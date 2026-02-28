@@ -11,7 +11,8 @@
   */
 
   /* ─── BASE COLORS ─── */
-  --background: #080a0c;
+  --background: #030508;
+  /* Deep Space Absolute Black */
   /* Much darker background for 915 */
   --foreground: #d1d5db;
   /* Softer text for less fatigue */
@@ -71,14 +72,14 @@
   --chart-volume-bear: rgba(239, 68, 68, 0.2);
 
   /* ─── ORDER LINES ─── */
-  --order-entry-buy: #22c55e;
-  --order-entry-sell: #ef4444;
-  --order-label-bg: rgba(11, 16, 26, 0.9);
+  --order-entry-buy: #00e5ff;
+  --order-entry-sell: #ff003c;
+  --order-label-bg: rgba(3, 5, 8, 0.9);
 
   /* ─── NEURAL UI VARIABLES ─── */
-  --glass-blur: 12px;
-  --neon-glow-opacity: 0.1;
-  --chromatic-shift: 0px;
+  --glass-blur: 24px;
+  --neon-glow-opacity: 0.2;
+  --chromatic-shift: 1px;
 
   --neon-cyan: #00e5ff;
   --neon-purple: #b400ff;
@@ -252,16 +253,16 @@ body {
 /* ─── GLASSMORPHISM & UTILITIES ─── */
 
 .glass {
-  background: rgba(11, 16, 26, 0.4);
-  backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.82);
+  background: rgba(3, 5, 8, 0.3);
+  backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9);
 }
 
 .glass-panel {
-  background: rgba(11, 16, 26, 0.25);
-  backdrop-filter: blur(12px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(3, 5, 8, 0.2);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.02);
 }
 
 .mesh-gradient {
@@ -299,6 +300,14 @@ body {
 
 .animate-float {
   animation: float 6s ease-in-out infinite;
+}
+
+.antigravity-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+.neon-text-glow {
+  text-shadow: 0 0 12px var(--neon-cyan);
 }
 
 /* Neo-Glow Effect for Cards */

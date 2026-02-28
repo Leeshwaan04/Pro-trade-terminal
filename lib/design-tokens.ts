@@ -12,36 +12,36 @@
 // ─── Static Fallbacks (dark mode defaults) ───────────────────
 export const DARK_TOKENS = {
     // Semantic Trading
-    up: "#4ade80",   // Neon Green
-    down: "#f87171", // Soft Neon Red
+    up: "#00ff66",   // Hyper Green
+    down: "#ff003c", // Hot Pink/Red
 
     // Primary accent
-    primary: "#3b82f6", // Royal Blue
+    primary: "#00e5ff", // Electric Cyan
 
     // Surfaces
-    surface0: "#05080f", // Deep Void
-    surface1: "#0b101a", // Card
+    surface0: "#030508", // Absolute Deep Void
+    surface1: "#05080f", // Card
     surface2: "#162032", // Hover
     surface3: "#1e293b", // Active
     surface4: "#334155", // Border
 
     // Chart
-    chartBg: "#05080f",
-    chartGrid: "rgba(59, 130, 246, 0.08)",
-    chartCrosshair: "rgba(96, 165, 250, 0.5)",
-    chartCrosshairLabel: "#1e293b",
-    chartWatermark: "rgba(255,255,255,0.03)",
-    chartVolumeBull: "rgba(74, 222, 128, 0.25)",
-    chartVolumeBear: "rgba(248, 113, 113, 0.25)",
-    chartCurrentPriceLine: "rgba(255,255,255,0.4)",
+    chartBg: "#000000",
+    chartGrid: "rgba(255, 255, 255, 0.04)",
+    chartCrosshair: "rgba(0, 229, 255, 0.4)",
+    chartCrosshairLabel: "#030508",
+    chartWatermark: "rgba(255,255,255,0.02)",
+    chartVolumeBull: "rgba(0, 255, 102, 0.2)",
+    chartVolumeBear: "rgba(255, 0, 60, 0.2)",
+    chartCurrentPriceLine: "rgba(0, 229, 255, 0.5)",
     chartAxisText: "#94a3b8", // Slate-400
 
     // Order Lines
-    orderEntryBuy: "#4ade80",
-    orderEntrySell: "#f87171",
-    orderTarget: "#4ade80",
-    orderStoploss: "#f87171",
-    orderLabelBg: "rgba(11, 16, 26, 0.95)",
+    orderEntryBuy: "#00e5ff",
+    orderEntrySell: "#ff003c",
+    orderTarget: "#00ff66",
+    orderStoploss: "#ff003c",
+    orderLabelBg: "rgba(3, 5, 8, 0.95)",
 
     // Text
     foreground: "#e2e8f0",

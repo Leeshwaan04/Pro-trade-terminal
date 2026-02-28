@@ -97,74 +97,78 @@ export default function AppShell() {
             <SettingsDialog />
             <Toaster />
 
-            {/* Header - Neural-Glass Refactor */}
-            <header data-testid="app-header" className="h-[48px] border-b border-white/10 flex items-center justify-between gap-4 bg-black/40 backdrop-blur-3xl z-20 shrink-0 shadow-[0_4px_30px_rgba(0,0,0,0.5)] bezel-top">
-                {/* LEFT SECTION (Logo + Tabs) */}
-                <div className="flex items-center h-full min-w-0">
-                    <div className="flex items-center gap-2.5 px-4 shrink-0 group cursor-pointer border-r border-white/[0.06] h-full transition-colors hover:bg-white/[0.02]">
-                        <div className="w-6 h-6 bg-gradient-to-br from-[var(--up)] to-[var(--primary)] rounded-md flex items-center justify-center shadow-[0_0_15px_color-mix(in_srgb,var(--up)_20%,transparent)]">
-                            <Terminal className="w-3.5 h-3.5 text-black" />
+            {/* Header - Antigravity Glass Refactor */}
+            <div className="pt-3 px-3 w-full shrink-0 z-30">
+                <header data-testid="app-header" className="h-[52px] rounded-2xl border border-white/[0.04] flex items-center justify-between gap-4 bg-[#030508]/60 backdrop-blur-3xl shadow-[0_16px_40px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] w-full transition-all relative">
+                    {/* Inner Edge Highlight */}
+                    <div className="absolute inset-0 rounded-2xl border border-white/[0.02] pointer-events-none" />
+                    {/* LEFT SECTION (Logo + Tabs) */}
+                    <div className="flex items-center h-full min-w-0">
+                        <div className="flex items-center gap-2.5 px-4 shrink-0 group cursor-pointer border-r border-white/[0.06] h-full transition-colors hover:bg-white/[0.02]">
+                            <div className="w-6 h-6 bg-gradient-to-br from-[var(--up)] to-[var(--primary)] rounded-md flex items-center justify-center shadow-[0_0_15px_color-mix(in_srgb,var(--up)_20%,transparent)]">
+                                <Terminal className="w-3.5 h-3.5 text-black" />
+                            </div>
+                            <div className="flex items-center gap-1.5 px-1 pr-2">
+                                <span className="text-[13px] font-black tracking-tight text-white drop-shadow-md">ZenG</span>
+                                <span className="text-[10px] font-black text-primary uppercase tracking-[0.15em] drop-shadow-[0_0_8px_rgba(34,197,94,0.4)]">TRADE</span>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-1.5 px-1 pr-2">
-                            <span className="text-[13px] font-black tracking-tight text-white drop-shadow-md">ZenG</span>
-                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.15em] drop-shadow-[0_0_8px_rgba(34,197,94,0.4)]">TRADE</span>
+
+                        {/* Workspace Tabs - Flat underline style */}
+                        <div className="flex-1 min-w-0 h-full flex items-end overflow-hidden">
+                            <WorkspaceTabs />
                         </div>
                     </div>
 
-                    {/* Workspace Tabs - Flat underline style */}
-                    <div className="flex-1 min-w-0 h-full flex items-end overflow-hidden">
-                        <WorkspaceTabs />
-                    </div>
-                </div>
-
-                {/* MIDDLE SECTION (P&L + Market Status) */}
-                <div className="hidden lg:flex items-center gap-5 shrink-0">
-                    <div className="flex items-center gap-4 px-4 h-full border-x border-white/[0.06] cursor-pointer hover:bg-white/[0.03] transition-colors group">
-                        <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">P&L</span>
-                        <div className="flex items-center gap-1.5">
-                            <PnLTicker />
-                            <ChevronDown className="w-3 h-3 text-zinc-700" />
+                    {/* MIDDLE SECTION (P&L + Market Status) */}
+                    <div className="hidden lg:flex items-center gap-5 shrink-0">
+                        <div className="flex items-center gap-4 px-4 h-full border-x border-white/[0.06] cursor-pointer hover:bg-white/[0.03] transition-colors group">
+                            <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">P&L</span>
+                            <div className="flex items-center gap-1.5">
+                                <PnLTicker />
+                                <ChevronDown className="w-3 h-3 text-zinc-700" />
+                            </div>
+                        </div>
+                        <div className="flex items-center">
+                            <MarketSentiment />
                         </div>
                     </div>
-                    <div className="flex items-center">
-                        <MarketSentiment />
-                    </div>
-                </div>
 
-                {/* RIGHT SECTION (Actions + Profile) */}
-                <div className="flex items-center h-full shrink-0 relative">
-                    {/* Tools Menu Trigger */}
-                    <div className="relative h-full flex items-center">
+                    {/* RIGHT SECTION (Actions + Profile) */}
+                    <div className="flex items-center h-full shrink-0 relative">
+                        {/* Tools Menu Trigger */}
+                        <div className="relative h-full flex items-center">
+                            <button
+                                className="hidden md:flex items-center gap-1.5 h-full px-4 border-x border-white/[0.06] text-[9px] font-black text-zinc-500 hover:text-white hover:bg-white/[0.04] transition-all uppercase tracking-widest"
+                                onClick={() => setIsToolsMenuOpen(!isToolsMenuOpen)}
+                            >
+                                <Settings2 className="w-3.5 h-3.5" />
+                                Tools
+                            </button>
+                            <ToolsMenu isOpen={isToolsMenuOpen} onClose={() => setIsToolsMenuOpen(false)} />
+                        </div>
+
+                        {/* Widget Picker Trigger */}
                         <button
-                            className="hidden md:flex items-center gap-1.5 h-full px-4 border-x border-white/[0.06] text-[9px] font-black text-zinc-500 hover:text-white hover:bg-white/[0.04] transition-all uppercase tracking-widest"
-                            onClick={() => setIsToolsMenuOpen(!isToolsMenuOpen)}
+                            className="flex items-center gap-1.5 h-full px-4 text-[9px] font-black text-primary hover:bg-primary/10 transition-all uppercase tracking-widest border-r border-white/[0.06]"
+                            onClick={() => setIsWidgetPickerOpen(true)}
                         >
-                            <Settings2 className="w-3.5 h-3.5" />
-                            Tools
+                            <LayoutGrid className="w-3.5 h-3.5" />
+                            + Widgets
                         </button>
-                        <ToolsMenu isOpen={isToolsMenuOpen} onClose={() => setIsToolsMenuOpen(false)} />
+
+                        <WidgetPicker isOpen={isWidgetPickerOpen} onClose={() => setIsWidgetPickerOpen(false)} />
+
+                        <div className="h-full flex items-center gap-1 px-2">
+                            <SafetyToggle />
+                            <ProfileMenu />
+                        </div>
                     </div>
+                </header>
+            </div>
 
-                    {/* Widget Picker Trigger */}
-                    <button
-                        className="flex items-center gap-1.5 h-full px-4 text-[9px] font-black text-primary hover:bg-primary/10 transition-all uppercase tracking-widest border-r border-white/[0.06]"
-                        onClick={() => setIsWidgetPickerOpen(true)}
-                    >
-                        <LayoutGrid className="w-3.5 h-3.5" />
-                        + Widgets
-                    </button>
-
-                    <WidgetPicker isOpen={isWidgetPickerOpen} onClose={() => setIsWidgetPickerOpen(false)} />
-
-                    <div className="h-full flex items-center gap-1 px-2">
-                        <SafetyToggle />
-                        <ProfileMenu />
-                    </div>
-                </div>
-            </header>
-
-            {/* Indices Ticker Bar */}
-            <div className="h-[26px] border-b border-white/[0.04] bg-[#0c1016] flex items-center z-10 shrink-0">
+            {/* Indices Ticker Bar - Moved below floating header and made subtle */}
+            <div className="h-[28px] mt-1 border-b border-white/[0.02] bg-transparent flex items-center z-10 shrink-0">
                 <IndicesTicker />
             </div>
 
@@ -217,15 +221,15 @@ export default function AppShell() {
             </main>
 
 
-            {/* Footer Status Bar - Neural-Glass Polish */}
-            <footer className="h-[24px] border-t border-white/[0.05] bg-black/60 backdrop-blur-xl text-[9px] flex items-center justify-between px-3 text-zinc-500 select-none shrink-0 font-mono z-20">
+            {/* Footer Status Bar - Antigravity Polish */}
+            <footer className="h-[28px] border-t border-white/[0.02] bg-[#030508]/80 backdrop-blur-2xl text-[9.5px] flex items-center justify-between px-4 text-zinc-500 select-none shrink-0 font-mono z-20">
                 <div className="flex gap-4">
                     <span className="flex items-center gap-1.5">
-                        <span className={`w-1.5 h-1.5 rounded-full animate-pulse shadow-[0_0_8px_var(--up)] ${connectionStatus === 'CONNECTED' || searchParams.get('mock') === 'true' ? 'bg-up' :
-                            connectionStatus === 'CONNECTING' ? 'bg-amber-500' : 'bg-down'
+                        <span className={`w-1.5 h-1.5 rounded-full animate-pulse shadow-[0_0_8px_var(--up)] ${connectionStatus === 'CONNECTED' || searchParams.get('mock') === 'true' ? 'bg-primary' :
+                            connectionStatus === 'CONNECTING' ? 'bg-amber-500' : 'bg-destructive'
                             }`}></span>
-                        <span className={`text-glow ${connectionStatus === 'CONNECTED' || searchParams.get('mock') === 'true' ? 'text-up' :
-                            connectionStatus === 'CONNECTING' ? 'text-amber-500' : 'text-down'
+                        <span className={`neon-text-glow font-bold ${connectionStatus === 'CONNECTED' || searchParams.get('mock') === 'true' ? 'text-primary' :
+                            connectionStatus === 'CONNECTING' ? 'text-amber-500' : 'text-destructive'
                             }`}>
                             {searchParams.get('mock') === 'true' ? (activeBroker || 'MOCK') + ' LIVE' :
                                 connectionStatus === 'CONNECTED' ? (activeBroker || 'NSE') + ' LIVE' : connectionStatus}

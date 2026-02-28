@@ -47,9 +47,11 @@ export const WidgetHeader = ({
 
     return (
         <div className={cn(
-            "flex items-center justify-between px-3 h-9 shrink-0 border-b border-white/5 bg-zinc-900/80 backdrop-blur-sm select-none",
+            "flex items-center justify-between px-3 h-[38px] shrink-0 border-b border-white/[0.03] bg-[#030508]/70 backdrop-blur-2xl select-none group/header hover:bg-[#030508]/90 transition-colors duration-500 relative overflow-hidden",
             className
         )}>
+            {/* Subtle top inner glow for glass edge */}
+            <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover/header:opacity-100 transition-opacity duration-700" />
             {/* Left: Title & Symbol */}
             <div className="flex items-center gap-2 overflow-hidden">
                 {currentColorHex && (
@@ -58,7 +60,7 @@ export const WidgetHeader = ({
                         <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke={currentColorHex} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                 )}
-                <span className="text-[10px] font-black uppercase tracking-widest text-[var(--neon-cyan)] shadow-[0_0_8px_rgba(6,182,212,0.3)]">
+                <span className="text-[10px] font-black uppercase tracking-widest text-[var(--neon-cyan)] drop-shadow-[0_0_8px_rgba(0,229,255,0.4)] group-hover/header:drop-shadow-[0_0_12px_rgba(0,229,255,0.8)] transition-all duration-500">
                     {title}
                 </span>
                 {symbol && (
