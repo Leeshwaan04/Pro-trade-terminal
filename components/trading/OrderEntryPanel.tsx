@@ -152,7 +152,7 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
     };
 
     return (
-        <div className="h-full bg-background border-l border-border flex flex-col tracking-tight transition-colors duration-300">
+        <div data-testid="order-entry-panel" className="h-full bg-background border-l border-border flex flex-col tracking-tight transition-colors duration-300">
             {/* Context Header */}
             <div className="p-2 border-b border-border bg-surface-1">
                 <div className="flex items-center justify-between mb-0.5">

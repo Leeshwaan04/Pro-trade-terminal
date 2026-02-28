@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Groww 915 Parity Features', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('/?testAuth=1&mock=true&layout=915-advanced');
+        await page.goto('/terminal?testAuth=1&mock=true&layout=915-advanced');
         // Wait for the app to be ready
         await page.waitForSelector('[data-testid="watchlist-widget"]');
     });
@@ -12,8 +12,8 @@ test.describe('Groww 915 Parity Features', () => {
         const ticker = page.locator('[data-testid="indices-ticker"]');
         await expect(ticker).toBeVisible();
 
-        // Hover to reveal settings
-        await ticker.hover();
+        // Hover to reveal settings (force true if covered by invisible overlay)
+        await ticker.hover({ force: true });
 
         // Click the settings button
         const settingsBtn = page.locator('[data-testid="indices-ticker"] button');

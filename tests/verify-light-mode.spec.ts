@@ -13,13 +13,17 @@ test('verify light mode integration', async ({ page }) => {
     await page.screenshot({ path: '/Users/sumitbagewadi/.gemini/antigravity/brain/5de15f42-336d-473a-af30-fbb988b76d9b/light_mode_test_dark_before.png', fullPage: true });
     console.log("Captured Dark Mode Screenshot.");
 
-    // Find the theme toggle button. We added a title="Toggle Theme" to the button.
+    // Find the theme toggle button (Dropdown triggering the ThemeSelector)
     console.log("Looking for Theme Toggle...");
-    const themeToggle = page.locator('button[title="Toggle Theme"]');
+    const themeToggle = page.locator('button').filter({ hasText: 'THEME' }).first();
 
     // Wait for it to be visible and click it
     await themeToggle.waitFor({ state: 'visible', timeout: 5000 });
     await themeToggle.click();
+
+    // Click on Light Mode / Corporate Slate option
+    await page.locator('text=Corporate Slate').waitFor({ state: 'visible', timeout: 5000 });
+    await page.locator('text=Corporate Slate').click();
 
     // Wait a few seconds for transitions to finish and CSS to settle
     await page.waitForTimeout(2000);

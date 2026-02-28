@@ -3,12 +3,12 @@ import { test, expect } from '@playwright/test';
 test.describe('Multi-Broker Switching Verification', () => {
     test.beforeEach(async ({ page }) => {
         // Use testAuth=1 to bypass real login and mock=true for internal data
-        await page.goto('http://localhost:3000?testAuth=1&mock=true');
+        await page.goto('http://localhost:3000/terminal?testAuth=1&mock=true');
     });
 
     test('should switch from Kite to Groww and update identity', async ({ page }) => {
-        // 1. Open Profile Menu
-        const profileBtn = page.locator('button').filter({ hasText: /^CY$|^PT$/i }).first();
+        // 1. Open Profile Menu (Locating by the circular profile button)
+        const profileBtn = page.locator('button.h-8.w-8.rounded-full').first();
         await profileBtn.click();
 
         // 2. Click Groww Trade
@@ -29,7 +29,7 @@ test.describe('Multi-Broker Switching Verification', () => {
 
     test('should switch back to Kite', async ({ page }) => {
         // 1. Open Profile Menu
-        const profileBtn = page.locator('button').filter({ hasText: /^CY$|^PT$/i }).first();
+        const profileBtn = page.locator('button.h-8.w-8.rounded-full').first();
         await profileBtn.click();
 
         // 2. Click Groww first to establish state

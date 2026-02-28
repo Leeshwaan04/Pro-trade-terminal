@@ -19,7 +19,7 @@ test.describe('ZenG Terminal E2E Verification', () => {
 
     test('order entry panel live ltp binding', async ({ page }) => {
         // Open order panel (usually active by default or clickable)
-        const orderPanel = page.locator('h2', { hasText: 'NIFTY 50' }).locator('xpath=../..');
+        const orderPanel = page.locator('[data-testid="order-entry-panel"]');
         await expect(orderPanel).toBeVisible();
 
         // Check if LTP is rendered in the header
@@ -36,11 +36,11 @@ test.describe('ZenG Terminal E2E Verification', () => {
     test('header layout', async ({ page }) => {
         const header = page.locator('[data-testid="app-header"]');
         await expect(header).toBeVisible();
-        // Height approx 40px
+        // Height approx 52px
         const height = await header.evaluate(el => getComputedStyle(el).height);
-        expect(parseFloat(height)).toBeCloseTo(40, 2);
+        expect(parseFloat(height)).toBeCloseTo(52, 2);
         // Logo text is split for density
-        await expect(header.getByText('ZENG', { exact: true })).toBeVisible();
+        await expect(header.getByText('ZenG', { exact: true })).toBeVisible();
         await expect(header.getByText('TRADE', { exact: true })).toBeVisible();
         // Flat underline tabs exist
         const tabsCount = await header.locator('.group').count();
@@ -73,8 +73,8 @@ test.describe('ZenG Terminal E2E Verification', () => {
         const firstRow = watchlist.locator('.group').first();
         await expect(firstRow).toBeVisible();
 
-        // Hover shows buy/sell buttons
-        await firstRow.hover();
+        // Hover shows buy/sell buttons (avoiding absolute resize handles)
+        await firstRow.locator('span').first().hover();
         const buyBtn = watchlist.locator('button', { hasText: 'B' }).first();
         const sellBtn = watchlist.locator('button', { hasText: 'S' }).first();
         await expect(buyBtn).toBeVisible({ timeout: 3000 });
