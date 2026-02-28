@@ -58,13 +58,13 @@ export const AutomateBuilder = () => {
     };
 
     return (
-        <div className="w-full h-full bg-zinc-950 p-6 overflow-y-auto text-zinc-100 flex flex-col gap-6">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+        <div className="w-full h-full bg-background p-6 overflow-y-auto text-foreground flex flex-col gap-6">
+            <div className="flex items-center justify-between border-b border-border pb-4">
                 <div className="flex flex-col">
                     <h2 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
                         Cyber Automate Builder
                     </h2>
-                    <p className="text-xs text-zinc-500">Design rule-based algorithmic strategies.</p>
+                    <p className="text-xs text-muted-foreground">Design rule-based algorithmic strategies.</p>
                 </div>
                 <button
                     onClick={handleSave}
@@ -77,36 +77,36 @@ export const AutomateBuilder = () => {
 
             {/* Strategy Name */}
             <div className="flex flex-col gap-2">
-                <label className="text-xs font-medium text-zinc-400">Strategy Name</label>
+                <label className="text-xs font-medium text-muted-foreground">Strategy Name</label>
                 <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="bg-zinc-900 border border-zinc-700 p-2 rounded text-sm focus:border-purple-500 outline-none w-full max-w-md"
+                    className="bg-surface-1 border border-border p-2 rounded text-sm focus:border-purple-500 outline-none w-full max-w-md"
                 />
             </div>
 
             <div className="flex gap-6 h-full">
                 {/* CONDITIONS COLUMN */}
-                <div className="flex-1 flex flex-col gap-4 border border-zinc-800/50 bg-zinc-900/20 p-4 rounded-xl">
+                <div className="flex-1 flex flex-col gap-4 border border-border bg-surface-1/20 p-4 rounded-xl">
                     <div className="flex items-center justify-between">
                         <h3 className="text-sm font-bold text-blue-400 flex items-center gap-2">
                             <Activity className="w-4 h-4" />
                             IF (Conditions)
                         </h3>
-                        <button onClick={addCondition} className="p-1.5 bg-zinc-800 rounded hover:bg-zinc-700 transition">
-                            <Plus className="w-4 h-4 text-zinc-400" />
+                        <button onClick={addCondition} className="p-1.5 bg-muted rounded hover:bg-accent transition">
+                            <Plus className="w-4 h-4 text-muted-foreground" />
                         </button>
                     </div>
 
                     <div className="flex flex-col gap-3">
                         {conditions.length === 0 && (
-                            <div className="text-center text-zinc-600 text-xs py-10 dashed-border">
+                            <div className="text-center text-muted-foreground/60 text-xs py-10 dashed-border">
                                 No conditions added.
                             </div>
                         )}
                         {conditions.map(c => (
-                            <div key={c.id} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg flex flex-col gap-2 relative group">
+                            <div key={c.id} className="p-3 bg-surface-1 border border-border rounded-lg flex flex-col gap-2 relative group">
                                 <button
                                     onClick={() => removeCondition(c.id)}
                                     className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-500/10 rounded transition"
@@ -118,7 +118,7 @@ export const AutomateBuilder = () => {
                                     <select
                                         value={c.type}
                                         onChange={(e) => updateCondition(c.id, { type: e.target.value as IndicatorType })}
-                                        className="bg-black border border-zinc-700 text-xs rounded p-1"
+                                        className="bg-background border border-border text-xs rounded p-1"
                                     >
                                         <option value="PRICE">Price (LTP)</option>
                                         <option value="RSI">RSI</option>
@@ -134,7 +134,7 @@ export const AutomateBuilder = () => {
                                             placeholder="Period"
                                             value={c.indicator?.period || 14}
                                             onChange={(e) => updateCondition(c.id, { indicator: { ...c.indicator, name: c.type, period: parseInt(e.target.value) } })}
-                                            className="w-12 bg-black border border-zinc-700 text-xs rounded p-1"
+                                            className="flex-1 bg-background border border-border text-xs rounded p-1"
                                         />
                                     )}
 
@@ -177,29 +177,29 @@ export const AutomateBuilder = () => {
 
                 {/* LOGIC CONNECTOR */}
                 <div className="flex items-center justify-center">
-                    <div className="p-2 rounded-full bg-zinc-800 text-zinc-500 font-bold text-xs">THEN</div>
+                    <div className="p-2 rounded-full bg-muted text-muted-foreground font-bold text-xs">THEN</div>
                 </div>
 
                 {/* ACTIONS COLUMN */}
-                <div className="flex-1 flex flex-col gap-4 border border-zinc-800/50 bg-zinc-900/20 p-4 rounded-xl">
+                <div className="flex-1 flex flex-col gap-4 border border-border bg-surface-1/20 p-4 rounded-xl">
                     <div className="flex items-center justify-between">
                         <h3 className="text-sm font-bold text-green-400 flex items-center gap-2">
                             <DollarSign className="w-4 h-4" />
                             DO (Actions)
                         </h3>
-                        <button onClick={addAction} className="p-1.5 bg-zinc-800 rounded hover:bg-zinc-700 transition">
-                            <Plus className="w-4 h-4 text-zinc-400" />
+                        <button onClick={addAction} className="p-1.5 bg-muted rounded hover:bg-accent transition">
+                            <Plus className="w-4 h-4 text-muted-foreground" />
                         </button>
                     </div>
 
                     <div className="flex flex-col gap-3">
                         {actions.length === 0 && (
-                            <div className="text-center text-zinc-600 text-xs py-10 dashed-border">
+                            <div className="text-center text-muted-foreground/60 text-xs py-10 dashed-border">
                                 No actions defined.
                             </div>
                         )}
                         {actions.map(a => (
-                            <div key={a.id} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg flex flex-col gap-2 relative group">
+                            <div key={a.id} className="p-3 bg-surface-1 border border-border rounded-lg flex flex-col gap-2 relative group">
                                 <button
                                     onClick={() => removeAction(a.id)}
                                     className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-500/10 rounded transition"
@@ -210,7 +210,7 @@ export const AutomateBuilder = () => {
                                 <select
                                     value={a.type}
                                     onChange={(e) => updateAction(a.id, { type: e.target.value as ActionType })}
-                                    className="bg-black border border-zinc-700 text-xs rounded p-1 w-full"
+                                    className="bg-background border border-border text-xs rounded p-1 w-full"
                                 >
                                     <option value="PLACE_ORDER">Place Order</option>
                                     <option value="EXIT_ALL">Exit All Positions</option>

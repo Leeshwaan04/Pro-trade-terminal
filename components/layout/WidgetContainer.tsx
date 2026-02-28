@@ -46,8 +46,8 @@ export const WidgetContainer = ({
                     title={`ZenG Trade - ${activeWidget.title}`}
                     onClose={() => setPoppedOut(activeWidgetId, false)}
                 >
-                    <div className="h-full w-full bg-[#0f1318] flex flex-col">
-                        <div className="h-7 border-b border-white/5 flex items-center px-3 bg-[#0c1016] justify-between">
+                    <div className="h-full w-full bg-background flex flex-col">
+                        <div className="h-7 border-b border-border flex items-center px-3 bg-surface-1 justify-between">
                             <div className="flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
                                 <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">{activeWidget.title}</span>
@@ -71,7 +71,7 @@ export const WidgetContainer = ({
             <div
                 className={cn(
                     "flex flex-col h-full w-full transition-all duration-300 group relative isolate rounded-lg overflow-hidden",
-                    "glass-panel border border-white/[0.08]",
+                    "glass-panel border border-border",
                     isActive
                         ? "ring-2 ring-primary/40 z-20 shadow-[0_0_30px_rgba(59,130,246,0.2)] scale-[1.002]"
                         : "hover:border-white/20 z-0",
@@ -80,7 +80,7 @@ export const WidgetContainer = ({
                 onClick={onActivate}
             >
                 {/* Widget Header — Ultra-tight Glass Style */}
-                <div className="h-8 min-h-[32px] flex items-end justify-between px-1 select-none z-20 border-b border-white/[0.05] bg-white/[0.03]">
+                <div className="h-8 min-h-[32px] flex items-end justify-between px-1 select-none z-20 border-b border-border bg-muted/30">
                     <div className="flex h-full items-end gap-0 overflow-x-auto no-scrollbar">
                         {widgets.map((w) => {
                             const isSelected = w.id === activeWidgetId;
@@ -92,8 +92,8 @@ export const WidgetContainer = ({
                                         onWidgetSelect(w.id);
                                     }}
                                     className={`h-full px-3 flex items-center gap-1.5 transition-all relative border-b-2 ${isSelected
-                                        ? 'border-primary text-white'
-                                        : 'border-transparent text-zinc-600 hover:text-zinc-300 hover:bg-white/[0.03]'
+                                        ? 'border-primary text-foreground'
+                                        : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
                                         }`}
                                 >
                                     <span className="text-[9px] font-black tracking-[0.12em] uppercase whitespace-nowrap">
@@ -117,12 +117,12 @@ export const WidgetContainer = ({
                                 e.stopPropagation();
                                 toggleMaximize(activeWidgetId);
                             }}
-                            className={`p-1 rounded hover:bg-white/10 transition-colors ${maximizedWidgetId === activeWidgetId ? 'text-primary' : 'text-zinc-700 hover:text-zinc-400'}`}
+                            className={`p-1 rounded hover:bg-muted transition-colors ${maximizedWidgetId === activeWidgetId ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                             title={maximizedWidgetId === activeWidgetId ? "Minimize" : "Maximize"}
                         >
                             {maximizedWidgetId === activeWidgetId ? <X className="w-3 h-3 rotate-45" /> : <Maximize2 className="w-3 h-3" />}
                         </button>
-                        <button className="p-1 rounded hover:bg-white/10 text-zinc-700 hover:text-down transition-colors">
+                        <button className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-down transition-colors">
                             <X className="w-3 h-3" />
                         </button>
                     </div>

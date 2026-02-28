@@ -63,12 +63,12 @@ const CustomTooltip = ({ active, payload }: any) => {
         const data = payload[0].payload;
         const isProfit = data.pnl >= 0;
         return (
-            <div className="bg-zinc-950 border border-white/10 p-3 rounded shadow-xl backdrop-blur-md">
-                <div className="font-bold text-white mb-1">{data.name}</div>
-                <div className="text-xs text-zinc-400 font-mono space-y-1">
+            <div className="bg-popover border border-border p-3 rounded shadow-xl backdrop-blur-md">
+                <div className="font-bold text-foreground mb-1">{data.name}</div>
+                <div className="text-xs text-muted-foreground font-mono space-y-1">
                     <div className="flex justify-between gap-4">
                         <span>Invested</span>
-                        <span className="text-white">₹{data.invested.toLocaleString('en-IN')}</span>
+                        <span className="text-foreground">₹{data.invested.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="flex justify-between gap-4">
                         <span>P&L</span>
@@ -78,7 +78,7 @@ const CustomTooltip = ({ active, payload }: any) => {
                     </div>
                     <div className="flex justify-between gap-4">
                         <span>LTP</span>
-                        <span className="text-white">₹{data.ltp.toFixed(2)}</span>
+                        <span className="text-foreground">₹{data.ltp.toFixed(2)}</span>
                     </div>
                 </div>
             </div>
@@ -117,15 +117,15 @@ export const PortfolioHeatmap = () => {
 
     if (data.length === 0) {
         return (
-            <div className="h-full w-full flex flex-col items-center justify-center bg-black/50 text-zinc-600 font-mono gap-2">
-                <div className="w-12 h-12 border-2 border-dashed border-zinc-800 rounded-lg opacity-50" />
+            <div className="h-full w-full flex flex-col items-center justify-center bg-muted/20 text-muted-foreground font-mono gap-2">
+                <div className="w-12 h-12 border-2 border-dashed border-border rounded-lg opacity-50" />
                 <span className="text-xs uppercase tracking-widest">No Active Holdings</span>
             </div>
         );
     }
 
     return (
-        <div className="h-full w-full bg-black/40 relative font-sans">
+        <div className="h-full w-full bg-background/40 relative font-sans">
             <ResponsiveContainer width="100%" height="100%">
                 <Treemap
                     data={data}

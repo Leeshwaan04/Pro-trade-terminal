@@ -120,12 +120,12 @@ export const ChartControls = ({
     };
 
     return (
-        <div className="flex items-center justify-between bg-[var(--chart-bg)] border-b border-white/5 px-3 h-10 select-none w-full z-20">
+        <div className="flex items-center justify-between bg-background border-b border-border px-3 h-10 select-none w-full z-20">
 
             {/* Left: Symbol Info + Buy/Sell */}
-            <div className="flex items-center gap-2 pr-3 border-r border-white/5 h-full">
+            <div className="flex items-center gap-2 pr-3 border-r border-border h-full">
                 {/* Symbol Badge */}
-                <div className="flex items-center gap-1.5 cursor-pointer hover:bg-white/5 px-2 py-1 rounded transition-colors group">
+                <div className="flex items-center gap-1.5 cursor-pointer hover:bg-muted px-2 py-1 rounded transition-colors group">
                     <div className="w-5 h-5 rounded bg-amber-500/20 flex items-center justify-center">
                         <span className="text-[8px] font-bold text-amber-400">■</span>
                     </div>
@@ -133,7 +133,7 @@ export const ChartControls = ({
                         <span className="text-xs font-bold text-white leading-none tracking-tight">{symbol}</span>
                         {tickerData && (
                             <div className="flex items-center gap-1.5">
-                                <span className="text-xs font-mono text-white">
+                                <span className="text-xs font-mono text-foreground">
                                     ₹{tickerData.last_price.toFixed(2)}
                                 </span>
                                 <span className={cn(
@@ -213,10 +213,10 @@ export const ChartControls = ({
                 ))}
             </div>
 
-            <button className="p-1.5 hover:bg-white/5 rounded text-[#555] hover:text-white transition-colors">
+            <button className="p-1.5 hover:bg-muted rounded text-muted-foreground hover:text-foreground transition-colors">
                 <MoreHorizontal className="w-4 h-4" />
             </button>
-            <div className="flex items-center gap-0.5 border-l border-white/5 pl-2 h-full">
+            <div className="flex items-center gap-0.5 border-l border-border pl-2 h-full">
                 {/* Multiview Layout Selector */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -230,7 +230,7 @@ export const ChartControls = ({
                             <LayoutTemplate className="w-3.5 h-3.5" />
                         </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-36 bg-[#0c1016] border-white/5">
+                    <DropdownMenuContent align="end" className="w-36 bg-popover border-border">
                         <DropdownMenuItem onClick={() => updateMultiChartConfig(widgetId, { viewMode: "1x1" })} className="text-xs">
                             Single (1x1)
                         </DropdownMenuItem>

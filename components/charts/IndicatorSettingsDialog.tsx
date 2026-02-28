@@ -29,12 +29,12 @@ export const IndicatorSettingsDialog = ({ indicatorId, onClose }: Props) => {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="w-80 bg-[#14151a] border border-white/10 rounded-xl shadow-2xl overflow-hidden flex flex-col">
+            <div className="w-80 bg-popover border border-border rounded-xl shadow-2xl overflow-hidden flex flex-col">
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-white/5">
-                    <div className="flex items-center gap-2 text-zinc-200 font-medium">
-                        <Settings2 size={16} className="text-zinc-400" />
+                <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
+                    <div className="flex items-center gap-2 text-foreground font-medium">
+                        <Settings2 size={16} className="text-muted-foreground" />
                         {localConfig.type} Settings
                     </div>
                     <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">
@@ -47,12 +47,12 @@ export const IndicatorSettingsDialog = ({ indicatorId, onClose }: Props) => {
                     {/* Period Setting (For SMA, EMA, RSI) */}
                     {(localConfig.type === 'SMA' || localConfig.type === 'EMA' || localConfig.type === 'RSI') && (
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-xs text-zinc-400 font-medium">Length / Period</label>
+                            <label className="text-xs text-muted-foreground font-medium">Length / Period</label>
                             <input
                                 type="number"
                                 value={localConfig.period}
                                 onChange={e => setLocalConfig({ ...localConfig, period: parseInt(e.target.value) || 1 })}
-                                className="w-full bg-[#1e222d] border border-white/10 rounded px-3 py-1.5 text-sm text-zinc-200 focus:outline-none focus:border-blue-500"
+                                className="w-full bg-background border border-border rounded px-3 py-1.5 text-sm text-foreground focus:outline-none focus:border-blue-500"
                             />
                         </div>
                     )}
@@ -60,11 +60,11 @@ export const IndicatorSettingsDialog = ({ indicatorId, onClose }: Props) => {
                     {/* Source Setting */}
                     {(localConfig.type === 'SMA' || localConfig.type === 'EMA' || localConfig.type === 'RSI') && (
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-xs text-zinc-400 font-medium">Source</label>
+                            <label className="text-xs text-muted-foreground font-medium">Source</label>
                             <select
                                 value={localConfig.settings?.source || 'close'}
                                 onChange={e => setLocalConfig({ ...localConfig, settings: { ...localConfig.settings, source: e.target.value as any } })}
-                                className="w-full bg-[#1e222d] border border-white/10 rounded px-3 py-1.5 text-sm text-zinc-200 focus:outline-none focus:border-blue-500"
+                                className="w-full bg-background border border-border rounded px-3 py-1.5 text-sm text-foreground focus:outline-none focus:border-blue-500"
                             >
                                 <option value="close">Close</option>
                                 <option value="open">Open</option>
@@ -83,7 +83,7 @@ export const IndicatorSettingsDialog = ({ indicatorId, onClose }: Props) => {
                                     type="number"
                                     value={localConfig.settings?.overbought || 70}
                                     onChange={e => setLocalConfig({ ...localConfig, settings: { ...localConfig.settings, overbought: parseInt(e.target.value) || 70 } })}
-                                    className="w-full bg-[#1e222d] border border-white/10 rounded px-3 py-1.5 text-sm text-zinc-200 focus:outline-none"
+                                    className="w-full bg-background border border-border rounded px-3 py-1.5 text-sm text-foreground focus:outline-none"
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -92,7 +92,7 @@ export const IndicatorSettingsDialog = ({ indicatorId, onClose }: Props) => {
                                     type="number"
                                     value={localConfig.settings?.oversold || 30}
                                     onChange={e => setLocalConfig({ ...localConfig, settings: { ...localConfig.settings, oversold: parseInt(e.target.value) || 30 } })}
-                                    className="w-full bg-[#1e222d] border border-white/10 rounded px-3 py-1.5 text-sm text-zinc-200 focus:outline-none"
+                                    className="w-full bg-background border border-border rounded px-3 py-1.5 text-sm text-foreground focus:outline-none"
                                 />
                             </div>
                         </div>
@@ -114,7 +114,7 @@ export const IndicatorSettingsDialog = ({ indicatorId, onClose }: Props) => {
                 </div>
 
                 {/* Footer */}
-                <div className="flex justify-end gap-2 p-3 bg-white/5 border-t border-white/5">
+                <div className="flex justify-end gap-2 p-3 bg-muted/30 border-t border-border">
                     <button
                         onClick={onClose}
                         className="px-4 py-1.5 rounded text-sm text-zinc-300 hover:text-white hover:bg-white/5 transition-colors"

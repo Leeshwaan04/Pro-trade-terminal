@@ -48,26 +48,26 @@ export const IndicatorSearchDialog = () => {
             onClick={() => setIndicatorsOpen(false)}
         >
             <div
-                className="w-[500px] max-h-[600px] bg-[#0c0c0c] border border-white/10 rounded-xl shadow-2xl flex flex-col overflow-hidden"
+                className="w-[500px] max-h-[600px] bg-background border border-border rounded-xl shadow-2xl flex flex-col overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center gap-3 p-4 border-b border-white/5 bg-white/5">
-                    <Zap className="w-5 h-5 text-[#00E5FF]" />
+                <div className="flex items-center gap-3 p-4 border-b border-border bg-muted/30">
+                    <Zap className="w-5 h-5 text-primary" />
                     <div className="flex-1 relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <input
                             autoFocus
                             type="text"
                             placeholder="Search indicators..."
-                            className="w-full bg-black/40 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm text-white outline-none focus:border-[#00E5FF]/40 transition-colors"
+                            className="w-full bg-background border border-border rounded-lg pl-10 pr-4 py-2 text-sm text-foreground outline-none focus:border-primary/40 transition-colors"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
                     <button
                         onClick={() => setIndicatorsOpen(false)}
-                        className="p-2 hover:bg-white/10 rounded-full text-zinc-500 hover:text-white transition-colors"
+                        className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -84,21 +84,21 @@ export const IndicatorSearchDialog = () => {
                                 "w-full flex items-center gap-4 px-4 py-3 rounded-lg text-left transition-all group",
                                 item.disabled
                                     ? "opacity-40 cursor-not-allowed"
-                                    : "hover:bg-white/5 active:scale-[0.98]"
+                                    : "hover:bg-muted active:scale-[0.98]"
                             )}
                         >
                             <div className={cn(
-                                "w-10 h-10 rounded-lg flex items-center justify-center border border-white/10 transition-colors",
-                                !item.disabled && "group-hover:border-[#00E5FF]/30 group-hover:bg-[#00E5FF]/10 text-zinc-400 group-hover:text-[#00E5FF]"
+                                "w-10 h-10 rounded-lg flex items-center justify-center border border-border transition-colors",
+                                !item.disabled && "group-hover:border-primary/30 group-hover:bg-primary/10 text-muted-foreground group-hover:text-primary"
                             )}>
                                 <item.icon className="w-5 h-5" />
                             </div>
                             <div className="flex-1">
-                                <div className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
+                                <div className="text-sm font-semibold text-foreground flex items-center gap-2">
                                     {item.name}
-                                    {item.disabled && <span className="text-[10px] bg-zinc-800 text-zinc-500 px-1.5 py-0.5 rounded">COMMING SOON</span>}
+                                    {item.disabled && <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded">COMMING SOON</span>}
                                 </div>
-                                <div className="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">{item.category}</div>
+                                <div className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">{item.category}</div>
                             </div>
                         </button>
                     ))}
@@ -111,8 +111,8 @@ export const IndicatorSearchDialog = () => {
                 </div>
 
                 {/* Footer */}
-                <div className="p-3 border-t border-white/5 bg-black/40 text-center">
-                    <p className="text-[10px] text-zinc-600 font-medium">ZEN G PRO INDICATOR ENGINE v1.0</p>
+                <div className="p-3 border-t border-border bg-muted/30 text-center">
+                    <p className="text-[10px] text-muted-foreground font-medium">ZEN G PRO INDICATOR ENGINE v1.0</p>
                 </div>
             </div>
         </div>

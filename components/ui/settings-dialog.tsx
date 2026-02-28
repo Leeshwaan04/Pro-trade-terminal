@@ -99,8 +99,8 @@ export const SettingsDialog = () => {
                                     </div>
                                 </Section>
                                 <Section title="Density">
-                                    <div className="flex items-center gap-4 p-4 border border-white/5 rounded-lg bg-zinc-900/20">
-                                        <div className="text-xs text-zinc-400">Compact Mode</div>
+                                    <div className="flex items-center gap-4 p-4 border border-border rounded-lg bg-muted/40">
+                                        <div className="text-xs text-muted-foreground">Compact Mode</div>
                                         {/* Toggle switch placeholder */}
                                         <div className="ml-auto w-10 h-5 bg-primary/20 rounded-full relative cursor-pointer border border-primary/50">
                                             <div className="absolute right-0.5 top-0.5 w-3.5 h-3.5 bg-primary rounded-full shadow-sm" />
@@ -132,12 +132,12 @@ export const SettingsDialog = () => {
                             <div className="space-y-8">
                                 <Section title="Connected Brokers">
                                     <div className="space-y-4">
-                                        <div className="p-4 border border-zinc-800 bg-zinc-900/50 rounded-lg flex items-center justify-between">
+                                        <div className="p-4 border border-border bg-surface-1 rounded-lg flex items-center justify-between">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-10 h-10 rounded bg-[#ff5722] flex items-center justify-center font-bold text-white">K</div>
                                                 <div>
-                                                    <div className="text-sm font-bold text-white">Kite (Zerodha)</div>
-                                                    <div className="text-xs text-zinc-500">Fastest reliable trading API</div>
+                                                    <div className="text-sm font-bold text-foreground">Kite (Zerodha)</div>
+                                                    <div className="text-xs text-muted-foreground">Fastest reliable trading API</div>
                                                 </div>
                                             </div>
                                             <button
@@ -148,15 +148,15 @@ export const SettingsDialog = () => {
                                             </button>
                                         </div>
 
-                                        <div className="p-4 border border-zinc-800 bg-zinc-900/50 rounded-lg flex items-center justify-between opacity-50 cursor-not-allowed">
+                                        <div className="p-4 border border-border bg-muted/20 rounded-lg flex items-center justify-between opacity-50 cursor-not-allowed">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-10 h-10 rounded bg-[#5b2c6f] flex items-center justify-center font-bold text-white">U</div>
                                                 <div>
-                                                    <div className="text-sm font-bold text-white">Upstox</div>
-                                                    <div className="text-xs text-zinc-500">Coming soon</div>
+                                                    <div className="text-sm font-bold text-foreground">Upstox</div>
+                                                    <div className="text-xs text-muted-foreground">Coming soon</div>
                                                 </div>
                                             </div>
-                                            <button className="px-4 py-2 bg-zinc-800 text-zinc-500 text-xs font-bold rounded-md cursor-not-allowed">
+                                            <button className="px-4 py-2 bg-muted border border-border text-muted-foreground text-xs font-bold rounded-md cursor-not-allowed">
                                                 Connect
                                             </button>
                                         </div>
@@ -171,8 +171,8 @@ export const SettingsDialog = () => {
                                     <div className="flex items-center gap-4">
                                         <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-primary to-blue-600 flex items-center justify-center text-xl font-bold text-white shadow-lg">PR</div>
                                         <div>
-                                            <div className="text-sm font-bold text-white">Pro Trader</div>
-                                            <div className="text-xs text-zinc-500">pro_trader@example.com</div>
+                                            <div className="text-sm font-bold text-foreground">Pro Trader</div>
+                                            <div className="text-xs text-muted-foreground">pro_trader@example.com</div>
                                         </div>
                                     </div>
                                 </Section>
@@ -182,7 +182,7 @@ export const SettingsDialog = () => {
                                             <span className="text-xs font-bold text-primary uppercase tracking-widest">Pro Plan</span>
                                             <span className="text-[10px] px-2 py-0.5 bg-primary/20 text-primary rounded-full">ACTIVE</span>
                                         </div>
-                                        <div className="text-xs text-zinc-400">Next billing date: Feb 28, 2026</div>
+                                        <div className="text-xs text-muted-foreground">Next billing date: Feb 28, 2026</div>
                                     </div>
                                 </Section>
                             </div>
@@ -203,7 +203,7 @@ const SettingsIcon = ({ className }: { className?: string }) => (
 
 const Section = ({ title, children }: { title: string, children: React.ReactNode }) => (
     <div className="space-y-4">
-        <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">{title}</h3>
+        <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{title}</h3>
         {children}
     </div>
 );
@@ -225,21 +225,21 @@ const ThemeCard = ({ icon: Icon, label, active, onClick }: { icon: any, label: s
 
 const InputGroup = ({ label, value }: { label: string, value: string }) => (
     <div className="flex flex-col gap-1.5">
-        <label className="text-xs text-zinc-400">{label}</label>
+        <label className="text-xs text-muted-foreground">{label}</label>
         <input
             type="text"
             defaultValue={value}
-            className="bg-zinc-900 border border-white/10 rounded-md px-3 py-2 text-xs text-white outline-none focus:border-primary/50 transition-colors"
+            className="bg-surface-1 border border-border rounded-md px-3 py-2 text-xs text-foreground outline-none focus:border-primary/50 transition-colors"
         />
     </div>
 );
 
 const ToggleRow = ({ label, active }: { label: string, active?: boolean }) => (
-    <div className="flex items-center justify-between p-3 rounded-lg hover:bg-white/5 transition-colors">
-        <span className="text-xs text-zinc-300">{label}</span>
+    <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
+        <span className="text-xs text-foreground/80">{label}</span>
         <div className={cn(
             "w-9 h-5 rounded-full relative transition-colors",
-            active ? "bg-primary" : "bg-zinc-700"
+            active ? "bg-primary" : "bg-muted"
         )}>
             <div className={cn(
                 "absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform",

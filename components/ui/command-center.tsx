@@ -156,11 +156,11 @@ export const CommandCenter = () => {
             }}
         >
             <div
-                className="w-full md:w-[600px] max-h-[80vh] flex flex-col bg-[#0a0a0a] border border-white/10 shadow-[0_0_50px_-12px_rgba(0,229,255,0.3)] overflow-hidden rounded-lg md:rounded-sm neon-border-pulse"
+                className="w-full md:w-[600px] max-h-[80vh] flex flex-col bg-background border border-border shadow-[0_0_50px_-12px_rgba(0,229,255,0.3)] overflow-hidden rounded-lg md:rounded-sm neon-border-pulse"
                 onClick={(e) => e.stopPropagation()}
             >
                 <Command className="flex flex-col h-full font-sans" shouldFilter={false}>
-                    <div className="flex items-center border-b border-white/5 px-4 bg-black">
+                    <div className="flex items-center border-b border-border px-4 bg-background">
                         <Search className={`mr-3 h-4 w-4 shrink-0 transition-opacity ${isSearching ? 'opacity-100 animate-pulse text-primary' : 'opacity-40 text-primary'}`} />
                         <Command.Input
                             autoFocus
@@ -191,18 +191,18 @@ export const CommandCenter = () => {
                                 }
                             }}
                             placeholder="Type 'buy nifty 50', 'panic', or search symbols..."
-                            className="flex h-14 w-full rounded-md bg-transparent py-4 text-sm outline-none placeholder:text-zinc-600 disabled:cursor-not-allowed disabled:opacity-50 font-mono tracking-wide text-zinc-100 placeholder:italic"
+                            className="flex h-14 w-full rounded-md bg-transparent py-4 text-sm outline-none placeholder:text-muted-foreground/50 disabled:cursor-not-allowed disabled:opacity-50 font-mono tracking-wide text-foreground placeholder:italic"
                         />
                         <div className="flex gap-1 items-center">
                             {search && (
                                 <button
                                     onClick={() => setSearch("")}
-                                    className="text-[10px] text-zinc-600 hover:text-zinc-400 font-mono mr-2 uppercase p-2"
+                                    className="text-[10px] text-muted-foreground hover:text-foreground font-mono mr-2 uppercase p-2"
                                 >
                                     Clear
                                 </button>
                             )}
-                            <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 border border-white/10 bg-zinc-900 px-1.5 font-mono text-[10px] text-zinc-500 uppercase">ESC</kbd>
+                            <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 border border-border bg-muted/50 px-1.5 font-mono text-[10px] text-muted-foreground uppercase">ESC</kbd>
                             {/* Mobile Close Button */}
                             <button
                                 className="sm:hidden p-2 text-zinc-500 hover:text-white"
@@ -213,8 +213,8 @@ export const CommandCenter = () => {
                             </button>
                         </div>
                     </div>
-                    <Command.List className="max-h-[400px] overflow-y-auto overflow-x-hidden p-3 scroll-py-2 bg-[#050505]">
-                        <Command.Empty className="py-10 text-center text-xs text-zinc-500 font-mono uppercase tracking-[0.2em]">
+                    <Command.List className="max-h-[400px] overflow-y-auto overflow-x-hidden p-3 scroll-py-2 bg-surface-1">
+                        <Command.Empty className="py-10 text-center text-xs text-muted-foreground font-mono uppercase tracking-[0.2em]">
                             {isSearching ? "Searching Market..." : "No matches found."}
                         </Command.Empty>
 
@@ -226,16 +226,16 @@ export const CommandCenter = () => {
                                         key={`${item.symbol}-${item.segment}`}
                                         onSelect={() => handleSymbolSelect(item.symbol, item.token)}
                                         className={cn(
-                                            "group relative flex cursor-pointer select-none items-center px-3 py-2.5 text-[11px] outline-none transition-all gap-4 mb-1 border-b border-white/5 last:border-0",
+                                            "group relative flex cursor-pointer select-none items-center px-3 py-2.5 text-[11px] outline-none transition-all gap-4 mb-1 border-b border-border/50 last:border-0",
                                             selectedIndex === index
-                                                ? "bg-white/[0.08] text-white border-l-2 border-l-primary"
-                                                : "text-zinc-400 hover:bg-white/[0.03] hover:text-white"
+                                                ? "bg-primary/10 text-foreground border-l-2 border-l-primary"
+                                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                         )}
                                     >
                                         <div className="flex flex-col min-w-[120px]">
                                             <div className="flex items-center gap-2">
-                                                <span className="font-bold tracking-tight text-zinc-200 group-hover:text-primary transition-colors">{item.symbol}</span>
-                                                <span className="text-[9px] px-1.5 py-0.5 bg-zinc-900 border border-white/10 text-zinc-500 rounded font-mono">{item.exchange}</span>
+                                                <span className="font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">{item.symbol}</span>
+                                                <span className="text-[9px] px-1.5 py-0.5 bg-muted border border-border text-muted-foreground rounded font-mono">{item.exchange}</span>
                                             </div>
                                             <span className="text-[9px] opacity-40 uppercase truncate max-w-[200px] mt-0.5 font-medium tracking-wide">{item.description}</span>
                                         </div>
@@ -251,7 +251,7 @@ export const CommandCenter = () => {
                                                     addToWatchlist(activeWatchlistId, item);
                                                     setCommandCenterOpen(false);
                                                 }}
-                                                className="h-6 w-8 bg-zinc-800 text-zinc-400 border border-white/10 rounded hover:text-white flex items-center justify-center hover:bg-primary hover:border-primary"
+                                                className="h-6 w-8 bg-muted text-muted-foreground border border-border rounded hover:text-foreground flex items-center justify-center hover:bg-primary hover:border-primary hover:text-black"
                                             >
                                                 <span className="text-xs">+</span>
                                             </button>
@@ -263,7 +263,7 @@ export const CommandCenter = () => {
                                                 <span className={cn("text-xs font-mono font-medium", Math.random() > 0.5 ? "text-up" : "text-down")}>
                                                     {(item.token / 100).toFixed(2)}
                                                 </span>
-                                                <span className="text-[9px] text-zinc-600 font-mono">
+                                                <span className="text-[9px] text-muted-foreground/60 font-mono">
                                                     0.45%
                                                 </span>
                                             </div>
@@ -295,7 +295,7 @@ export const CommandCenter = () => {
                                                     setActiveWorkspace(key);
                                                     setCommandCenterOpen(false);
                                                 }}
-                                                className="flex cursor-pointer select-none items-center px-3 py-3 text-[11px] outline-none hover:bg-primary/10 aria-selected:bg-primary/10 text-zinc-400 aria-selected:text-primary transition-all gap-4 mb-1 border border-transparent aria-selected:border-primary/20"
+                                                className="flex cursor-pointer select-none items-center px-3 py-3 text-[11px] outline-none hover:bg-primary/10 aria-selected:bg-primary/10 text-muted-foreground aria-selected:text-primary transition-all gap-4 mb-1 border border-transparent aria-selected:border-primary/20"
                                             >
                                                 <IconComponent className="h-4 w-4" />
                                                 <span className="font-bold tracking-tight uppercase">{config.name}</span>
@@ -310,7 +310,7 @@ export const CommandCenter = () => {
                                         <Command.Item
                                             key={item.symbol}
                                             onSelect={() => handleSymbolSelect(item.symbol)}
-                                            className="flex cursor-pointer select-none items-center px-3 py-3 text-[11px] outline-none hover:bg-white/5 aria-selected:bg-white/5 text-zinc-400 aria-selected:text-white transition-all gap-4 mb-1"
+                                            className="flex cursor-pointer select-none items-center px-3 py-3 text-[11px] outline-none hover:bg-muted/50 aria-selected:bg-muted text-muted-foreground aria-selected:text-foreground transition-all gap-4 mb-1"
                                         >
                                             <Search className="h-4 w-4" />
                                             <span className="font-bold tracking-tight uppercase">{item.symbol}</span>
@@ -322,24 +322,24 @@ export const CommandCenter = () => {
                         )}
 
                         <Command.Group heading="Execute Trade" className="px-2 py-3 text-[9px] font-black uppercase text-primary/60 tracking-[0.3em] mb-2">
-                            <Command.Item className="flex cursor-pointer select-none items-center px-3 py-3 text-[11px] outline-none hover:bg-up/10 aria-selected:bg-up/10 text-zinc-400 aria-selected:text-up transition-all gap-4 mb-1 border border-transparent aria-selected:border-up/20">
+                            <Command.Item className="flex cursor-pointer select-none items-center px-3 py-3 text-[11px] outline-none hover:bg-up/10 aria-selected:bg-up/10 text-muted-foreground aria-selected:text-up transition-all gap-4 mb-1 border border-transparent aria-selected:border-up/20">
                                 <ShoppingCart className="h-4 w-4" />
                                 <span className="font-bold tracking-tight uppercase">Buy Market</span>
                                 <div className="ml-auto flex gap-1">
-                                    <kbd className="h-4 border bg-zinc-900 px-1 font-mono text-[9px] uppercase">B</kbd>
+                                    <kbd className="h-4 border bg-muted px-1 font-mono text-[9px] uppercase">B</kbd>
                                 </div>
                             </Command.Item>
-                            <Command.Item className="flex cursor-pointer select-none items-center px-3 py-3 text-[11px] outline-none hover:bg-down/10 aria-selected:bg-down/10 text-zinc-400 aria-selected:text-down transition-all gap-4 mb-1 border border-transparent aria-selected:border-down/20">
+                            <Command.Item className="flex cursor-pointer select-none items-center px-3 py-3 text-[11px] outline-none hover:bg-down/10 aria-selected:bg-down/10 text-muted-foreground aria-selected:text-down transition-all gap-4 mb-1 border border-transparent aria-selected:border-down/20">
                                 <ShoppingCart className="h-4 w-4" />
                                 <span className="font-bold tracking-tight uppercase">Sell Market</span>
                                 <div className="ml-auto flex gap-1">
-                                    <kbd className="h-4 border bg-zinc-900 px-1 font-mono text-[9px] uppercase">S</kbd>
+                                    <kbd className="h-4 border bg-muted px-1 font-mono text-[9px] uppercase">S</kbd>
                                 </div>
                             </Command.Item>
                         </Command.Group>
 
                         <Command.Group heading="Tools" className="px-2 py-3 text-[9px] font-black uppercase text-primary/60 tracking-[0.3em]">
-                            <Command.Item className="flex cursor-pointer select-none items-center px-3 py-3 text-[11px] outline-none hover:bg-white/5 aria-selected:bg-white/5 text-zinc-400 aria-selected:text-white transition-all gap-4 mb-1">
+                            <Command.Item className="flex cursor-pointer select-none items-center px-3 py-3 text-[11px] outline-none hover:bg-muted aria-selected:bg-muted text-muted-foreground aria-selected:text-foreground transition-all gap-4 mb-1">
                                 <EyeOff className="h-4 w-4" />
                                 <span className="font-bold tracking-tight uppercase">Toggle Privacy Mode</span>
                             </Command.Item>
@@ -348,17 +348,17 @@ export const CommandCenter = () => {
                                     setSettingsOpen(true);
                                     setCommandCenterOpen(false);
                                 }}
-                                className="flex cursor-pointer select-none items-center px-3 py-3 text-[11px] outline-none hover:bg-white/5 aria-selected:bg-white/5 text-zinc-400 aria-selected:text-white transition-all gap-4 mb-1">
+                                className="flex cursor-pointer select-none items-center px-3 py-3 text-[11px] outline-none hover:bg-muted aria-selected:bg-muted text-muted-foreground aria-selected:text-foreground transition-all gap-4 mb-1">
                                 <Settings className="h-4 w-4" />
                                 <span className="font-bold tracking-tight uppercase">Terminal Settings</span>
                             </Command.Item>
                         </Command.Group>
                     </Command.List>
 
-                    <div className="flex items-center justify-between border-t border-white/5 px-4 py-3 bg-black">
-                        <div className="flex gap-4 text-[9px] text-zinc-600 font-mono uppercase tracking-widest">
-                            <span className="flex items-center gap-1 uppercase"><kbd className="border border-white/10 px-1">↑↓</kbd> Navigate</span>
-                            <span className="flex items-center gap-1 uppercase"><kbd className="border border-white/10 px-1">↵</kbd> Select</span>
+                    <div className="flex items-center justify-between border-t border-border px-4 py-3 bg-background">
+                        <div className="flex gap-4 text-[9px] text-muted-foreground/60 font-mono uppercase tracking-widest">
+                            <span className="flex items-center gap-1 uppercase"><kbd className="border border-border px-1">↑↓</kbd> Navigate</span>
+                            <span className="flex items-center gap-1 uppercase"><kbd className="border border-border px-1">↵</kbd> Select</span>
                         </div>
                         <div className="text-[9px] text-primary/40 font-black uppercase tracking-[0.2em]">
                             ZenG Trade v0.4.0-zeng

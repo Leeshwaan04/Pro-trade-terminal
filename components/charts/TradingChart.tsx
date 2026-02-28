@@ -36,9 +36,9 @@ export const TradingChart = ({ symbol, widgetId }: TradingChartProps) => {
     };
 
     return (
-        <div className="relative w-full h-full group bg-[var(--chart-bg)] flex flex-col overflow-hidden">
+        <div className="relative w-full h-full group bg-background flex flex-col overflow-hidden">
             {/* Chart Controls Bar */}
-            <div className="flex-none w-full overflow-x-auto no-scrollbar border-b border-white/5">
+            <div className="flex-none w-full overflow-x-auto no-scrollbar border-b border-border">
                 <div className="min-w-max">
                     <ChartControls
                         symbol={symbol}
@@ -61,7 +61,7 @@ export const TradingChart = ({ symbol, widgetId }: TradingChartProps) => {
             {/* Main Chart Area with Sidebar Toolbar */}
             <div className="flex-1 w-full relative min-h-0 overflow-hidden flex">
                 {/* Left Drawing Toolbar */}
-                <div className="flex-none hidden md:block border-r border-white/5">
+                <div className="flex-none hidden md:block border-r border-border">
                     <ChartToolbar symbol={symbol} />
                 </div>
 
