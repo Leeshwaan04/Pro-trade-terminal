@@ -49,6 +49,45 @@ export const DARK_TOKENS = {
     border: "#1e293b",
 } as const;
 
+export const LIGHT_TOKENS = {
+    // Semantic Trading
+    up: "#16a34a",
+    down: "#dc2626",
+
+    // Primary accent
+    primary: "#0284c7",
+
+    // Surfaces
+    surface0: "#f8fafc",
+    surface1: "#ffffff",
+    surface2: "#f1f5f9",
+    surface3: "#e2e8f0",
+    surface4: "#cbd5e1",
+
+    // Chart
+    chartBg: "#ffffff",
+    chartGrid: "rgba(0, 0, 0, 0.05)",
+    chartCrosshair: "rgba(2, 132, 199, 0.5)",
+    chartCrosshairLabel: "#f8fafc",
+    chartWatermark: "rgba(0,0,0,0.03)",
+    chartVolumeBull: "rgba(22, 163, 74, 0.2)",
+    chartVolumeBear: "rgba(220, 38, 38, 0.2)",
+    chartCurrentPriceLine: "rgba(2, 132, 199, 0.5)",
+    chartAxisText: "#334155",
+
+    // Order Lines
+    orderEntryBuy: "#0284c7",
+    orderEntrySell: "#dc2626",
+    orderTarget: "#16a34a",
+    orderStoploss: "#dc2626",
+    orderLabelBg: "rgba(255, 255, 255, 0.95)",
+
+    // Text
+    foreground: "#0f172a",
+    mutedForeground: "#64748b",
+    border: "#cbd5e1",
+} as const;
+
 export type DesignTokens = { [K in keyof typeof DARK_TOKENS]: string };
 
 /**
@@ -60,35 +99,37 @@ export function getChartColors(el?: HTMLElement): DesignTokens {
 
     const root = el ?? document.documentElement;
     const s = getComputedStyle(root);
+    const isLight = root.classList.contains("light") || (root.parentElement && root.parentElement.classList.contains("light"));
+    const fallbacks = isLight ? LIGHT_TOKENS : DARK_TOKENS;
 
     const get = (prop: string, fallback: string) =>
         s.getPropertyValue(prop).trim() || fallback;
 
     return {
-        up: get("--up", DARK_TOKENS.up),
-        down: get("--down", DARK_TOKENS.down),
-        primary: get("--primary", DARK_TOKENS.primary),
-        surface0: get("--surface-0", DARK_TOKENS.surface0),
-        surface1: get("--surface-1", DARK_TOKENS.surface1),
-        surface2: get("--surface-2", DARK_TOKENS.surface2),
-        surface3: get("--surface-3", DARK_TOKENS.surface3),
-        surface4: get("--surface-4", DARK_TOKENS.surface4),
-        chartBg: get("--chart-bg", DARK_TOKENS.chartBg),
-        chartGrid: get("--chart-grid", DARK_TOKENS.chartGrid),
-        chartCrosshair: get("--chart-crosshair", DARK_TOKENS.chartCrosshair),
-        chartCrosshairLabel: DARK_TOKENS.chartCrosshairLabel,
-        chartWatermark: get("--chart-watermark", DARK_TOKENS.chartWatermark),
-        chartVolumeBull: get("--chart-volume-bull", DARK_TOKENS.chartVolumeBull),
-        chartVolumeBear: get("--chart-volume-bear", DARK_TOKENS.chartVolumeBear),
-        chartCurrentPriceLine: DARK_TOKENS.chartCurrentPriceLine,
-        chartAxisText: DARK_TOKENS.chartAxisText,
-        orderEntryBuy: get("--order-entry-buy", DARK_TOKENS.orderEntryBuy),
-        orderEntrySell: get("--order-entry-sell", DARK_TOKENS.orderEntrySell),
-        orderTarget: get("--order-target", DARK_TOKENS.orderTarget),
-        orderStoploss: get("--order-stoploss", DARK_TOKENS.orderStoploss),
-        orderLabelBg: get("--order-label-bg", DARK_TOKENS.orderLabelBg),
-        foreground: get("--foreground", DARK_TOKENS.foreground),
-        mutedForeground: get("--muted-foreground", DARK_TOKENS.mutedForeground),
-        border: get("--border", DARK_TOKENS.border),
+        up: get("--up", fallbacks.up),
+        down: get("--down", fallbacks.down),
+        primary: get("--primary", fallbacks.primary),
+        surface0: get("--surface-0", fallbacks.surface0),
+        surface1: get("--surface-1", fallbacks.surface1),
+        surface2: get("--surface-2", fallbacks.surface2),
+        surface3: get("--surface-3", fallbacks.surface3),
+        surface4: get("--surface-4", fallbacks.surface4),
+        chartBg: get("--chart-bg", fallbacks.chartBg),
+        chartGrid: get("--chart-grid", fallbacks.chartGrid),
+        chartCrosshair: get("--chart-crosshair", fallbacks.chartCrosshair),
+        chartCrosshairLabel: isLight ? LIGHT_TOKENS.chartCrosshairLabel : DARK_TOKENS.chartCrosshairLabel,
+        chartWatermark: get("--chart-watermark", fallbacks.chartWatermark),
+        chartVolumeBull: get("--chart-volume-bull", fallbacks.chartVolumeBull),
+        chartVolumeBear: get("--chart-volume-bear", fallbacks.chartVolumeBear),
+        chartCurrentPriceLine: isLight ? LIGHT_TOKENS.chartCurrentPriceLine : DARK_TOKENS.chartCurrentPriceLine,
+        chartAxisText: isLight ? LIGHT_TOKENS.chartAxisText : DARK_TOKENS.chartAxisText,
+        orderEntryBuy: get("--order-entry-buy", fallbacks.orderEntryBuy),
+        orderEntrySell: get("--order-entry-sell", fallbacks.orderEntrySell),
+        orderTarget: get("--order-target", fallbacks.orderTarget),
+        orderStoploss: get("--order-stoploss", fallbacks.orderStoploss),
+        orderLabelBg: get("--order-label-bg", fallbacks.orderLabelBg),
+        foreground: get("--foreground", fallbacks.foreground),
+        mutedForeground: get("--muted-foreground", fallbacks.mutedForeground),
+        border: get("--border", fallbacks.border),
     };
 }

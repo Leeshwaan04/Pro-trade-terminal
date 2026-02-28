@@ -89,6 +89,82 @@
   /* Inherit :root, already dark by default */
 }
 
+.light {
+  /* ─── BASE COLORS (Light) ─── */
+  --background: #f8fafc;
+  /* Slate-50 */
+  --foreground: #0f172a;
+  /* Slate-900 */
+
+  /* ─── COMPONENT COLORS (Light) ─── */
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+
+  --primary: #0284c7;
+  /* Sky-600 */
+  --primary-foreground: #ffffff;
+
+  --secondary: #e2e8f0;
+  /* Slate-200 */
+  --secondary-foreground: #334155;
+  /* Slate-700 */
+
+  --muted: #f1f5f9;
+  /* Slate-100 */
+  --muted-foreground: #64748b;
+  /* Slate-500 */
+
+  --accent: #e2e8f0;
+  /* Slate-200 */
+  --accent-foreground: #0f172a;
+
+  --destructive: #ef4444;
+  /* Clean Red */
+  --destructive-foreground: #ffffff;
+
+  --border: rgba(0, 0, 0, 0.1);
+  --input: #e2e8f0;
+  --ring: rgba(2, 132, 199, 0.4);
+
+  /* ─── SEMANTIC TRADING COLORS (Light: slightly darker so text is readable against white) ─── */
+  --up: #16a34a;
+  /* Green-600 */
+  --down: #dc2626;
+  /* Red-600 */
+  --up-muted: rgba(22, 163, 74, 0.15);
+  --down-muted: rgba(220, 38, 38, 0.15);
+
+  /* ─── SURFACE HIERARCHY (Light) ─── */
+  --surface-0: #f8fafc;
+  --surface-1: #ffffff;
+  --surface-2: #f1f5f9;
+  --surface-3: #e2e8f0;
+  --surface-4: #cbd5e1;
+
+  /* ─── CHART COLORS (Light) ─── */
+  --chart-bg: #ffffff;
+  --chart-grid: rgba(0, 0, 0, 0.05);
+  --chart-crosshair: rgba(2, 132, 199, 0.5);
+  --chart-watermark: rgba(0, 0, 0, 0.03);
+  --chart-volume-bull: rgba(22, 163, 74, 0.2);
+  --chart-volume-bear: rgba(220, 38, 38, 0.2);
+
+  /* ─── ORDER LINES (Light) ─── */
+  --order-entry-buy: #0284c7;
+  --order-entry-sell: #dc2626;
+  --order-label-bg: rgba(255, 255, 255, 0.9);
+
+  /* ─── LIGHT Glass/UI overrides ─── */
+  --glass-blur: 16px;
+  --neon-cyan: #0284c7;
+  /* Revert neon to a solid corporate sky blue for contrast */
+  --neon-purple: #9333ea;
+  /* Purple-600 */
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -253,16 +329,16 @@ body {
 /* ─── GLASSMORPHISM & UTILITIES ─── */
 
 .glass {
-  background: rgba(3, 5, 8, 0.3);
-  backdrop-filter: blur(24px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9);
+  background: color-mix(in srgb, var(--surface-1) 70%, transparent);
+  backdrop-filter: blur(var(--glass-blur)) saturate(200%);
+  border: 1px solid var(--border);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
 }
 
 .glass-panel {
-  background: rgba(3, 5, 8, 0.2);
+  background: color-mix(in srgb, var(--surface-1) 80%, transparent);
   backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
 }
 
 .mesh-gradient {

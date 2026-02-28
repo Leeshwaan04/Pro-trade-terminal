@@ -26,6 +26,7 @@ import { LoginScreen } from "@/components/auth/LoginScreen";
 import { AuthInitializer } from "@/components/auth/AuthInitializer";
 import { IndicesTicker } from "@/components/market/IndicesTicker";
 import { SafetyToggle } from "@/components/layout/SafetyToggle";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Toaster } from "@/components/ui/toaster";
 import { MobileNavBar } from "@/components/layout/MobileNavBar";
 import { CursorFollower } from "@/components/ui/CursorFollower";
@@ -99,7 +100,7 @@ export default function AppShell() {
 
             {/* Header - Antigravity Glass Refactor */}
             <div className="pt-3 px-3 w-full shrink-0 z-30">
-                <header data-testid="app-header" className="h-[52px] rounded-2xl border border-white/[0.04] flex items-center justify-between gap-4 bg-[#030508]/60 backdrop-blur-3xl shadow-[0_16px_40px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] w-full transition-all relative">
+                <header data-testid="app-header" className="h-[52px] rounded-2xl border border-border/10 flex items-center justify-between gap-4 bg-background/60 backdrop-blur-3xl shadow-[0_16px_40px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.05)] w-full transition-all relative">
                     {/* Inner Edge Highlight */}
                     <div className="absolute inset-0 rounded-2xl border border-white/[0.02] pointer-events-none" />
                     {/* LEFT SECTION (Logo + Tabs) */}
@@ -160,6 +161,7 @@ export default function AppShell() {
                         <WidgetPicker isOpen={isWidgetPickerOpen} onClose={() => setIsWidgetPickerOpen(false)} />
 
                         <div className="h-full flex items-center gap-1 px-2">
+                            <ThemeToggle />
                             <SafetyToggle />
                             <ProfileMenu />
                         </div>
@@ -222,7 +224,7 @@ export default function AppShell() {
 
 
             {/* Footer Status Bar - Antigravity Polish */}
-            <footer className="h-[28px] border-t border-white/[0.02] bg-[#030508]/80 backdrop-blur-2xl text-[9.5px] flex items-center justify-between px-4 text-zinc-500 select-none shrink-0 font-mono z-20">
+            <footer className="h-[28px] border-t border-border/10 bg-background/80 backdrop-blur-2xl text-[9.5px] flex items-center justify-between px-4 text-muted-foreground select-none shrink-0 font-mono z-20">
                 <div className="flex gap-4">
                     <span className="flex items-center gap-1.5">
                         <span className={`w-1.5 h-1.5 rounded-full animate-pulse shadow-[0_0_8px_var(--up)] ${connectionStatus === 'CONNECTED' || searchParams.get('mock') === 'true' ? 'bg-primary' :
