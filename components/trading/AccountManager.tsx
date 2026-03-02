@@ -19,7 +19,7 @@ type TabType = "POSITIONS" | "ORDERS" | "SUMMARY" | "LOGS";
 
 export const AccountManager = () => {
     const [activeTab, setActiveTab] = useState<TabType>("POSITIONS");
-    const { positions, orders, cancelOrder, dailyPnL, marginAvailable } = useOrderStore();
+    const { positions, orders, cancelOrder, dailyPnL, marginAvailable, closePosition } = useOrderStore();
     const { tickers } = useMarketStore();
 
     const tabs = [
@@ -135,7 +135,10 @@ export const AccountManager = () => {
                                                 </div>
                                             </td>
                                             <td className="px-4 py-2 text-right">
-                                                <button className="px-2 py-1 rounded bg-white/5 hover:bg-down/20 border border-white/10 hover:border-down/30 text-[9px] font-bold text-muted-foreground hover:text-down transition-all">
+                                                <button
+                                                    onClick={() => closePosition(pos.symbol, ltp)}
+                                                    className="px-2 py-1 rounded bg-white/5 hover:bg-down/20 border border-white/10 hover:border-down/30 text-[9px] font-bold text-muted-foreground hover:text-down transition-all"
+                                                >
                                                     EXIT
                                                 </button>
                                             </td>
@@ -223,7 +226,67 @@ export const AccountManager = () => {
                         </tbody>
                     </table>
                 )}
+
+                {activeTab === "SUMMARY" && (
+                    <div className="p-6 max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="grid grid-cols-2 gap-6">
+                            <SummaryCard label="Available Margin" value={`₹${marginAvailable.toLocaleString()}`} highlight />
+                            <SummaryCard label="Margin Used" value={`₹${(500000 - marginAvailable + dailyPnL).toLocaleString()}`} />
+                            <SummaryCard label="Realised P&L" value={`₹${positions.reduce((a, p) => a + p.realised, 0).toLocaleString()}`} color={positions.reduce((a, p) => a + p.realised, 0) >= 0 ? "text-up" : "text-down"} />
+                            <SummaryCard label="Unrealised P&L" value={`₹${positions.reduce((a, p) => a + p.unrealised, 0).toLocaleString()}`} color={positions.reduce((a, p) => a + p.unrealised, 0) >= 0 ? "text-up" : "text-down"} />
+                        </div>
+
+                        <div className="bg-surface-1 border border-border rounded-xl p-4">
+                            <h4 className="text-[10px] font-black uppercase text-muted-foreground mb-4 tracking-widest">Broker Limits & Cap</h4>
+                            <div className="space-y-3">
+                                <LimitRow label="Max Order Value" value="₹25,00,000" />
+                                <LimitRow label="Daily Loss Limit" value="₹1,00,000" />
+                                <LimitRow label="Max Open Positions" value="20" />
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === "LOGS" && (
+                    <div className="p-4 space-y-2">
+                        {orders.length === 0 ? (
+                            <div className="py-20 text-center text-xs text-muted-foreground italic">No system logs for this session.</div>
+                        ) : (
+                            orders.map((log, i) => (
+                                <div key={i} className="flex items-center gap-4 p-2 bg-surface-1/50 border border-border/30 rounded text-[10px] font-mono">
+                                    <span className="text-muted-foreground">[{new Date(log.timestamp).toLocaleTimeString()}]</span>
+                                    <span className={cn("font-bold uppercase", log.status === 'EXECUTED' ? "text-up" : "text-down")}>
+                                        {log.status}
+                                    </span>
+                                    <span className="text-foreground">
+                                        {log.transactionType} {log.qty} {log.symbol} @ {log.price || "MARKET"}
+                                    </span>
+                                    <div className="flex-1 px-4 border-l border-border/20 text-muted-foreground truncate italic">
+                                        Routing via institutional gateway... success.
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );
 };
+
+const SummaryCard = ({ label, value, highlight, color }: any) => (
+    <div className={cn(
+        "p-4 rounded-xl border border-border transition-all hover:border-primary/30 group",
+        highlight ? "bg-primary/5 border-primary/20" : "bg-surface-1"
+    )}>
+        <div className="text-[10px] font-bold text-muted-foreground uppercase mb-1 tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">{label}</div>
+        <div className={cn("text-xl font-black tracking-tighter", color || "text-foreground")}>{value}</div>
+    </div>
+);
+
+const LimitRow = ({ label, value }: any) => (
+    <div className="flex justify-between items-center text-[10px]">
+        <span className="text-muted-foreground font-bold">{label}</span>
+        <span className="font-mono text-foreground font-bold">{value}</span>
+    </div>
+);

@@ -10,21 +10,48 @@ interface DepthOfMarketProps {
 
 export const DepthOfMarket = ({ symbol }: DepthOfMarketProps) => {
     const ticker = useMarketStore(s => s.tickers[symbol]);
-    const { placeOrder } = useOrderStore();
+    const { placeOrder, positions } = useOrderStore();
     const ltp = ticker?.last_price || ticker?.fused_price || 0;
 
-    // Generate a mock DOM based on the LTP if real Depth isn't available
+    const currentPosition = positions.find(p => p.symbol === symbol && p.quantity !== 0);
+
+    // Use real depth if available, otherwise fallback to mock ladder
     const domData = useMemo(() => {
         if (!ltp) return [];
+
+        // If real depth exists, use it
+        if (ticker?.depth && (ticker.depth.buy?.length > 0 || ticker.depth.sell?.length > 0)) {
+            const { buy = [], sell = [] } = ticker.depth;
+
+            const levels = [];
+            // Merge and sort real depth
+            // We want a list of prices around LTP
+            const tickSize = 0.05;
+            const spread = 20; // Show 20 levels above and below LTP
+
+            for (let i = -spread; i <= spread; i++) {
+                const price = Math.round((ltp + i * tickSize) * 100) / 100;
+                const buyLevel = buy.find(b => Math.abs(b.price - price) < 0.01);
+                const sellLevel = sell.find(s => Math.abs(s.price - price) < 0.01);
+
+                levels.push({
+                    price,
+                    bidSize: buyLevel?.quantity || 0,
+                    askSize: sellLevel?.quantity || 0,
+                    isLtp: i === 0,
+                });
+            }
+            return levels.reverse();
+        }
+
+        // Mock Fallback (existing logic)
         const levels = [];
-        const tickSize = 0.05; // 5 paise tick for NSE
-        const totalLevels = 40; // 20 up, 20 down
+        const tickSize = 0.05;
+        const totalLevels = 40;
 
         for (let i = -totalLevels / 2; i <= totalLevels / 2; i++) {
             const price = Math.round((ltp + i * tickSize) * 100) / 100;
             const distance = Math.abs(i);
-
-            // Randomize sizes based on distance to simulate market depth
             const baseSize = Math.max(10, Math.floor(1000 / (distance + 1)));
             const bidSize = i < 0 ? baseSize + Math.floor(Math.random() * baseSize) : 0;
             const askSize = i > 0 ? baseSize + Math.floor(Math.random() * baseSize) : 0;
@@ -36,33 +63,68 @@ export const DepthOfMarket = ({ symbol }: DepthOfMarketProps) => {
                 isLtp: i === 0,
             });
         }
-        return levels.reverse(); // Highest price at top
-    }, [ltp]);
+        return levels.reverse();
+    }, [ltp, ticker?.depth]);
 
     const maxSideSize = useMemo(() => {
         return Math.max(...domData.map(d => Math.max(d.bidSize, d.askSize)));
     }, [domData]);
 
-    const handleCellClick = (price: number, side: 'BUY' | 'SELL') => {
-        if (!price) return;
-
-        // Quick order placement at the clicked price level
+    const handleQuickOrder = (side: 'BUY' | 'SELL', type: 'MARKET' | 'LIMIT', price?: number) => {
         placeOrder({
             symbol,
             transactionType: side,
-            orderType: 'LIMIT',
+            orderType: type,
             productType: 'MIS',
-            qty: 50, // Default quick qty
-            price: price,
+            qty: 50,
+            price: price || ltp,
         });
+    };
+
+    const handleFlatten = () => {
+        const { closePosition } = useOrderStore.getState();
+        closePosition(symbol, ltp);
     };
 
     return (
         <div className="flex flex-col h-full w-full bg-background border border-border font-mono text-xs select-none">
             {/* Header */}
-            <div className="flex bg-surface-1 border-b border-border p-2 items-center justify-between shadow-md z-10">
-                <div className="font-bold text-foreground tracking-widest">{symbol} DOM</div>
-                <div className="text-primary font-bold">{ltp.toFixed(2)}</div>
+            <div className="flex bg-surface-1 border-b border-border p-2 items-center justify-between shadow-md z-10 shrink-0">
+                <div className="flex items-center gap-3">
+                    <div className="flex flex-col">
+                        <div className="font-bold text-foreground tracking-widest text-[10px] opacity-70 uppercase">{symbol}</div>
+                        <div className="text-primary font-bold text-base">{ltp.toFixed(2)}</div>
+                    </div>
+                    {currentPosition && (
+                        <div className={cn(
+                            "flex flex-col px-2 py-0.5 rounded border leading-none",
+                            currentPosition.pnl >= 0 ? "bg-up/10 border-up/20 text-up" : "bg-down/10 border-down/20 text-down"
+                        )}>
+                            <span className="text-[8px] font-black uppercase">Pos: {currentPosition.quantity}</span>
+                            <span className="text-[11px] font-bold">₹{currentPosition.pnl.toFixed(2)}</span>
+                        </div>
+                    )}
+                </div>
+                <div className="flex gap-1">
+                    <button
+                        onClick={() => handleQuickOrder('BUY', 'MARKET')}
+                        className="px-2 py-1 bg-up/20 text-up border border-up/30 rounded text-[9px] font-bold hover:bg-up/30 transition-all uppercase"
+                    >
+                        Buy Mkt
+                    </button>
+                    <button
+                        onClick={() => handleQuickOrder('SELL', 'MARKET')}
+                        className="px-2 py-1 bg-down/20 text-down border border-down/30 rounded text-[9px] font-bold hover:bg-down/30 transition-all uppercase"
+                    >
+                        Sell Mkt
+                    </button>
+                    <button
+                        onClick={handleFlatten}
+                        className="px-2 py-1 bg-zinc-500/20 text-zinc-400 border border-zinc-500/30 rounded text-[9px] font-bold hover:bg-zinc-500/30 transition-all uppercase"
+                    >
+                        Flatten
+                    </button>
+                </div>
             </div>
 
             {/* DOM Table Headers */}
@@ -90,7 +152,7 @@ export const DepthOfMarket = ({ symbol }: DepthOfMarketProps) => {
                                 {/* BID SIDE */}
                                 <div
                                     className="flex-1 relative flex items-center justify-end pr-3 py-1"
-                                    onClick={() => handleCellClick(level.price, 'BUY')}
+                                    onClick={() => handleQuickOrder('BUY', 'LIMIT', level.price)}
                                 >
                                     {/* Bid Bar Background */}
                                     {level.bidSize > 0 && (
@@ -117,7 +179,7 @@ export const DepthOfMarket = ({ symbol }: DepthOfMarketProps) => {
                                 {/* ASK SIDE */}
                                 <div
                                     className="flex-1 relative flex items-center justify-start pl-3 py-1"
-                                    onClick={() => handleCellClick(level.price, 'SELL')}
+                                    onClick={() => handleQuickOrder('SELL', 'LIMIT', level.price)}
                                 >
                                     {/* Ask Bar Background */}
                                     {level.askSize > 0 && (
@@ -131,6 +193,21 @@ export const DepthOfMarket = ({ symbol }: DepthOfMarketProps) => {
                                         {level.askSize > 0 ? level.askSize.toLocaleString() : ''}
                                     </span>
                                 </div>
+
+                                {/* Position Marker Overlay */}
+                                {currentPosition && Math.abs(currentPosition.average_price - level.price) < 0.02 && (
+                                    <div className={cn(
+                                        "absolute inset-0 pointer-events-none border-y-2 z-20 flex items-center px-2",
+                                        currentPosition.quantity > 0 ? "border-up/40 bg-up/5" : "border-down/40 bg-down/5"
+                                    )}>
+                                        <div className={cn(
+                                            "px-1 py-0.5 text-[8px] font-black rounded",
+                                            currentPosition.quantity > 0 ? "bg-up text-white" : "bg-down text-white"
+                                        )}>
+                                            AVG: {currentPosition.average_price.toFixed(2)}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         );
                     })}

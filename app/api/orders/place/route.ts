@@ -4,7 +4,9 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthCredentials } from "@/lib/auth-utils";
-import { placeOrder, KiteError } from "@/lib/kite-client";
+import { placeOrder, KiteError, getPositions, getHoldings } from "@/lib/kite-client";
+import { RiskGuard } from "@/lib/risk-guard";
+import { normalizeKitePosition } from "@/lib/portfolio-utils";
 import { z } from "zod";
 
 const placeOrderSchema = z.object({
@@ -45,9 +47,28 @@ export async function POST(req: NextRequest) {
 
         const saneBody = validation.data;
 
+        // ─── RISK GUARD VALIDATION ──────────────────────────────────
+        try {
+            // Fetch current state for risk check
+            const kitePositions = await getPositions(auth.apiKey!, auth.accessToken);
+            // Kite returns { net: [], day: [] }
+            const allKitePositions = [...(kitePositions.net || []), ...(kitePositions.day || [])];
+            const normalizedPositions = allKitePositions.map((p: any) => normalizeKitePosition(p));
+            const dailyPnL = normalizedPositions.reduce((acc: number, p: any) => acc + (p.pnl || 0), 0);
+
+            await RiskGuard.validateOrder(saneBody, normalizedPositions, dailyPnL);
+        } catch (riskError: any) {
+            console.warn(`[RISK_GUARD] Blocked Order: ${riskError.message}`);
+            return NextResponse.json({
+                status: "error",
+                error: riskError.message,
+                risk_violation: true
+            }, { status: 403 }); // Forbidden due to risk
+        }
+        // ────────────────────────────────────────────────────────────
+
         if (auth.broker === "GROWW") {
             const { placeGrowwOrder } = await import("@/lib/groww-client");
-            // Map Kite-style body to Groww params
             const growwParams: any = {
                 trading_symbol: saneBody.tradingsymbol,
                 exchange: saneBody.exchange,
@@ -72,6 +93,6 @@ export async function POST(req: NextRequest) {
                 { status: error.httpStatus }
             );
         }
-        return NextResponse.json({ error: "Order placement failed" }, { status: 500 });
+        return NextResponse.json({ error: error.message || "Order placement failed" }, { status: 500 });
     }
 }

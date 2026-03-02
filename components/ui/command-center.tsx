@@ -108,7 +108,7 @@ export const CommandCenter = () => {
         return () => window.removeEventListener("keydown", down);
     }, [commandCenterOpen, setCommandCenterOpen]);
 
-    // Dynamic Search from Elasticsearch
+    // Dynamic Search from Elasticsearch + Lite Fallback
     useEffect(() => {
         if (!search || search.length < 2) {
             setSearchResults([]);
@@ -118,16 +118,42 @@ export const CommandCenter = () => {
         const debounceTimer = setTimeout(async () => {
             setIsSearching(true);
             try {
-                // Use In-Memory Lite Engine for instant results
-                const results = searchLite(search);
-                setSearchResults(results);
-                setSelectedIndex(0); // Reset selection
+                // 1. Get instant results from Lite Engine
+                const liteResults = searchLite(search);
+
+                // 2. Fetch deeper results from Elasticsearch API
+                const response = await fetch(`/api/search?q=${encodeURIComponent(search)}`);
+                const esResults = await response.json();
+
+                // 3. Merge and deduplicate
+                const combined = [...liteResults];
+                const existingTokens = new Set(liteResults.map(r => r.token));
+
+                if (Array.isArray(esResults)) {
+                    esResults.forEach((item: any) => {
+                        if (!existingTokens.has(item.token)) {
+                            combined.push({
+                                symbol: item.symbol,
+                                description: item.name || item.description,
+                                exchange: item.exchange || "NSE",
+                                segment: item.segment || "EQ",
+                                token: item.token
+                            });
+                            existingTokens.add(item.token);
+                        }
+                    });
+                }
+
+                setSearchResults(combined.slice(0, 15));
+                setSelectedIndex(0);
             } catch (error) {
                 console.error("Search fetch failed:", error);
+                // Fallback to lite results only on error
+                setSearchResults(searchLite(search));
             } finally {
                 setIsSearching(false);
             }
-        }, 100); // Faster debounce for local search
+        }, 300); // 300ms debounce for API call
 
         return () => clearTimeout(debounceTimer);
     }, [search]);

@@ -35,7 +35,7 @@ self.onmessage = (event) => {
             if (payload?.type === 'sse') {
                 connectSSE(payload.url, instanceKey, payload.broker || 'KITE');
             } else if (payload?.type === 'ws') {
-                connectWS(payload.url, instanceKey, payload.broker || 'UPSTOX');
+                connectWS(payload.url, instanceKey, payload.broker || 'GROWW');
             }
             break;
         case 'UPDATE_RISK_LIMITS':

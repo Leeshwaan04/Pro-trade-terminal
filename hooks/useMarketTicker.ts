@@ -2,14 +2,13 @@
 
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { useKiteTicker } from "@/hooks/useKiteTicker";
-import { useUpstoxTicker } from "@/hooks/useUpstoxTicker";
 import { useDhanTicker } from "@/hooks/useDhanTicker";
 import { useFyersTicker } from "./useFyersTicker";
 import { useAngelTicker } from "./useAngelTicker";
 import { use5PaisaTicker } from "./use5PaisaTicker";
 
 interface UseMarketTickerOptions {
-    instrumentTokens: (string | number)[]; // Accepts both Kite (number) & Upstox (string) tokens
+    instrumentTokens: (number)[]; // Only Kite/Groww tokens (numbers)
     mode?: "ltp" | "quote" | "full";
     enabled?: boolean;
 }
@@ -22,13 +21,12 @@ export function useMarketTicker({
     const { activeBroker } = useAuthStore();
 
     // ─── Filter Tokens ───
-    const kiteTokens = activeBroker === 'KITE' ? instrumentTokens.filter((t): t is number => typeof t === 'number') : [];
-    const upstoxTokens = activeBroker === 'UPSTOX' ? instrumentTokens.filter((t): t is string => typeof t === 'string') : [];
-    const dhanTokens = activeBroker === 'DHAN' ? instrumentTokens.filter((t): t is string => typeof t === 'string') : [];
-    const angelTokens = activeBroker === 'ANGEL' ? instrumentTokens.filter((t): t is string => typeof t === 'string') : [];
-    const fyersTokens = activeBroker === 'FYERS' ? instrumentTokens.filter((t): t is string => typeof t === 'string') : [];
-    const p5Tokens = activeBroker === '5PAISA' ? instrumentTokens.filter((t): t is number => typeof t === 'number') : [];
-    const growwTokens = activeBroker === 'GROWW' ? instrumentTokens.filter((t): t is number => typeof t === 'number') : [];
+    const kiteTokens = activeBroker === 'KITE' ? instrumentTokens : [];
+    const dhanTokens = activeBroker === 'DHAN' ? instrumentTokens.map(String) : [];
+    const angelTokens = activeBroker === 'ANGEL' ? instrumentTokens.map(String) : [];
+    const fyersTokens = activeBroker === 'FYERS' ? instrumentTokens.map(String) : [];
+    const p5Tokens = activeBroker === '5PAISA' ? instrumentTokens : [];
+    const growwTokens = activeBroker === 'GROWW' ? instrumentTokens : [];
 
     // ─── Initialize Hooks ───
     const kite = useKiteTicker({
@@ -37,24 +35,18 @@ export function useMarketTicker({
         enabled: enabled && activeBroker === "KITE",
     });
 
-    const upstox = useUpstoxTicker({
-        instrumentTokens: upstoxTokens,
-        mode: mode,
-        enabled: enabled && activeBroker === "UPSTOX",
-    });
-
     const dhan = useDhanTicker({
-        instrumentTokens: dhanTokens,
+        instrumentTokens: dhanTokens as any,
         enabled: enabled && activeBroker === "DHAN",
     });
 
     const angel = useAngelTicker({
-        instrumentTokens: angelTokens,
+        instrumentTokens: angelTokens as any,
         enabled: enabled && activeBroker === "ANGEL",
     });
 
     const fyers = useFyersTicker({
-        instrumentTokens: fyersTokens,
+        instrumentTokens: fyersTokens as any,
         enabled: enabled && activeBroker === "FYERS",
     });
 
@@ -71,7 +63,6 @@ export function useMarketTicker({
     });
 
     // ─── Return Active Ticker State ───
-    if (activeBroker === "UPSTOX") return { status: upstox.status, disconnect: () => { } };
     if (activeBroker === "DHAN") return { status: dhan.status, disconnect: () => { } };
     if (activeBroker === "ANGEL") return { status: angel.status, disconnect: () => { } };
     if (activeBroker === "FYERS") return { status: fyers.status, disconnect: () => { } };

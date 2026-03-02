@@ -148,18 +148,6 @@ export const SettingsDialog = () => {
                                             </button>
                                         </div>
 
-                                        <div className="p-4 border border-border bg-muted/20 rounded-lg flex items-center justify-between opacity-50 cursor-not-allowed">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded bg-[#5b2c6f] flex items-center justify-center font-bold text-white">U</div>
-                                                <div>
-                                                    <div className="text-sm font-bold text-foreground">Upstox</div>
-                                                    <div className="text-xs text-muted-foreground">Coming soon</div>
-                                                </div>
-                                            </div>
-                                            <button className="px-4 py-2 bg-muted border border-border text-muted-foreground text-xs font-bold rounded-md cursor-not-allowed">
-                                                Connect
-                                            </button>
-                                        </div>
                                     </div>
                                 </Section>
                             </div>

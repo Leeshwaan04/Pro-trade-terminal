@@ -23,6 +23,7 @@ import { WhaleSonarWidget } from "@/components/trading/WhaleSonarWidget";
 import { HyperChartWidget } from "@/components/charts/HyperChartWidget";
 import { MultiStrikeOIWidget } from "@/components/trading/MultiStrikeOIWidget";
 import { FiiDiiWidget } from "@/components/trading/FiiDiiWidget";
+import { GTTManager } from "@/components/trading/GTTManager";
 
 export const LayoutManager = () => {
     // Hydration fix for zustand persist
@@ -237,6 +238,7 @@ export const LayoutManager = () => {
                         {targetWidget.type === "PAYOFF_DIAGRAM" && <PayoffDiagram />}
                         {targetWidget.type === "OI_ANALYSIS" && <MultiStrikeOIWidget symbol={targetWidget.symbol || "NIFTY 50"} />}
                         {targetWidget.type === "FII_DII" && <FiiDiiWidget />}
+                        {targetWidget.type === "GTT_MANAGER" && <GTTManager />}
                     </WidgetContainer>
                 </div>
             );
@@ -385,6 +387,7 @@ export const LayoutManager = () => {
                                     {widgetConfig.type === "HYPER_CHART" && <HyperChartWidget symbol={widgetConfig.symbol || "NIFTY 50"} />}
                                     {widgetConfig.type === "OI_ANALYSIS" && <MultiStrikeOIWidget symbol={widgetConfig.symbol || "NIFTY 50"} />}
                                     {widgetConfig.type === "FII_DII" && <FiiDiiWidget />}
+                                    {widgetConfig.type === "GTT_MANAGER" && <GTTManager />}
                                 </WidgetContainer>
                             </SortableWidget>
                         );

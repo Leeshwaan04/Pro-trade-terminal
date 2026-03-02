@@ -15,7 +15,8 @@ export type WidgetType =
     | "HYPER_CHART"
     | "OI_ANALYSIS"
     | "DOM"
-    | "FII_DII";
+    | "FII_DII"
+    | "GTT_MANAGER";
 
 // ... (existing constants) ...
 

@@ -40,22 +40,27 @@ export const ChartHeader = ({ symbol, interval, onIntervalChange }: ChartHeaderP
 
             {/* Timeframes */}
             <div className="flex items-center gap-1">
-                {["1m", "5m", "15m", "1H", "4H", "D"].map(tf => (
-                    <HeaderButton
-                        key={tf}
-                        label={tf}
-                        active={interval === tf}
-                        onClick={() => onIntervalChange(tf)}
-                        className={interval === tf ? "text-[#00E5FF]" : ""}
-                    />
-                ))}
-                <HeaderButton icon={ChevronDown} className="px-1" />
+                {["1 minute", "2 minute", "3 minute", "5 minute", "10 minute", "15 minute", "30 minute", "60 minute", "day"].map(tf => {
+                    const labelMap: Record<string, string> = {
+                        "1 minute": "1m", "2 minute": "2m", "3 minute": "3m", "5 minute": "5m",
+                        "10 minute": "10m", "15 minute": "15m", "30 minute": "30m", "60 minute": "1h", "day": "D"
+                    };
+                    return (
+                        <HeaderButton
+                            key={tf}
+                            label={labelMap[tf]}
+                            active={interval === tf}
+                            onClick={() => onIntervalChange(tf)}
+                            className={interval === tf ? "text-[#00E5FF] font-bold" : ""}
+                        />
+                    );
+                })}
             </div>
 
             <div className="h-6 w-[1px] bg-white/10 mx-2" />
 
             {/* Chart Types */}
-            <HeaderButton icon={BarChart2} label="Candles" />
+            <HeaderButton icon={BarChart2} label="Candle" />
 
             {/* Indicators */}
             <HeaderButton icon={Zap} label="Indicators" className="text-[#00E5FF]" />

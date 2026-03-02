@@ -101,9 +101,11 @@ interface OrderState {
     updatePositionLTP: (symbol: string, ltp: number) => void;
     closePosition: (symbol: string, price: number) => void;
     updateOrderLinePrice: (lineId: string, newPrice: number) => void;
+    commitOrderLinePrice: (lineId: string) => Promise<void>;
     // Advanced Execution
     placeBracketOrder: (order: Omit<Order, 'id' | 'status' | 'timestamp'>, slPrice: number, tpPrice: number) => void;
     updateOrder: (orderId: string, updates: Partial<Order>) => void;
+    modifyOrder: (orderId: string, updates: { price?: number; qty?: number; triggerPrice?: number }) => Promise<void>;
     // Institutional Blitz
     executeBlitz: (orderParams: Omit<Order, 'id' | 'status' | 'timestamp'>, config: BlitzConfig) => void;
 }
@@ -436,6 +438,45 @@ export const useOrderStore = create<OrderState>()(
                 }
             },
 
+            modifyOrder: async (orderId, updates) => {
+                const { orders } = get();
+                const order = orders.find(o => o.id === orderId);
+                if (!order) return;
+
+                try {
+                    console.info(`[EXECUTION] Modifying Order ${orderId} -> Price: ${updates.price}, Qty: ${updates.qty}`);
+
+                    const response = await fetch('/api/orders/modify', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            order_id: orderId,
+                            price: updates.price,
+                            quantity: updates.qty,
+                            trigger_price: updates.triggerPrice,
+                            order_type: order.orderType
+                        })
+                    });
+
+                    const json = await response.json();
+                    if (!response.ok || json.status !== 'success') {
+                        throw new Error(json.error || json.message || 'Modification failed');
+                    }
+
+                    // Success: Update local state
+                    set((state) => ({
+                        orders: state.orders.map(o => o.id === orderId ? { ...o, ...updates } : o),
+                        activeOrderLines: state.activeOrderLines.map(l =>
+                            l.linkedOrderId === orderId ? { ...l, price: updates.price ?? l.price, qty: updates.qty ?? l.qty } : l
+                        )
+                    }));
+                } catch (error: any) {
+                    console.error("Order Modification Failed:", error);
+                    // Revert UI state if needed, or alert user
+                    alert(`🚨 Failed to modify order\n\nReason: ${error.message}`);
+                }
+            },
+
             updatePositionLTP: (symbol: string, ltp: number) => set((state) => {
                 const newPositions = state.positions.map(p => {
                     if (p.symbol === symbol) {
@@ -496,12 +537,19 @@ export const useOrderStore = create<OrderState>()(
                 }
             },
 
-            // ─── Order Line Management ───────────────────────
             updateOrderLinePrice: (lineId: string, newPrice: number) => set((state) => ({
                 activeOrderLines: state.activeOrderLines.map(l =>
                     l.id === lineId ? { ...l, price: Math.round(newPrice * 100) / 100 } : l
                 ),
             })),
+
+            commitOrderLinePrice: async (lineId) => {
+                const { activeOrderLines, modifyOrder } = get();
+                const line = activeOrderLines.find(l => l.id === lineId);
+                if (line && line.draggable && line.linkedOrderId) {
+                    await modifyOrder(line.linkedOrderId, { price: line.price });
+                }
+            },
 
             removeOrderLine: (lineId: string) => set((state) => ({
                 activeOrderLines: state.activeOrderLines.filter(l => l.id !== lineId),

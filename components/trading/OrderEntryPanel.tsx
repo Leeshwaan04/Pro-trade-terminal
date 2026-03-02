@@ -26,13 +26,18 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
     const lastSubmitTimeRef = React.useRef(0);
 
     const { activeBroker } = useAuthStore();
-    const { tickers } = useMarketStore();
+    const { tickers, unifiedMargin } = useMarketStore();
+    const { marginAvailable } = useOrderStore();
     const { toast } = useToast();
 
     const currentTicker = tickers[symbol];
     const ltp = currentTicker?.last_price || parseFloat(price);
     const change = currentTicker?.change_percent || 0;
     const isUp = change >= 0;
+
+    // Simple Margin Calculation: Qty * Price * Margin Factor
+    const marginFactor = product === "MIS" ? 0.2 : 1.0;
+    const requiredMargin = parseInt(qty || "0") * ltp * marginFactor;
 
     const handleOrderSubmit = async () => {
         const now = Date.now();
@@ -306,12 +311,19 @@ export const OrderEntryPanel = ({ symbol = "NIFTY 50" }: { symbol?: string }) =>
                     </div>
                     <div className="p-2 space-y-0.5">
                         <div className="flex justify-between items-center text-[10px]">
-                            <span className="text-muted-foreground font-bold uppercase tracking-widest text-[8px]">Total</span>
-                            <span className="font-mono font-bold text-foreground tabular-nums tracking-tighter">₹7,260.00</span>
+                            <span className="text-muted-foreground font-bold uppercase tracking-widest text-[8px]">Total Required</span>
+                            <span className={cn(
+                                "font-mono font-bold tabular-nums tracking-tighter",
+                                requiredMargin > marginAvailable ? "text-down" : "text-foreground"
+                            )}>
+                                ₹{requiredMargin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
                         </div>
                         <div className="flex justify-between items-center text-[9px] text-zinc-600">
-                            <span className="uppercase tracking-widest font-bold text-[7px]">Available</span>
-                            <span className="font-mono tabular-nums font-bold tracking-tighter">₹2,45,000.00</span>
+                            <span className="uppercase tracking-widest font-bold text-[7px]">Current Available</span>
+                            <span className="font-mono tabular-nums font-bold tracking-tighter text-foreground">
+                                ₹{marginAvailable.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
                         </div>
                     </div>
                 </div>

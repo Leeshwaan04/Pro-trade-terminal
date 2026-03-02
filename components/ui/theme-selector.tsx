@@ -19,28 +19,28 @@ const themes = [
         value: "antigravity",
         color: "#00e5ff",
         bg: "#030508",
-        desc: "Deep Space Neon (Default)"
+        desc: "Neural High-Contrast"
     },
     {
-        name: "Groww Classic",
+        name: "Classic Green",
         value: "groww",
         color: "#22c55e",
         bg: "#080a0c",
-        desc: "Investing Green"
+        desc: "Institutional Standard"
     },
     {
-        name: "Midnight Protocol",
+        name: "Midnight OLED",
         value: "midnight",
         color: "#94a3b8",
         bg: "#000000",
-        desc: "OLED Pitch Black"
+        desc: "Deep Black Efficiency"
     },
     {
-        name: "Light Mode",
+        name: "Professional Light",
         value: "light",
         color: "#0284c7",
         bg: "#ffffff",
-        desc: "Corporate Slate"
+        desc: "Clean Corporate Mode"
     }
 ];
 
@@ -75,7 +75,7 @@ export function ThemeSelector({ className }: { className?: string }) {
             <DropdownMenuContent align="end" className="w-56 bg-background/90 backdrop-blur-xl border-border/20">
                 <DropdownMenuLabel className="text-xs font-black tracking-widest uppercase text-muted-foreground flex items-center gap-2">
                     <Settings2 className="w-3.5 h-3.5" />
-                    Neural Engine
+                    Interface Style
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-border/10" />
                 {themes.map((t) => (

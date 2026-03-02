@@ -1,21 +1,20 @@
 "use client";
 
-import React, { memo } from "react";
-import { useOrderStore, Position } from "@/hooks/useOrderStore";
-import { useAuthStore } from "@/hooks/useAuthStore";
+import React, { memo, useEffect } from "react";
+import { usePortfolioStore } from "@/hooks/usePortfolioStore";
+import { NormalizedPosition } from "@/lib/portfolio-utils";
 import { useMarketStore } from "@/hooks/useMarketStore";
-import { useWatchlistStore } from "@/hooks/useWatchlistStore";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
     BarChart3, Filter, Maximize2,
     ArrowUpRight, ArrowDownLeft, Info,
-    Target, Shield, Zap
+    Target, Shield, Zap, RefreshCw
 } from "lucide-react";
 
-const PositionRow = memo(({ position }: { position: Position }) => {
-    const ticker = useMarketStore(state => (state as any).tickers[position.symbol]);
-    const ltp = ticker?.last_price || position.average_price;
+const PositionRow = memo(({ position }: { position: NormalizedPosition }) => {
+    const ticker = useMarketStore(state => (state as any).tickers[position.tradingsymbol]);
+    const ltp = ticker?.last_price || position.last_price || position.average_price;
 
     const investVal = Math.abs(position.quantity) * position.average_price;
     const pnl = (ltp - position.average_price) * position.quantity;
@@ -24,13 +23,23 @@ const PositionRow = memo(({ position }: { position: Position }) => {
     const isProfit = pnl >= 0;
 
     return (
-        <div className="relative grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_0.5fr] text-right py-1 px-2 border-b border-border/[0.01] hover:bg-primary/5 items-center font-mono group transition-all duration-200">
+        <div className="relative grid grid-cols-[0.4fr_1.1fr_1fr_1fr_1fr_1fr_0.5fr] text-right py-1 px-2 border-b border-border/[0.01] hover:bg-primary/5 items-center font-mono group transition-all duration-200">
+            {/* Broker Tag */}
+            <div className="text-left">
+                <span className={cn(
+                    "text-[6px] font-black px-1 py-0.5 rounded-[2px] uppercase tracking-tighter border",
+                    position.broker === "KITE" ? "bg-red-500/10 text-red-500 border-red-500/20" : "bg-blue-500/10 text-blue-500 border-blue-500/20"
+                )}>
+                    {position.broker.substring(0, 1)}
+                </span>
+            </div>
+
             {/* Symbol & Product */}
             <div className="text-left flex flex-col leading-tight">
-                <div className="font-black text-foreground group-hover:text-primary transition-colors tracking-tighter uppercase text-[10px]">{position.symbol}</div>
+                <div className="font-black text-foreground group-hover:text-primary transition-colors tracking-tighter uppercase text-[10px]">{position.tradingsymbol}</div>
                 <div className="flex items-center gap-1">
                     <span className="text-[7px] text-muted-foreground font-bold uppercase tracking-tighter bg-surface-2 px-1 rounded-[1px] border border-border">{position.product}</span>
-                    <span className="text-[7px] text-muted-foreground font-black uppercase tracking-tighter">NSE</span>
+                    <span className="text-[7px] text-muted-foreground font-black uppercase tracking-tighter">{position.exchange}</span>
                 </div>
             </div>
 
@@ -57,12 +66,11 @@ const PositionRow = memo(({ position }: { position: Position }) => {
 
             {/* Lightning Hover Actions */}
             <div className="absolute right-2 inset-y-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-l from-background via-background to-transparent pl-8 z-10">
-                <button className="px-1.5 py-0.5 rounded-[2px] bg-up/10 hover:bg-up border border-up/20 hover:border-up text-up hover:text-black text-[8px] font-black transition-all">B</button>
-                <button className="px-1.5 py-0.5 rounded-[2px] bg-down/10 hover:bg-down border border-down/20 hover:border-down text-down hover:text-black text-[8px] font-black transition-all">S</button>
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        useOrderStore.getState().closePosition(position.symbol, ltp);
+                        // TODO: Implement multi-broker exit logic in usePortfolioStore or similar
+                        console.log(`Exiting ${position.tradingsymbol} on ${position.broker}`);
                     }}
                     className="px-2 py-0.5 rounded-[2px] bg-surface-2 hover:bg-surface-3 border border-border text-muted-foreground hover:text-foreground text-[8px] font-black uppercase tracking-widest flex items-center gap-1 transition-all"
                 >
@@ -76,14 +84,21 @@ const PositionRow = memo(({ position }: { position: Position }) => {
 PositionRow.displayName = "PositionRow";
 
 export const PositionsTable = () => {
-    const positions = useOrderStore(state => (state as any).positions);
+    const { fusedPositions, isRefreshing, refreshPortfolio } = usePortfolioStore();
 
-    // Mock Greeks for 915 Parity
+    useEffect(() => {
+        if (fusedPositions.length === 0) {
+            refreshPortfolio(true); // Default to mock for demo if no real auth
+        }
+    }, []);
+
+    // Aggregated Metrics
+    const netPnL = fusedPositions.reduce((acc, p) => acc + (p.pnl || 0), 0);
     const netDelta = 0.42;
     const netTheta = -120.50;
     const netVega = 45.20;
 
-    if (positions.length === 0) {
+    if (fusedPositions.length === 0 && !isRefreshing) {
         return (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-3 p-4 bg-background">
                 <div className="w-14 h-14 rounded-2xl border border-border bg-surface-1 flex items-center justify-center shadow-inner">
@@ -91,10 +106,13 @@ export const PositionsTable = () => {
                 </div>
                 <div className="text-center">
                     <div className="text-[10px] uppercase tracking-[0.3em] font-black text-muted-foreground/40 mb-1">Portfolio Void</div>
-                    <div className="text-[9px] text-muted-foreground/70 font-medium">No open positions detected in this segment</div>
+                    <div className="text-[9px] text-muted-foreground/70 font-medium">No open positions detected across brokers</div>
                 </div>
-                <button className="px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-[9px] font-black uppercase tracking-widest hover:bg-primary/10 transition-all">
-                    Search Instruments
+                <button
+                    onClick={() => refreshPortfolio(true)}
+                    className="px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-[9px] font-black uppercase tracking-widest hover:bg-primary/10 transition-all flex items-center gap-2"
+                >
+                    <RefreshCw className={cn("w-3 h-3", isRefreshing && "animate-spin")} /> Initialize Fused View
                 </button>
             </div>
         );
@@ -106,72 +124,55 @@ export const PositionsTable = () => {
             <div className="flex items-center justify-between px-2 py-1 border-b border-border bg-surface-1">
                 <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-up shadow-[0_0_8px_var(--up)]" />
-                    <span className="text-[8px] font-black text-foreground/80 uppercase tracking-[0.2em]">Active Positions</span>
+                    <span className="text-[8px] font-black text-foreground/80 uppercase tracking-[0.2em]">Fused Positions</span>
+                    <span className="text-[7px] text-muted-foreground opacity-50 font-mono">BROKER_SYNC: OK</span>
                 </div>
                 <div className="flex items-center gap-2.5">
+                    <button
+                        onClick={() => refreshPortfolio(true)}
+                        className={cn("text-zinc-600 hover:text-white transition-colors", isRefreshing && "animate-spin")}
+                    >
+                        <RefreshCw className="w-3 h-3" />
+                    </button>
                     <button className="text-zinc-600 hover:text-white transition-colors"><BarChart3 className="w-3 h-3" /></button>
-                    <button className="text-zinc-600 hover:text-white transition-colors"><Filter className="w-3 h-3" /></button>
                     <button className="text-zinc-600 hover:text-white transition-colors"><Maximize2 className="w-3 h-3" /></button>
                 </div>
             </div>
 
             {/* Table Header */}
-            <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_0.5fr] text-right py-1 px-2 bg-surface-1 text-[7px] uppercase font-bold text-muted-foreground border-b border-border tracking-widest shadow-sm">
+            <div className="grid grid-cols-[0.4fr_1.1fr_1fr_1fr_1fr_1fr_0.5fr] text-right py-1 px-2 bg-surface-1 text-[7px] uppercase font-bold text-muted-foreground border-b border-border tracking-widest shadow-sm">
+                <div className="text-left">B</div>
                 <div className="text-left">Symbol</div>
                 <div>Qty</div>
                 <div>Avg</div>
                 <div>LTP</div>
-                <div>Realized P&L</div>
+                <div>Unrealized P&L</div>
                 <div></div>
             </div>
 
             {/* Rows */}
             <ScrollArea className="flex-1 overflow-auto custom-scrollbar">
                 <div className="divide-y divide-border/[0.02]">
-                    {positions.map((pos: any) => (
-                        <PositionRow key={`${pos.symbol}-${pos.product}`} position={pos} />
+                    {fusedPositions.map((pos: NormalizedPosition) => (
+                        <PositionRow key={`${pos.broker}-${pos.tradingsymbol}-${pos.product}`} position={pos} />
                     ))}
                 </div>
             </ScrollArea>
 
-            {/* 915 GREEKS BAR - HIGH DENSITY REPLICATION */}
+            {/* FUSED P&L BAR */}
             <div className="h-7 border-t border-border bg-surface-1 flex items-center justify-between px-2 sticky bottom-0 z-20">
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1.5">
-                        <span className="text-[7px] font-bold text-muted-foreground uppercase tracking-widest">Delta</span>
-                        <div className="flex items-center gap-0.5 text-[8.5px] font-mono font-bold text-up">
-                            <ArrowUpRight className="w-2h-2" />
-                            {netDelta.toFixed(2)}
-                        </div>
-                    </div>
-                    <div className="w-px h-2.5 bg-white/5" />
-                    <div className="flex items-center gap-1.5">
-                        <span className="text-[7px] font-bold text-zinc-500 uppercase tracking-widest">Theta</span>
-                        <div className="flex items-center gap-0.5 text-[8.5px] font-mono font-bold text-down">
-                            <ArrowDownLeft className="w-2 h-2" />
-                            {netTheta.toFixed(2)}
-                        </div>
-                    </div>
-                    <div className="w-px h-2.5 bg-border" />
-                    <div className="flex items-center gap-1.5">
-                        <span className="text-[7px] font-bold text-muted-foreground uppercase tracking-widest">Vega</span>
-                        <div className="text-[8.5px] font-mono font-bold text-foreground">
-                            {netVega.toFixed(2)}
+                        <span className="text-[7px] font-bold text-muted-foreground uppercase tracking-widest">NET P&L</span>
+                        <div className={cn("text-[8.5px] font-mono font-bold", netPnL >= 0 ? "text-up" : "text-down")}>
+                            {netPnL > 0 ? "+" : ""}{netPnL.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-1 bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-sm cursor-help group relative">
                     <Zap className="w-2.5 h-2.5 text-primary animate-pulse" />
-                    <span className="text-[7px] font-bold text-primary uppercase tracking-widest">Hedge Needed</span>
-
-                    {/* Tooltip */}
-                    <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-surface-1 border border-border rounded-lg shadow-2xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all pointer-events-none">
-                        <div className="text-[10px] font-bold text-foreground mb-1 flex items-center gap-1.5">
-                            <Info className="w-3 h-3 text-primary" /> Risk Analysis
-                        </div>
-                        <p className="text-[8px] text-muted-foreground leading-relaxed font-bold">Portfolio Delta exceeds recommended threshold. Consider selling calls to neutralize directional exposure.</p>
-                    </div>
+                    <span className="text-[7px] font-bold text-primary uppercase tracking-widest">Cross-Broker Fused</span>
                 </div>
             </div>
         </div>

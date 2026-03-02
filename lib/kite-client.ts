@@ -38,7 +38,7 @@ export interface KiteResponse<T = any> {
 }
 
 // ─── Helper ──────────────────────────────────────────────────
-async function kiteRequest<T = any>(
+export async function kiteRequest<T = any>(
     path: string,
     apiKey: string,
     accessToken: string,
@@ -177,6 +177,31 @@ export async function cancelOrder(
     return res.data;
 }
 
+export async function modifyOrder(
+    apiKey: string,
+    accessToken: string,
+    orderId: string,
+    params: Partial<KiteOrderParams> & { variety?: string }
+): Promise<{ order_id: string }> {
+    const variety = params.variety || "regular";
+    const body = new URLSearchParams();
+
+    if (params.quantity) body.set("quantity", String(params.quantity));
+    if (params.price) body.set("price", String(params.price));
+    if (params.trigger_price) body.set("trigger_price", String(params.trigger_price));
+    if (params.order_type) body.set("order_type", params.order_type);
+    if (params.validity) body.set("validity", params.validity);
+    if (params.disclosed_quantity) body.set("disclosed_quantity", String(params.disclosed_quantity));
+
+    const res = await kiteRequest<{ order_id: string }>(
+        `/orders/${variety}/${orderId}`,
+        apiKey,
+        accessToken,
+        { method: "PUT", body }
+    );
+    return res.data;
+}
+
 export async function getOrders(
     apiKey: string,
     accessToken: string
@@ -201,6 +226,20 @@ export async function placeGTTOrder(
         apiKey,
         accessToken,
         { method: "POST", body }
+    );
+    return res.data;
+}
+
+export async function cancelGTTOrder(
+    apiKey: string,
+    accessToken: string,
+    triggerId: string
+): Promise<{ trigger_id: string }> {
+    const res = await kiteRequest<{ trigger_id: string }>(
+        `/gtt/triggers/${triggerId}`,
+        apiKey,
+        accessToken,
+        { method: "DELETE" }
     );
     return res.data;
 }
@@ -259,10 +298,8 @@ export async function getMargins(
 export async function getQuote(
     apiKey: string,
     accessToken: string,
-    instruments: string[] // e.g. ["NSE:NIFTY 50", "BSE:SENSEX"] or instrument_tokens
+    instruments: string[]
 ): Promise<Record<string, any>> {
-    // If instruments are tokens (numbers), passed as strings, use i= format
-    // Kite API expects `i=NSE:INFY&i=BSE:INFY` format
     const params = instruments.map(i => `i=${i}`).join("&");
     const res = await kiteRequest<Record<string, any>>(
         `/quote?${params}`,

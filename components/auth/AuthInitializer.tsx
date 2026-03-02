@@ -58,32 +58,6 @@ export const AuthInitializer = () => {
             }
         }
 
-        // Check for Upstox payload
-        const rawUpstox = getCookie("upstox_auth_payload");
-        if (rawUpstox) {
-            try {
-                const payload = JSON.parse(rawUpstox);
-                // Map Upstox user to KiteUser shape for compatibility
-                const mappedUser = {
-                    user_id: payload.user_id,
-                    user_name: payload.user_name,
-                    user_shortname: payload.user_name.split(" ")[0],
-                    email: payload.email,
-                    broker: "UPSTOX",
-                    exchanges: ["NSE", "BSE", "MCX"],
-                    products: ["CNC", "MIS", "NRML"],
-                    order_types: ["MARKET", "LIMIT", "SL", "SL-M"],
-                    login_time: new Date().toISOString(),
-                };
-
-                // Use a dummy token for now since access_token is httpOnly
-                // The actual token for API calls is handled via cookies
-                setSession(mappedUser as any, "dummy_token", "dummy_token");
-                setBroker("UPSTOX");
-            } catch (e) {
-                console.warn("Failed to parse upstox_auth_payload cookie:", e);
-            }
-        }
 
         // Clean up auth query params from URL
         const url = new URL(window.location.href);

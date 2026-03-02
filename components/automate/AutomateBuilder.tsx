@@ -2,7 +2,9 @@
 
 import React, { useState } from "react";
 import { useRuleEngineStore, Condition, Action, AdvancedRule, IndicatorType, Operator, ActionType } from "@/hooks/useRuleEngineStore";
-import { Plus, Trash2, Save, Play, Clock, Activity, DollarSign } from "lucide-react";
+import { Plus, Trash2, Save, Play, Clock, Activity, DollarSign, RotateCcw, BarChart2 } from "lucide-react";
+import { BacktestResults } from "./BacktestResults";
+import { cn } from "@/lib/utils";
 
 export const AutomateBuilder = () => {
     const addRule = useRuleEngineStore(s => s.addRule);
@@ -10,6 +12,8 @@ export const AutomateBuilder = () => {
     const [name, setName] = useState("New Strategy");
     const [conditions, setConditions] = useState<Condition[]>([]);
     const [actions, setActions] = useState<Action[]>([]);
+    const [isBacktesting, setIsBacktesting] = useState(false);
+    const [backtestData, setBacktestData] = useState<any>(null);
 
     const addCondition = () => {
         setConditions([...conditions, {
@@ -55,6 +59,31 @@ export const AutomateBuilder = () => {
         setName("New Strategy");
         setConditions([]);
         setActions([]);
+        setBacktestData(null);
+    };
+
+    const handleBacktest = async () => {
+        setIsBacktesting(true);
+        setBacktestData(null);
+        try {
+            const res = await fetch("/api/backtest", {
+                method: "POST",
+                body: JSON.stringify({
+                    rule: { name, conditions, actions },
+                    symbol: "NIFTY"
+                })
+            });
+            const json = await res.json();
+            if (json.status === "success") {
+                setBacktestData(json.data);
+            } else {
+                alert(json.error || "Backtest failed");
+            }
+        } catch (err: any) {
+            alert(err.message);
+        } finally {
+            setIsBacktesting(false);
+        }
     };
 
     return (
@@ -66,13 +95,23 @@ export const AutomateBuilder = () => {
                     </h2>
                     <p className="text-xs text-muted-foreground">Design rule-based algorithmic strategies.</p>
                 </div>
-                <button
-                    onClick={handleSave}
-                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded font-bold text-sm transition-all"
-                >
-                    <Save className="w-4 h-4" />
-                    Save Strategy
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={handleBacktest}
+                        disabled={isBacktesting || conditions.length === 0}
+                        className="flex items-center gap-2 px-4 py-2 bg-surface-2 hover:bg-surface-3 border border-border text-foreground rounded font-bold text-sm transition-all disabled:opacity-50"
+                    >
+                        {isBacktesting ? <RotateCcw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                        Run Backtest
+                    </button>
+                    <button
+                        onClick={handleSave}
+                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded font-bold text-sm transition-all"
+                    >
+                        <Save className="w-4 h-4" />
+                        Save Strategy
+                    </button>
+                </div>
             </div>
 
             {/* Strategy Name */}
@@ -248,6 +287,33 @@ export const AutomateBuilder = () => {
                     </div>
                 </div>
             </div>
+
+            {/* BACKTEST SECTION */}
+            {backtestData ? (
+                <div className="mt-4 border-t border-border pt-8">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex flex-col">
+                            <h3 className="text-lg font-black uppercase text-foreground flex items-center gap-2 tracking-tighter">
+                                <BarChart2 className="w-5 h-5 text-primary" />
+                                Strategy Analytics Result
+                            </h3>
+                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest opacity-60">Performance based on 500 historical M1 candles</span>
+                        </div>
+                        <button
+                            onClick={() => setBacktestData(null)}
+                            className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                            [ Clear Report ]
+                        </button>
+                    </div>
+                    <BacktestResults data={backtestData} />
+                </div>
+            ) : isBacktesting ? (
+                <div className="flex-1 flex flex-col items-center justify-center py-20 animate-pulse">
+                    <div className="w-16 h-16 rounded-full border-2 border-primary/20 border-t-primary animate-spin mb-4" />
+                    <span className="text-sm font-black text-muted-foreground uppercase tracking-widest">Simulating Strategy...</span>
+                </div>
+            ) : null}
         </div>
     );
 };

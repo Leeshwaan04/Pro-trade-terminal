@@ -40,8 +40,8 @@ interface AuthState {
 
     // ─── Broker Selection ────────────────────────────────────
     // ─── Broker Selection ────────────────────────────────────
-    activeBroker: "KITE" | "GROWW" | "UPSTOX" | "DHAN" | "ANGEL" | "FYERS" | "5PAISA";
-    setBroker: (broker: "KITE" | "GROWW" | "UPSTOX" | "DHAN" | "ANGEL" | "FYERS" | "5PAISA") => void;
+    activeBroker: "KITE" | "GROWW" | "DHAN" | "ANGEL" | "FYERS" | "5PAISA";
+    setBroker: (broker: "KITE" | "GROWW" | "DHAN" | "ANGEL" | "FYERS" | "5PAISA") => void;
 
     // ─── Actions ─────────────────────────────────────────────
     setSession: (user: UnifiedUser, accessToken: string, publicToken: string) => void;

@@ -7,64 +7,64 @@
 :root,
 .antigravity {
   /* 
-     ANTIGRAVITY THEME (Default)
+     ANTIGRAVITY THEME (Neural High-Contrast)
      Deep Space Absolute Black w/ Neon Accents
   */
   --background: #030508;
-  --foreground: #d1d5db;
+  --foreground: #f0f4f8;
 
   --card: #0c0f13;
-  --card-foreground: #d1d5db;
+  --card-foreground: #f0f4f8;
 
   --popover: #0c0f13;
-  --popover-foreground: #d1d5db;
+  --popover-foreground: #f0f4f8;
 
   --primary: #00e5ff;
   --primary-foreground: #000000;
 
   --secondary: #181c22;
-  --secondary-foreground: #a1a1aa;
+  --secondary-foreground: #cbd5e1;
 
-  --muted: #181c22;
-  --muted-foreground: #71717a;
+  --muted: #11141a;
+  --muted-foreground: #64748b;
 
   --accent: #1e2228;
-  --accent-foreground: #e4e4e7;
+  --accent-foreground: #ffffff;
 
-  --destructive: #ff003c;
+  --destructive: #ff0055;
   --destructive-foreground: #ffffff;
 
-  --border: rgba(255, 255, 255, 0.05);
-  --input: #181c22;
-  --ring: rgba(0, 229, 255, 0.4);
+  --border: rgba(255, 255, 255, 0.08);
+  --input: #11141a;
+  --ring: #00e5ff80;
 
-  --radius: 0.25rem;
+  --radius: 0.5rem;
 
-  --up: #00ff66;
-  --down: #ff003c;
-  --up-muted: rgba(0, 255, 102, 0.15);
-  --down-muted: rgba(255, 0, 60, 0.15);
+  --up: #00ff88;
+  --down: #ff0055;
+  --up-muted: rgba(0, 255, 136, 0.1);
+  --down-muted: rgba(255, 0, 85, 0.1);
 
   --surface-0: #030508;
   --surface-1: #0c0f13;
-  --surface-2: #111318;
+  --surface-2: #12151b;
   --surface-3: #181c22;
-  --surface-4: #1e2228;
+  --surface-4: #21262d;
 
   --chart-bg: #030508;
-  --chart-grid: rgba(255, 255, 255, 0.02);
-  --chart-crosshair: rgba(0, 229, 255, 0.4);
+  --chart-grid: rgba(255, 255, 255, 0.03);
+  --chart-crosshair: #00e5ff80;
   --chart-watermark: rgba(255, 255, 255, 0.01);
-  --chart-volume-bull: rgba(0, 255, 102, 0.2);
-  --chart-volume-bear: rgba(255, 0, 60, 0.2);
+  --chart-volume-bull: rgba(0, 255, 136, 0.2);
+  --chart-volume-bear: rgba(255, 0, 85, 0.2);
 
   --order-entry-buy: #00e5ff;
-  --order-entry-sell: #ff003c;
-  --order-label-bg: rgba(3, 5, 8, 0.9);
+  --order-entry-sell: #ff0055;
+  --order-label-bg: rgba(3, 5, 8, 0.95);
 
-  --glass-blur: 24px;
+  --glass-blur: 32px;
   --neon-cyan: #00e5ff;
-  --neon-purple: #b400ff;
+  --neon-purple: #bd00ff;
 }
 
 .groww {
@@ -72,7 +72,7 @@
      GROWW 915 THEME 
      Softer dark panel with solid green/red investing colors.
   */
-  --background: #080a0c;
+  --background: #0a0d10;
   --foreground: #d1d5db;
 
   --card: #121418;
@@ -81,14 +81,14 @@
   --popover: #121418;
   --popover-foreground: #d1d5db;
 
-  --primary: #22c55e;
+  --primary: #00d09c;
   --primary-foreground: #000000;
 
-  --secondary: #1e2228;
-  --secondary-foreground: #a1a1aa;
+  --secondary: #1c2128;
+  --secondary-foreground: #94a3b8;
 
-  --muted: #1e2228;
-  --muted-foreground: #71717a;
+  --muted: #1c2128;
+  --muted-foreground: #64748b;
 
   --accent: #272a30;
   --accent-foreground: #e4e4e7;
@@ -147,7 +147,7 @@
   --secondary: #0f172a;
   --secondary-foreground: #cbd5e1;
 
-  --muted: #0f172a;
+  --muted: #0a0a0a;
   --muted-foreground: #64748b;
 
   --accent: #1e293b;
@@ -201,11 +201,11 @@
   --primary: #0284c7;
   --primary-foreground: #ffffff;
 
-  --secondary: #e2e8f0;
-  --secondary-foreground: #334155;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #475569;
 
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
+  --muted: #f8fafc;
+  --muted-foreground: #94a3b8;
 
   --accent: #e2e8f0;
   --accent-foreground: #0f172a;

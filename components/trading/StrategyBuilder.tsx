@@ -2,11 +2,62 @@
 
 import React from "react";
 import { useStrategyStore, StrategyLeg } from "@/hooks/useStrategyStore";
-import { X, Trash2, Shield, TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
+import { X, Trash2, Shield, TrendingUp, TrendingDown, ArrowRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 export const StrategyBuilder = () => {
     const { legs, removeLeg, updateLeg, clearStrategy } = useStrategyStore();
+    const { toast } = useToast();
+    const [executing, setExecuting] = React.useState(false);
+
+    const handleExecuteBasket = async () => {
+        if (legs.length === 0 || executing) return;
+
+        setExecuting(true);
+        try {
+            const orders = legs.map(leg => ({
+                exchange: leg.instrument.exchange === 'NFO' ? 'NFO' : 'NSE',
+                tradingsymbol: leg.instrument.tradingsymbol,
+                transaction_type: leg.side,
+                quantity: leg.quantity,
+                order_type: 'MARKET',
+                product: 'MIS',
+                price: 0
+            }));
+
+            const res = await fetch('/api/orders/multi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orders, tag: 'BASKET_STRATEGY' })
+            });
+
+            const json = await res.json();
+            if (json.status === 'success') {
+                toast({
+                    title: "Strategy Executed",
+                    description: `Successfully placed ${legs.length} legs.`,
+                });
+                clearStrategy();
+            } else if (json.status === 'partial') {
+                toast({
+                    title: "Partial Execution",
+                    description: `Success: ${json.data.summary.success}, Failed: ${json.data.summary.failed}`,
+                    variant: "destructive"
+                });
+            } else {
+                throw new Error(json.message || "Execution failed");
+            }
+        } catch (error: any) {
+            toast({
+                title: "Execution Error",
+                description: error.message,
+                variant: "destructive"
+            });
+        } finally {
+            setExecuting(false);
+        }
+    };
 
     if (legs.length === 0) {
         return (
@@ -103,9 +154,19 @@ export const StrategyBuilder = () => {
                     </span>
                 </div>
 
-                <button className="w-full bg-primary hover:bg-primary-light text-black font-black py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all group/btn shadow-[0_0_20px_rgba(0,229,255,0.2)]">
-                    EXECUTE BASKET
-                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                <button
+                    onClick={handleExecuteBasket}
+                    disabled={executing}
+                    className="w-full bg-primary hover:bg-primary-light text-black font-black py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all group/btn shadow-[0_0_20px_rgba(0,229,255,0.2)] disabled:opacity-50"
+                >
+                    {executing ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-black" />
+                    ) : (
+                        <>
+                            EXECUTE BASKET
+                            <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                        </>
+                    )}
                 </button>
             </div>
         </div >

@@ -2,6 +2,7 @@ import React from "react";
 import { Maximize2, X, ExternalLink } from "lucide-react";
 import { useLayoutStore } from "@/hooks/useLayoutStore";
 import { PopoutWindow } from "@/components/ui/PopoutWindow";
+import { TerminalErrorBoundary } from "@/components/layout/TerminalErrorBoundary";
 import { WidgetConfig } from "@/types/layout";
 import { cn } from "@/lib/utils";
 
@@ -55,7 +56,9 @@ export const WidgetContainer = ({
                             <div className="text-[8px] text-zinc-700 font-mono uppercase tracking-widest">External Window</div>
                         </div>
                         <div className="flex-1 overflow-hidden relative">
-                            {children}
+                            <TerminalErrorBoundary name={activeWidget.title}>
+                                {children}
+                            </TerminalErrorBoundary>
                         </div>
                     </div>
                 </PopoutWindow>
@@ -149,7 +152,9 @@ export const WidgetContainer = ({
                             </div>
                         </div>
                     ) : (
-                        children
+                        <TerminalErrorBoundary name={activeWidget.title}>
+                            {children}
+                        </TerminalErrorBoundary>
                     )}
                 </div>
             </div>

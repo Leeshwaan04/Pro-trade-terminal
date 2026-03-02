@@ -1,11 +1,11 @@
 /**
  * Universal Broker Types
- * Standardizes data structures across Kite, Upstox, Dhan, etc.
+ * Standardizes data structures across Kite, Dhan, etc.
  */
 
-export type BrokerID = "KITE" | "UPSTOX" | "DHAN" | "ANGEL";
+export type BrokerID = "KITE" | "GROWW" | "DHAN" | "ANGEL";
 
-export type BrokerType = "KITE" | "UPSTOX" | "DHAN" | "ANGEL" | "FYERS" | "5PAISA";
+export type BrokerType = "KITE" | "GROWW" | "DHAN" | "ANGEL" | "FYERS" | "5PAISA";
 
 export interface UniversalTick {
     symbol: string;         // Standardized symbol (e.g., "NIFTY 50")

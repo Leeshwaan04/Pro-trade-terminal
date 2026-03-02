@@ -3,10 +3,10 @@
 import React, { useState } from "react";
 import { ChartHeader } from "./ui/ChartHeader";
 import { ChartToolbar } from "./ui/ChartToolbar";
-import { HyperChartCanvas } from "./engine/HyperChartCanvas";
+import { KiteLiteChart } from "./KiteLiteChart";
 
 export const HyperChartWidget = ({ symbol = "NIFTY 50" }: { symbol?: string }) => {
-    const [interval, setInterval] = useState("15m");
+    const [interval, setInterval] = useState("15minute");
 
     return (
         <div className="flex flex-col h-full w-full bg-black text-white overflow-hidden">
@@ -22,19 +22,13 @@ export const HyperChartWidget = ({ symbol = "NIFTY 50" }: { symbol?: string }) =
                 {/* Left Toolbar */}
                 <ChartToolbar symbol={symbol} />
 
-                {/* Canvas Area */}
+                {/* Chart Area */}
                 <div className="flex-1 relative bg-black">
-                    {/* 
-                        Note: We need to pass 'activeTool' to the canvas engine 
-                        so it knows how to interpret mouse events. 
-                        For now, the Canvas just renders mock data.
-                        Future Step: Propagate 'activeTool' to 'ChartEngine'.
-                    */}
-                    <HyperChartCanvas symbol={symbol} />
+                    <KiteLiteChart symbol={symbol} interval={interval} />
 
-                    {/* Watermark (Optional) */}
+                    {/* Watermark */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[100px] font-black text-white/5 pointer-events-none select-none z-0">
-                        HYPER
+                        ZENG
                     </div>
                 </div>
             </div>

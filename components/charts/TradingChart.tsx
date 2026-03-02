@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { CustomCandlestickChart } from "./CustomCandlestickChart";
+import { KiteLiteChart } from "./KiteLiteChart";
 import { FloatingOrderTicket } from "@/components/trading/FloatingOrderTicket";
 import { ChartControls } from "./ChartControls";
 import { ChartToolbar } from "./ui/ChartToolbar";
@@ -73,14 +73,9 @@ export const TradingChart = ({ symbol, widgetId }: TradingChartProps) => {
 
                 {/* Custom Canvas Chart Engine */}
                 <div className="flex-1 relative min-h-0 overflow-hidden">
-                    <CustomCandlestickChart
+                    <KiteLiteChart
                         symbol={symbol}
                         interval={timeframe}
-                        chartType={chartType}
-                        showOIProfile={showOIProfile}
-                        isAutoMode={isAutoMode}
-                        setIsAutoMode={setIsAutoMode}
-                        magnetMode={magnetMode}
                     />
 
                     {/* Floating Order Ticket Overlay */}
